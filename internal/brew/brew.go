@@ -1,0 +1,89 @@
+package brew
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"os/exec"
+
+	"github.com/jozefcipa/novus/internal/logger"
+)
+
+func InstallBinaries() {
+	// First check that Homebrew is installed
+	brewExists := binExists("brew")
+	if !brewExists {
+		logger.Errorf("Novus requires Homebrew installed\n")
+		logger.Infof("You can get it on https://brew.sh/\n\n.")
+		os.Exit(1)
+	}
+
+	// Install required binaries
+	if exists := binExists("nginx"); !exists {
+		brewInstall("nginx")
+	}
+
+	if exists := binExists("dnsmasq"); !exists {
+		brewInstall("dnsmasq")
+	}
+
+	if exists := binExists("mkcert"); !exists {
+		brewInstall("mkcert")
+	}
+}
+
+func StartBrewService(svc string) {
+	cmd := exec.Command("brew", "services", "start", svc)
+	err := cmd.Run()
+	if err != nil {
+		logger.Errorf("Failed to start %s: %v", svc, err)
+		os.Exit(1)
+	}
+}
+
+func StopBrewService(svc string) {
+	cmd := exec.Command("brew", "services", "stop", svc)
+	err := cmd.Run()
+	if err != nil {
+		logger.Errorf("Failed to stop %s: %v", svc, err)
+		os.Exit(1)
+	}
+}
+
+func RestartBrewService(svc string) {
+	cmd := exec.Command("brew", "services", "restart", svc)
+	err := cmd.Run()
+	if err != nil {
+		logger.Errorf("Failed to restart %s: %v", svc, err)
+		os.Exit(1)
+	}
+}
+
+func brewInstall(bin string) {
+	logger.Messagef("⏳ Installing %s...\n", bin)
+
+	cmd := exec.Command("brew", "install", bin)
+	stdout, _ := cmd.StdoutPipe()
+	cmd.Start()
+
+	scanner := bufio.NewScanner(stdout)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		m := scanner.Text()
+		fmt.Println(m)
+	}
+	err := cmd.Wait()
+
+	if err != nil {
+		logger.Errorf("An error occurred while installing \"%s\".\n\n%+v", bin, err)
+		os.Exit(1)
+	}
+
+	logger.Successf("\n✅ %s installed\n", bin)
+}
+
+func binExists(bin string) bool {
+	_, err := exec.LookPath(bin)
+
+	return err == nil
+}
