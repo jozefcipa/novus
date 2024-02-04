@@ -28,13 +28,13 @@ func Configure(config config.NovusConfig) {
 
 	if nginxConf == "" || nginxConf != newNginxConf {
 		writeServerConfig(appName, newNginxConf)
-		// fmt.Println(newNginxConf) TODO show this when debug is enabled
-		logger.Messagef(" ✔ Routing configuration updated.\n")
+		logger.Debugf("New nginx config: \n\n%s", newNginxConf)
+		logger.Checkf("Routing configuration updated.")
 
 		// TODO: restart nginx
-		logger.Messagef(" ✔ Nginx reloaded.\n")
+		logger.Checkf("Nginx reloaded.")
 	} else {
-		logger.Messagef(" ✔ Nginx config is up to date.\n")
+		logger.Checkf("Nginx config is up to date.")
 	}
 
 	logger.Messagef("🚀 Starting routing...\n")
@@ -45,8 +45,12 @@ func Configure(config config.NovusConfig) {
 }
 
 func readServerConfig(app string) string {
-	file, err := os.ReadFile(fmt.Sprintf("%s/novus-%s.conf", nginxServersDir, app))
+	path := fmt.Sprintf("%s/novus-%s.conf", nginxServersDir, app)
+	logger.Debugf("Reading %s", path)
+
+	file, err := os.ReadFile(path)
 	if err != nil {
+		logger.Debugf("Error ocurred %v", err)
 		return ""
 	}
 
@@ -55,8 +59,10 @@ func readServerConfig(app string) string {
 
 func writeServerConfig(app string, serverConfig string) {
 	data := []byte(serverConfig)
+	path := fmt.Sprintf("%s/novus-%s.conf", nginxServersDir, app)
+	logger.Debugf("Writing %s", path)
 
-	err := os.WriteFile(fmt.Sprintf("%s/novus-%s.conf", nginxServersDir, app), data, 0644)
+	err := os.WriteFile(path, data, 0644)
 	if err != nil {
 		log.Fatalf("Failed to write into Nginx config: %v", err)
 	}

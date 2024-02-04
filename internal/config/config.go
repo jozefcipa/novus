@@ -27,6 +27,8 @@ func loadOrCreateFile() []byte {
 
 	file, err := os.ReadFile(cwd + "/" + configFileName)
 	if err != nil {
+		logger.Debugf("Configuration file not found. Creating one now.")
+
 		// if we didn't find config let's create one
 		err = createDefaultConfig()
 
@@ -45,7 +47,7 @@ func loadOrCreateFile() []byte {
 		os.Exit(0)
 	}
 
-	logger.Messagef(" ✔ Configuration file found.\n")
+	logger.Checkf("Configuration file found.")
 
 	return file
 }
@@ -72,10 +74,10 @@ func createDefaultConfig() error {
 }
 
 func (config *NovusConfig) validate() {
+	logger.Debugf("Validating configuration file")
 	// TODO: make sure the loaded file is in the expected format
 	// https://github.com/go-playground/validator
 	// Example: https://github.com/go-playground/validator/blob/master/_examples/simple/main.go
-	fmt.Println("[TODO] validating config")
 }
 
 func Load() NovusConfig {

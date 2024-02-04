@@ -33,7 +33,9 @@ func InstallBinaries() {
 }
 
 func StartBrewService(svc string) {
+	logger.Debugf("Running \"brew services start %s\"", svc)
 	cmd := exec.Command("brew", "services", "start", svc)
+
 	err := cmd.Run()
 	if err != nil {
 		logger.Errorf("Failed to start %s: %v", svc, err)
@@ -42,7 +44,9 @@ func StartBrewService(svc string) {
 }
 
 func StopBrewService(svc string) {
+	logger.Debugf("Running \"brew services stop %s\"", svc)
 	cmd := exec.Command("brew", "services", "stop", svc)
+
 	err := cmd.Run()
 	if err != nil {
 		logger.Errorf("Failed to stop %s: %v", svc, err)
@@ -51,7 +55,9 @@ func StopBrewService(svc string) {
 }
 
 func RestartBrewService(svc string) {
+	logger.Debugf("Running \"brew services restart %s\"", svc)
 	cmd := exec.Command("brew", "services", "restart", svc)
+
 	err := cmd.Run()
 	if err != nil {
 		logger.Errorf("Failed to restart %s: %v", svc, err)
@@ -61,6 +67,7 @@ func RestartBrewService(svc string) {
 
 func brewInstall(bin string) {
 	logger.Messagef("⏳ Installing %s...\n", bin)
+	logger.Debugf("Running \"brew install %s\"", bin)
 
 	cmd := exec.Command("brew", "install", bin)
 	stdout, _ := cmd.StdoutPipe()
@@ -84,6 +91,9 @@ func brewInstall(bin string) {
 
 func binExists(bin string) bool {
 	_, err := exec.LookPath(bin)
+	exists := err == nil
 
-	return err == nil
+	logger.Debugf("Checking if binary [%s] exists: %t", bin, exists)
+
+	return exists
 }
