@@ -14,8 +14,8 @@ const configFileName = "novus.yml"
 
 type NovusConfig struct {
 	Routes []struct {
-		Url string `yaml:"url"`
-		Src string `yaml:"source"`
+		Url      string `yaml:"url"`
+		Upstream string `yaml:"upstream"`
 	}
 }
 

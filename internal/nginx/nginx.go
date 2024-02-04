@@ -39,7 +39,7 @@ func Configure(config config.NovusConfig) {
 
 	logger.Messagef("🚀 Starting routing...\n")
 	for _, route := range config.Routes {
-		logger.Infof("  - http://%s -> ", route.Src)
+		logger.Infof("  - http://%s -> ", route.Upstream)
 		logger.Successf("https://%s\n", route.Url)
 	}
 }
@@ -82,7 +82,7 @@ func buildServerConfig(config config.NovusConfig) string {
 	for _, route := range config.Routes {
 		routeConfig := strings.Replace(serverConfigTemplate, "--SERVER_NAME--", route.Url, -1)
 		routeConfig = strings.Replace(routeConfig, "--PORT--", "80", -1)
-		routeConfig = strings.Replace(routeConfig, "--UPSTREAM_ADDR--", route.Src, -1)
+		routeConfig = strings.Replace(routeConfig, "--UPSTREAM_ADDR--", route.Upstream, -1)
 		routeConfig = strings.Replace(routeConfig, "--ERRORS_DIR--", cwd+"/assets/nginx", -1)
 
 		serverConfig += routeConfig + "\n"
