@@ -1,8 +1,6 @@
 # novus
 
-<center>
 <img src="./assets/gopher.png" width="200">
-</center>
 
 ## Overview
 Briefly introduce your CLI tool and its purpose. Explain how it helps developers deploy websites on localhost more efficiently.

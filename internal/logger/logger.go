@@ -16,6 +16,7 @@ func Checkf(format string, a ...interface{}) {
 	Messagef(" ✔ "+format+"\n", a...)
 }
 
+// This variable gets its value in cmd/root.go from the CLI flag
 var DebugEnabled bool
 
 func Debugf(format string, a ...interface{}) {
