@@ -5,9 +5,22 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/jozefcipa/novus/internal/logger"
 )
+
+var BrewPath string
+
+func init() {
+	out, err := exec.Command("brew", "--prefix").Output()
+	if err != nil {
+		logger.Errorf("Failed to run \"brew --prefix\": %v", err)
+		os.Exit(1)
+	}
+
+	BrewPath = strings.Replace(string(out), "\n", "", 1)
+}
 
 func InstallBinaries() {
 	// First check that Homebrew is installed
@@ -39,6 +52,17 @@ func StartBrewService(svc string) {
 	err := cmd.Run()
 	if err != nil {
 		logger.Errorf("Failed to start %s: %v", svc, err)
+		os.Exit(1)
+	}
+}
+
+func RestartBrewServiceWithSudo(svc string) {
+	logger.Debugf("Running \"sudo brew services restart %s\"", svc)
+	cmd := exec.Command("sudo", "brew", "services", "restart", svc)
+
+	err := cmd.Run()
+	if err != nil {
+		logger.Errorf("Failed to restart %s: %v", svc, err)
 		os.Exit(1)
 	}
 }
