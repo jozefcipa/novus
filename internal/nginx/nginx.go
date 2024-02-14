@@ -99,7 +99,8 @@ func buildServerConfig(config config.NovusConfig) string {
 	}
 
 	// Insert servers section into the main config
-	serverConfig := strings.Replace(configTemplate, "--SERVERS_SECTION--", serversSection, 1)
+	serverConfig := strings.Replace(configTemplate, "--ERRORS_DIR--", cwd+"/assets/nginx", -1)
+	serverConfig = strings.Replace(serverConfig, "--SERVERS_SECTION--", serversSection, 1)
 
 	return serverConfig
 }
