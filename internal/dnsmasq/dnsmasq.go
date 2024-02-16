@@ -1,15 +1,12 @@
 package dnsmasq
 
 import (
-	"bytes"
 	"fmt"
-	"os"
-	"os/exec"
-	"os/user"
 	"strings"
 
 	"github.com/jozefcipa/novus/internal/brew"
 	"github.com/jozefcipa/novus/internal/config"
+	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
 )
 
@@ -36,10 +33,7 @@ func Configure(config config.NovusConfig) bool {
 
 	// create the DNS resolver directory
 	// https://www.manpagez.com/man/5/resolver/
-	if _, err := exec.Command("sudo", "mkdir", "-p", dnsResolverDir).Output(); err != nil {
-		logger.Errorf("Failed to create %s directory: %v\n", dnsResolverDir, err)
-		os.Exit(1)
-	}
+	fs.MakeDirWithSudoOrExit(dnsResolverDir)
 
 	// create configs for each domain
 	domains := getDomains(config)
@@ -69,29 +63,21 @@ func Configure(config config.NovusConfig) bool {
 
 func updateDNSMasqConfig() bool {
 	// open file
-	confFile, err := os.ReadFile(dnsmasqConfFile)
-	if err != nil {
-		logger.Errorf("Failed to read DNSMasq config file: %v.\n", err)
-		os.Exit(1)
-	}
+	logger.Debugf("DNSMasq: reading config file %s", dnsmasqConfFile)
+	confFile := fs.ReadFileOrExit(dnsmasqConfFile)
 
 	// remove comment "#"
-	updatedConf := []byte(strings.Replace(
+	updatedConf := strings.Replace(
 		string(confFile),
 		fmt.Sprintf("#conf-dir=%s/etc/dnsmasq.d/,*.conf", brew.BrewPath),
 		fmt.Sprintf("conf-dir=%s/etc/dnsmasq.d/,*.conf", brew.BrewPath),
 		1,
-	))
+	)
 
 	// if the config differs (there was an actual change), write the changes
-	if !bytes.Equal(confFile, updatedConf) {
-		err = os.WriteFile(dnsmasqConfFile, []byte(updatedConf), 0644)
-		if err != nil {
-			logger.Errorf("Failed to write DNSMasq config file: %v.\n", err)
-			os.Exit(1)
-		}
-
-		logger.Debugf("DNSMasq config has been updated.")
+	if confFile != updatedConf {
+		logger.Debugf("Updating DNSMasq config")
+		fs.WriteFileOrExit(dnsmasqConfFile, updatedConf)
 
 		return true
 	} else {
@@ -105,7 +91,7 @@ func createDNSMasqDomainConfig(domain string) bool {
 	configPath := fmt.Sprintf("%s/etc/dnsmasq.d/%s.conf", brew.BrewPath, domain)
 
 	// first check if the file already exists
-	if out, _ := os.Stat(configPath); out != nil {
+	if confExists := fs.FileExists(configPath); confExists {
 		logger.Debugf("DNSMasq [*.%s]: Domain config already exists [%s].", domain, configPath)
 
 		return false
@@ -114,18 +100,11 @@ func createDNSMasqDomainConfig(domain string) bool {
 	logger.Debugf("[*.%s] Creating DNSMasq domain config.", domain)
 
 	// prepare the configuration
-	configContent := []byte(
-		fmt.Sprintf("address=/%s/127.0.0.1", domain),
-	)
+	configContent := fmt.Sprintf("address=/%s/127.0.0.1", domain)
 
 	// create a configuration file
-	err := os.WriteFile(configPath, configContent, 0644)
-	if err != nil {
-		logger.Errorf("DNSMasq [*.%s]: Failed to create domain config: %v.\n", domain, err)
-		os.Exit(1)
-	} else {
-		logger.Debugf("DNSMasq [*.%s]: Domain config saved [%s].", domain, configPath)
-	}
+	fs.WriteFileOrExit(configPath, configContent)
+	logger.Debugf("DNSMasq [*.%s]: Domain config saved [%s].", domain, configPath)
 
 	return true
 }
@@ -134,35 +113,17 @@ func registerDomainResolver(domain string) bool {
 	configPath := fmt.Sprintf("%s/%s", dnsResolverDir, domain)
 
 	// first check if the file already exists
-	if out, _ := os.Stat(configPath); out != nil {
+	if fExists := fs.FileExists(configPath); fExists {
 		logger.Debugf("DNSMasq [*.%s]: Domain resolver already exists [%s].", domain, configPath)
-
 		return false
 	}
 
 	logger.Debugf("DNSMasq [*.%s]: Creating domain resolver.", domain)
 
 	// create a configuration file
-	configContent := []byte("nameserver 127.0.0.1\n")
-
-	if _, err := exec.Command("sudo", "touch", configPath).Output(); err != nil {
-		logger.Errorf("Failed to create %s file: %v\n", configPath, err)
-		os.Exit(1)
-	}
-
-	usr, _ := user.Current()
-	if _, err := exec.Command("sudo", "chown", usr.Username, configPath).Output(); err != nil {
-		logger.Errorf("Failed to create %s file: %v\n", configPath, err)
-		os.Exit(1)
-	}
-
-	err := os.WriteFile(configPath, configContent, 0644)
-	if err != nil {
-		logger.Errorf("DNSMasq [*.%s]: Failed to create domain resolver: %v.\n", domain, err)
-		os.Exit(1)
-	} else {
-		logger.Debugf("DNSMasq [*.%s]: Domain resolver saved [%s].", domain, configPath)
-	}
+	configContent := "nameserver 127.0.0.1\n"
+	fs.WriteFileWithSudoOrExit(configPath, configContent)
+	logger.Debugf("DNSMasq [*.%s]: Domain resolver saved [%s].", domain, configPath)
 
 	return true
 }

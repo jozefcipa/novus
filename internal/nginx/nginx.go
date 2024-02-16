@@ -2,26 +2,25 @@ package nginx
 
 import (
 	"fmt"
-	"log"
-	"os"
 	"strings"
 
 	"github.com/jozefcipa/novus/internal/brew"
 	"github.com/jozefcipa/novus/internal/config"
+	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
 )
 
 var nginxServersDir string
 
 func init() {
-	// /opt/homebrew/etc/nginx/nginx.cosnf - main config
+	// /opt/homebrew/etc/nginx/nginx.conf - main config
 	// /opt/homebrew/etc/nginx/servers/* - directory of loaded configs
 	nginxServersDir = brew.BrewPath + "/etc/nginx/servers"
 }
 
 func Restart() {
 	brew.RestartBrewService("nginx")
-	logger.Checkf("Nginx restarted.")
+	logger.Checkf("Nginx: Service restarted.")
 }
 
 func Stop() {
@@ -35,57 +34,39 @@ func Configure(config config.NovusConfig) bool {
 
 	if nginxConf == "" || nginxConf != newNginxConf {
 		writeServerConfig(appName, newNginxConf)
-		logger.Debugf("New nginx config: \n\n%s", newNginxConf)
-		logger.Checkf("Routing configuration updated.")
+		logger.Debugf("Nginx: Built new config: \n\n%s", newNginxConf)
+		logger.Checkf("Nginx: Routing configuration updated.")
 
 		return true
 	} else {
-		logger.Checkf("Nginx config is up to date.")
+		logger.Checkf("Nginx: Configuration is up to date.")
 		return false
 	}
 }
 
 func readServerConfig(app string) string {
 	path := fmt.Sprintf("%s/novus-%s.conf", nginxServersDir, app)
-	logger.Debugf("Reading %s", path)
+	logger.Debugf("Nginx: Reading config %s", path)
 
-	file, err := os.ReadFile(path)
-	if err != nil {
-		logger.Debugf("Error ocurred %v", err)
-		return ""
-	}
+	// If file doesn't exist (an error is thrown) just return an empty string and we'll create a new config later
+	file, _ := fs.ReadFile(path)
 
-	return string(file[:])
+	return file
 }
 
 func writeServerConfig(app string, serverConfig string) {
-	data := []byte(serverConfig)
 	path := fmt.Sprintf("%s/novus-%s.conf", nginxServersDir, app)
-	logger.Debugf("Writing %s", path)
+	logger.Debugf("Nginx: Writing config [%s]", path)
 
-	err := os.WriteFile(path, data, 0644)
-	if err != nil {
-		log.Fatalf("Failed to write into Nginx config: %v", err)
-	}
+	fs.WriteFileOrExit(path, serverConfig)
 }
 
 func buildServerConfig(config config.NovusConfig) string {
-	cwd, err := os.Getwd()
-	if err != nil {
-		log.Fatalf("Failed to get current working directory: %v\n", err)
-	}
+	cwd := fs.GetCurrentDir()
 
-	configFile, err := os.ReadFile("./assets/nginx/config.template.conf")
-	if err != nil {
-		log.Fatalf("Failed to read config.template.conf file: %v", err)
-	}
-	serverSectionFile, err := os.ReadFile("./assets/nginx/server.template.conf")
-	if err != nil {
-		log.Fatalf("Failed to read server.template.conf file: %v", err)
-	}
-
-	configTemplate := string(configFile)
-	serverConfigTemplate := string(serverSectionFile)
+	// Read template files
+	configTemplate := fs.ReadFileOrExit("./assets/nginx/config.template.conf")
+	serverConfigTemplate := fs.ReadFileOrExit("./assets/nginx/server.template.conf")
 
 	// Iterate through all the routes and generate Nginx config
 	serversSection := ""

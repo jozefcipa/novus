@@ -3,6 +3,8 @@ package cmd
 import (
 	"github.com/jozefcipa/novus/internal/brew"
 	"github.com/jozefcipa/novus/internal/config"
+	"github.com/jozefcipa/novus/internal/dnsmasq"
+	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/nginx"
 
 	"github.com/spf13/cobra"
@@ -24,12 +26,27 @@ to quickly create a Cobra application.`,
 		// Load configuration file
 		conf := config.Load()
 
-		// Start services
-		// nginx.Start()
-		// TODO dnsmasq ...
+		// Configure services
+		shouldRestartNginx := nginx.Configure(conf)
+		shouldRestartDNSMasq := dnsmasq.Configure(conf)
 
-		nginx.Configure(conf)
+		// TODO: should start if not running
+		logger.Debugf("should restart nginx: %t", shouldRestartNginx)
+		logger.Debugf("should restart dnsmasq: %t", shouldRestartDNSMasq)
+		// Reload services
+		if shouldRestartNginx {
+			nginx.Restart() // TODO: doesn't throw an error if fails to start, maybe we should call nginx -t before launching
+		}
+		if shouldRestartDNSMasq {
+			dnsmasq.Restart()
+		}
 
+		// Everything's set, start routing
+		logger.Messagef("🚀 Starting routing...\n")
+		for _, route := range conf.Routes {
+			logger.Infof("  - http://%s -> ", route.Upstream)
+			logger.Successf("https://%s\n", route.Url)
+		}
 	},
 }
 
