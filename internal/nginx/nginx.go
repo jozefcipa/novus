@@ -91,7 +91,6 @@ func buildServerConfig(config config.NovusConfig) string {
 	serversSection := ""
 	for _, route := range config.Routes {
 		routeConfig := strings.Replace(serverConfigTemplate, "--SERVER_NAME--", route.Url, -1)
-		routeConfig = strings.Replace(routeConfig, "--PORT--", "80", -1)
 		routeConfig = strings.Replace(routeConfig, "--UPSTREAM_ADDR--", "http://"+route.Upstream, -1) // TODO: validate config to ensure http is either always presnet or never
 		routeConfig = strings.Replace(routeConfig, "--ERRORS_DIR--", cwd+"/assets/nginx", -1)
 
