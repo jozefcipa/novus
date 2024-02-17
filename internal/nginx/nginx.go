@@ -39,7 +39,7 @@ func Configure(config config.NovusConfig) bool {
 
 		return true
 	} else {
-		logger.Checkf("Nginx: Configuration is up to date.")
+		logger.Checkf("Nginx configuration is up to date.")
 		return false
 	}
 }

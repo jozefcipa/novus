@@ -5,7 +5,9 @@ import (
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/dnsmasq"
 	"github.com/jozefcipa/novus/internal/logger"
+	"github.com/jozefcipa/novus/internal/mkcert"
 	"github.com/jozefcipa/novus/internal/nginx"
+	"github.com/jozefcipa/novus/internal/ssl_manager"
 
 	"github.com/spf13/cobra"
 )
@@ -29,10 +31,13 @@ to quickly create a Cobra application.`,
 		// Configure services
 		shouldRestartNginx := nginx.Configure(conf)
 		shouldRestartDNSMasq := dnsmasq.Configure(conf)
+		mkcert.Configure(conf)
+		ssl_manager.EnsureSSLCertificates(conf)
 
 		// TODO: should start if not running
 		logger.Debugf("should restart nginx: %t", shouldRestartNginx)
 		logger.Debugf("should restart dnsmasq: %t", shouldRestartDNSMasq)
+
 		// Reload services
 		if shouldRestartNginx {
 			nginx.Restart() // TODO: doesn't throw an error if fails to start, maybe we should call nginx -t before launching
