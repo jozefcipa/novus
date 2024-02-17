@@ -13,7 +13,7 @@ var Messagef = color.New(color.FgCyan).PrintfFunc()
 var Errorf = color.New(color.FgRed).PrintfFunc()
 
 func Checkf(format string, a ...interface{}) {
-	Messagef(" ✔ "+format+"\n", a...)
+	Messagef("✔ "+format+"\n", a...)
 }
 
 // This variable gets its value in cmd/root.go from the CLI flag

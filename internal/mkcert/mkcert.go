@@ -28,8 +28,6 @@ func Configure(conf config.NovusConfig) {
 }
 
 func GenerateSSLCert(domain string, dirPath string) Certificate {
-	logger.Messagef("Generating SSL certificate for domain %s\n", domain)
-
 	certFilePath := filepath.Join(dirPath, "cert.pem")
 	keyFilePath := filepath.Join(dirPath, "key.pem")
 

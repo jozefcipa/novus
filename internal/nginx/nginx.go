@@ -8,6 +8,7 @@ import (
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
+	"github.com/jozefcipa/novus/internal/ssl_manager"
 )
 
 var nginxServersDir string
@@ -27,10 +28,10 @@ func Stop() {
 	brew.StopBrewService("nginx")
 }
 
-func Configure(config config.NovusConfig) bool {
+func Configure(config config.NovusConfig, sslCerts ssl_manager.DomainCertificates) bool {
 	appName := "default"
 	nginxConf := readServerConfig(appName)
-	newNginxConf := buildServerConfig(config)
+	newNginxConf := buildServerConfig(config, sslCerts)
 
 	if nginxConf == "" || nginxConf != newNginxConf {
 		writeServerConfig(appName, newNginxConf)
@@ -61,7 +62,7 @@ func writeServerConfig(app string, serverConfig string) {
 	fs.WriteFileOrExit(path, serverConfig)
 }
 
-func buildServerConfig(config config.NovusConfig) string {
+func buildServerConfig(config config.NovusConfig, sslCerts ssl_manager.DomainCertificates) string {
 	cwd := fs.GetCurrentDir()
 
 	// Read template files
@@ -71,9 +72,13 @@ func buildServerConfig(config config.NovusConfig) string {
 	// Iterate through all the routes and generate Nginx config
 	serversSection := ""
 	for _, route := range config.Routes {
+		sslCert := sslCerts[route.Domain]
+
 		routeConfig := strings.Replace(serverConfigTemplate, "--SERVER_NAME--", route.Domain, -1)
 		routeConfig = strings.Replace(routeConfig, "--UPSTREAM_ADDR--", route.Upstream, -1)
 		routeConfig = strings.Replace(routeConfig, "--ERRORS_DIR--", cwd+"/assets/nginx", -1)
+		routeConfig = strings.Replace(routeConfig, "--SSL_CERT_PATH--", sslCert.CertFilePath, 1)
+		routeConfig = strings.Replace(routeConfig, "--SSL_KEY_PATH--", sslCert.KeyFilePath, 1)
 
 		serversSection += routeConfig + "\n"
 	}
