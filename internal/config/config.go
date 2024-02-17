@@ -14,7 +14,7 @@ const configFileName = "novus.yml"
 
 type NovusConfig struct {
 	Routes []struct {
-		Url      string `yaml:"url"`
+		Domain   string `yaml:"domain"` // TODO: validate config to ensure http is always present
 		Upstream string `yaml:"upstream"`
 	}
 }
@@ -53,7 +53,7 @@ func loadOrCreateFile() []byte {
 }
 
 func createDefaultConfig() error {
-	srcFile, err := os.Open("./assets/config.default.yml")
+	srcFile, err := os.Open("./assets/novus.example.yml")
 	if err != nil {
 		return err
 	}

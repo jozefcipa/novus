@@ -1,3 +1,0 @@
-routes:
-  - url: my-awesome-app.test
-    upstream: localhost:3000

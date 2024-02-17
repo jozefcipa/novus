@@ -71,8 +71,8 @@ func buildServerConfig(config config.NovusConfig) string {
 	// Iterate through all the routes and generate Nginx config
 	serversSection := ""
 	for _, route := range config.Routes {
-		routeConfig := strings.Replace(serverConfigTemplate, "--SERVER_NAME--", route.Url, -1)
-		routeConfig = strings.Replace(routeConfig, "--UPSTREAM_ADDR--", "http://"+route.Upstream, -1) // TODO: validate config to ensure http is either always presnet or never
+		routeConfig := strings.Replace(serverConfigTemplate, "--SERVER_NAME--", route.Domain, -1)
+		routeConfig = strings.Replace(routeConfig, "--UPSTREAM_ADDR--", route.Upstream, -1)
 		routeConfig = strings.Replace(routeConfig, "--ERRORS_DIR--", cwd+"/assets/nginx", -1)
 
 		serversSection += routeConfig + "\n"

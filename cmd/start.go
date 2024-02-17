@@ -49,8 +49,8 @@ to quickly create a Cobra application.`,
 		// Everything's set, start routing
 		logger.Messagef("🚀 Starting routing...\n")
 		for _, route := range conf.Routes {
-			logger.Infof("  - http://%s -> ", route.Upstream)
-			logger.Successf("https://%s\n", route.Url)
+			logger.Infof("  - %s -> ", route.Upstream)
+			logger.Successf("https://%s\n", route.Domain)
 		}
 	},
 }

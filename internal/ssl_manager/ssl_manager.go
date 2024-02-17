@@ -17,20 +17,20 @@ func EnsureSSLCertificates(conf config.NovusConfig) {
 	fs.MakeDirOrExit(certsDir)
 
 	for _, route := range conf.Routes {
-		domainCertDir := filepath.Join(certsDir, route.Url)
+		domainCertDir := filepath.Join(certsDir, route.Domain)
 
 		// create a directory for the domain certificate (~/.novus/certs/{domain})
 		fs.MakeDirOrExit(domainCertDir)
 
 		if certExists := fs.FileExists(domainCertDir); certExists {
-			logger.Debugf("SSL certificate already exists [%s]", route.Url)
+			logger.Debugf("SSL certificate already exists [%s]", route.Domain)
 			continue
 		}
 
-		logger.Debugf("Creating SSL certificate [%s]", route.Url)
-		cert := mkcert.GenerateSSLCert(route.Url, domainCertDir)
+		logger.Debugf("Creating SSL certificate [%s]", route.Domain)
+		cert := mkcert.GenerateSSLCert(route.Domain, domainCertDir)
 
-		logger.Checkf("SSL certificate created [%s]", route.Url)
+		logger.Checkf("SSL certificate created [%s]", route.Domain)
 
 		fmt.Println(cert.CertFilePath) // TODO temp
 	}

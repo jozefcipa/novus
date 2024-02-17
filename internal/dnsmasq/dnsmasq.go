@@ -132,7 +132,7 @@ func getDomains(conf config.NovusConfig) []string {
 	var domains = make(map[string]bool)
 
 	for _, route := range conf.Routes {
-		urlParts := strings.Split(route.Url, ".")
+		urlParts := strings.Split(route.Domain, ".")
 		domain := urlParts[len(urlParts)-1]
 
 		if _, ok := domains[domain]; !ok {
