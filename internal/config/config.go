@@ -1,11 +1,9 @@
 package config
 
 import (
-	"fmt"
-	"io"
-	"log"
 	"os"
 
+	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
 	"gopkg.in/yaml.v3"
 )
@@ -20,57 +18,33 @@ type NovusConfig struct {
 }
 
 func loadOrCreateFile() []byte {
-	cwd, err := os.Getwd()
-	if err != nil {
-		log.Fatalf("Failed to get current working directory: %v\n", err)
-	}
+	cwd := fs.GetCurrentDir()
 
 	file, err := os.ReadFile(cwd + "/" + configFileName)
-	if err != nil {
-		logger.Debugf("Configuration file not found. Creating one now.")
-
-		// if we didn't find config let's create one
-		err = createDefaultConfig()
-
-		// if we weren't able to create a default config, throw an error
-		if err != nil {
-			logger.Errorf("%v\n", err)
-			// we failed to create a default config file
-			logger.Errorf("Configuration file not found. Make sure \"%s\" exists.\n", configFileName)
-			os.Exit(1)
-		}
-
-		// exit now, to let the users update the config
-		logger.Messagef("No configuration file found.\n")
-		logger.Successf("Creating a new one...\n")
-		logger.Infof("Open \"%s\" and define your routes.\n", configFileName)
-		os.Exit(0)
+	if err == nil {
+		logger.Checkf("Configuration file found.")
+		return file
 	}
 
-	logger.Checkf("Configuration file found.")
+	logger.Messagef("No configuration file found.\n")
 
-	return file
-}
+	// if we didn't find config file, let's create the default one
+	err = fs.Copy("./assets/novus.example.yml", "./"+configFileName)
 
-func createDefaultConfig() error {
-	srcFile, err := os.Open("./assets/novus.example.yml")
+	// if we weren't able to create a default config, throw an error
 	if err != nil {
-		return err
-	}
-	defer srcFile.Close()
-
-	destFile, err := os.Create(fmt.Sprintf("./%s", configFileName))
-	if err != nil {
-		return err
-	}
-	defer destFile.Close()
-
-	_, err = io.Copy(destFile, srcFile)
-	if err != nil {
-		return err
+		logger.Errorf("%v\n", err)
+		// we failed to create a default config file
+		logger.Errorf("Configuration file not found. Make sure \"%s\" exists.\n", configFileName)
+		os.Exit(1)
 	}
 
-	return nil
+	// exit now to let the users update the config
+	logger.Successf("Creating a new config file.\n")
+	logger.Infof("Open \"%s\" and define your routes.\n", configFileName)
+	os.Exit(0)
+
+	return []byte{}
 }
 
 func (config *NovusConfig) validate() {
@@ -81,11 +55,11 @@ func (config *NovusConfig) validate() {
 }
 
 func Load() NovusConfig {
-	file := loadOrCreateFile()
+	configFile := loadOrCreateFile()
 
 	config := NovusConfig{}
 
-	err := yaml.Unmarshal(file, &config)
+	err := yaml.Unmarshal(configFile, &config)
 	if err != nil {
 		logger.Errorf("Failed to parse the config file: %v", err)
 		os.Exit(1)

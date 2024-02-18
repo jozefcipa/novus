@@ -1,6 +1,7 @@
 package fs
 
 import (
+	"io"
 	"os"
 	"os/exec"
 	"os/user"
@@ -95,4 +96,25 @@ func FileExists(path string) bool {
 	fInfo, _ := os.Stat(path)
 
 	return fInfo != nil
+}
+
+func Copy(src string, dest string) error {
+	srcFile, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
+
+	destFile, err := os.Create(dest)
+	if err != nil {
+		return err
+	}
+	defer destFile.Close()
+
+	_, err = io.Copy(destFile, srcFile)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
