@@ -32,8 +32,8 @@ func InstallBinaries() {
 	}
 
 	// Install required binaries
-	if exists := binExists("nginx@1.25"); !exists {
-		brewInstall("nginx")
+	if exists := binExists("nginx"); !exists {
+		brewInstall("nginx@1.25")
 	}
 
 	if exists := binExists("dnsmasq"); !exists {
