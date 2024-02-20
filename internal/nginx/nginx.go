@@ -8,7 +8,8 @@ import (
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
-	"github.com/jozefcipa/novus/internal/ssl_manager"
+	"github.com/jozefcipa/novus/internal/novus"
+	"github.com/jozefcipa/novus/internal/shared"
 )
 
 var nginxServersDir string
@@ -28,7 +29,7 @@ func Stop() {
 	brew.StopBrewService("nginx")
 }
 
-func Configure(config config.NovusConfig, sslCerts ssl_manager.DomainCertificates) bool {
+func Configure(config config.NovusConfig, sslCerts shared.DomainCertificates) bool {
 	appName := "default"
 	nginxConf := readServerConfig(appName)
 	newNginxConf := buildServerConfig(config, sslCerts)
@@ -62,18 +63,23 @@ func writeServerConfig(app string, serverConfig string) {
 	fs.WriteFileOrExit(path, serverConfig)
 }
 
-func buildServerConfig(config config.NovusConfig, sslCerts ssl_manager.DomainCertificates) string {
+func buildServerConfig(novusConfig config.NovusConfig, sslCerts shared.DomainCertificates) string {
 	cwd := fs.GetCurrentDir()
 
 	// Read template files
 	configTemplate := fs.ReadFileOrExit("./assets/nginx/config.template.conf")
 	serverConfigTemplate := fs.ReadFileOrExit("./assets/nginx/server.template.conf")
 
+	// update routes in state
+	appState := novus.GetState(config.AppName)
+	appState.Routes = novusConfig.Routes
+
 	// Iterate through all the routes and generate Nginx config
 	serversSection := ""
-	for _, route := range config.Routes {
+	for _, route := range novusConfig.Routes {
 		sslCert := sslCerts[route.Domain]
 
+		// create Nginx server block
 		routeConfig := strings.Replace(serverConfigTemplate, "--SERVER_NAME--", route.Domain, -1)
 		routeConfig = strings.Replace(routeConfig, "--UPSTREAM_ADDR--", route.Upstream, -1)
 		routeConfig = strings.Replace(routeConfig, "--ERRORS_DIR--", cwd+"/assets/nginx", -1)

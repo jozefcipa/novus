@@ -8,11 +8,10 @@ import (
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/mkcert"
 	"github.com/jozefcipa/novus/internal/novus"
+	"github.com/jozefcipa/novus/internal/shared"
 )
 
 var certsDir string
-
-type DomainCertificates map[string]mkcert.Certificate
 
 func init() {
 	// create a directory for the SSL certificates (~/.novus/certs)
@@ -20,8 +19,8 @@ func init() {
 	fs.MakeDirOrExit(certsDir)
 }
 
-func EnsureSSLCertificates(conf config.NovusConfig) DomainCertificates {
-	domainCerts := make(DomainCertificates, len(conf.Routes))
+func EnsureSSLCertificates(conf config.NovusConfig) shared.DomainCertificates {
+	domainCerts := make(shared.DomainCertificates, len(conf.Routes))
 
 	for _, route := range conf.Routes {
 		cert := createCert(route.Domain)
@@ -33,19 +32,28 @@ func EnsureSSLCertificates(conf config.NovusConfig) DomainCertificates {
 	return domainCerts
 }
 
-func createCert(domain string) mkcert.Certificate {
-	domainCertDir := filepath.Join(certsDir, domain)
+func createCert(domain string) shared.Certificate {
+	appState := novus.GetState(config.AppName)
+
+	// check if the certificate already exists
+	storedCert, exists := appState.SSLCertificates[domain]
+	if exists {
+		// TODO: check certificate expiration
+
+		logger.Debugf("SSL certificate already exists [%s]", storedCert.CertFilePath)
+		return storedCert
+	}
 
 	// create a directory for the domain certificate (~/.novus/certs/{domain})
+	domainCertDir := filepath.Join(certsDir, domain)
 	fs.MakeDirOrExit(domainCertDir)
 
-	// if certExists := fs.FileExists(domainCertDir); certExists {
-	// 	logger.Debugf("SSL certificate already exists [%s]", domain)
-	// 	return mkcert.Certificate{} // TODO: we have to return the existing certificate here
-	// }
-
+	// generate certificate
 	logger.Debugf("Creating SSL certificate [%s]", domain)
 	cert := mkcert.GenerateSSLCert(domain, domainCertDir)
+
+	// save cert in state
+	appState.SSLCertificates[domain] = cert
 
 	logger.Successf("SSL certificate generated [%s]\n", domain)
 

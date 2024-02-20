@@ -5,16 +5,16 @@ import (
 
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
+	"github.com/jozefcipa/novus/internal/shared"
 	"gopkg.in/yaml.v3"
 )
 
 const configFileName = "novus.yml"
 
+var AppName = "default"
+
 type NovusConfig struct {
-	Routes []struct {
-		Domain   string `yaml:"domain"` // TODO: validate config to ensure http is always present
-		Upstream string `yaml:"upstream"`
-	}
+	Routes []shared.Route
 }
 
 func loadOrCreateFile() []byte {

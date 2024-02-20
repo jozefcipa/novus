@@ -2,11 +2,13 @@ package novus
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
+	"github.com/jozefcipa/novus/internal/shared"
 )
 
 var NovusStateDir string
@@ -14,23 +16,13 @@ var NovusStateDir string
 var novusStateFilePath string
 var state NovusState
 
-type tldDomain struct {
-	Tld           string
-	CertExpiresAt string
-}
-
-type route struct {
-	Url      string
-	Upstream string
-}
-
 type AppState struct {
-	Directory  string      `json:"directory"`
-	TldDomains []tldDomain `json:"tldDomains"`
-	Routes     []route     `json:"routes"`
+	Directory       string                    `json:"directory"`
+	SSLCertificates shared.DomainCertificates `json:"sslCertificates"`
+	Routes          []shared.Route            `json:"routes"`
 }
 
-type NovusState map[string]AppState
+type NovusState map[string]*AppState
 
 func (config *NovusState) validate() {
 	logger.Debugf("Validating state file")
@@ -47,17 +39,21 @@ func init() {
 	novusStateFilePath = filepath.Join(NovusStateDir, "novus.json")
 }
 
+func initEmptyState() *AppState {
+	return &AppState{
+		Directory:       fs.GetCurrentDir(),
+		SSLCertificates: shared.DomainCertificates{},
+		Routes:          []shared.Route{},
+	}
+}
+
 func LoadState() {
 	file, err := fs.ReadFile(novusStateFilePath)
 	// if there's an error, probably we didn't find the state, so initialize a new one
 	if err != nil {
 		logger.Debugf("State file not found. Creating a new one.")
 		state = NovusState{
-			"default": {
-				Directory:  "",
-				Routes:     []route{},
-				TldDomains: []tldDomain{},
-			},
+			"default": initEmptyState(),
 		}
 		return
 	}
@@ -70,13 +66,19 @@ func LoadState() {
 	state.validate()
 }
 
-func GetState() NovusState {
+func GetState(appName string) *AppState {
 	// if state is empty, load the state file first
 	if state == nil {
 		LoadState()
 	}
 
-	return state
+	appState, exists := state[appName]
+	if !exists {
+		state[appName] = initEmptyState()
+		appState = state[appName]
+	}
+
+	return appState
 }
 
 func SaveState() {
@@ -85,11 +87,13 @@ func SaveState() {
 
 	// encode JSON
 	jsonState, err := json.Marshal(state)
+	fmt.Print(string(jsonState))
 	if err != nil {
 		logger.Errorf("Failed to save state file.\n%v", err)
 		os.Exit(1)
 	}
 
 	// save file
+	logger.Debugf("Saving novus state.")
 	fs.WriteFileOrExit(novusStateFilePath, string(jsonState))
 }

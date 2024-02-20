@@ -7,6 +7,7 @@ import (
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/mkcert"
 	"github.com/jozefcipa/novus/internal/nginx"
+	"github.com/jozefcipa/novus/internal/novus"
 	"github.com/jozefcipa/novus/internal/ssl_manager"
 
 	"github.com/spf13/cobra"
@@ -22,25 +23,29 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// Make sure we have the necessary binaries available
-		brew.InstallBinaries()
+		brew.InstallBinaries() // Make sure we have the necessary binaries available
+		novus.LoadState()      // Load application state
+		conf := config.Load()  // Load configuration file
 
-		// Load configuration file
-		conf := config.Load()
-
-		// Configure services
+		// Configure SSL
 		mkcert.Configure(conf)
 		domainCerts := ssl_manager.EnsureSSLCertificates(conf)
-		/* shouldRestartNginx :=*/ nginx.Configure(conf, domainCerts)
-		/*shouldRestartDNSMasq :=*/ dnsmasq.Configure(conf)
+
+		// Configure Nginx
+		/* nginxConfigUpdated := */
+		nginx.Configure(conf, domainCerts)
+
+		// Configure DNSMasq
+		/* dnsMasqConfigUpdated := */
+		dnsmasq.Configure(conf)
 
 		// TODO: should start if not running
 		// Reload services
-		// if shouldRestartNginx {
-		nginx.Restart() // TODO: doesn't throw an error if fails to start, maybe we should call nginx -t before launching
+		// if nginxConfigUpdated || certsUpdated {
+		// nginx.Restart()
 		// }
-		// if shouldRestartDNSMasq {
-		dnsmasq.Restart()
+		// if dnsMasqConfigUpdated {
+		// dnsmasq.Restart()
 		// }
 
 		// Everything's set, start routing
@@ -49,6 +54,9 @@ to quickly create a Cobra application.`,
 			logger.Infof("  - %s -> ", route.Upstream)
 			logger.Successf("https://%s\n", route.Domain)
 		}
+
+		// Save application state
+		novus.SaveState()
 	},
 }
 

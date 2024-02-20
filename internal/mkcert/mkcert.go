@@ -9,13 +9,8 @@ import (
 
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/logger"
+	"github.com/jozefcipa/novus/internal/shared"
 )
-
-type Certificate struct {
-	CertFilePath string
-	KeyFilePath  string
-	ExpiresAt    time.Time
-}
 
 func Configure(conf config.NovusConfig) {
 	logger.Debugf("Initializing mkcert")
@@ -27,7 +22,7 @@ func Configure(conf config.NovusConfig) {
 	}
 }
 
-func GenerateSSLCert(domain string, dirPath string) Certificate {
+func GenerateSSLCert(domain string, dirPath string) shared.Certificate {
 	certFilePath := filepath.Join(dirPath, "cert.pem")
 	keyFilePath := filepath.Join(dirPath, "key.pem")
 
@@ -45,7 +40,7 @@ func GenerateSSLCert(domain string, dirPath string) Certificate {
 		os.Exit(1)
 	}
 
-	return Certificate{
+	return shared.Certificate{
 		CertFilePath: certFilePath,
 		KeyFilePath:  keyFilePath,
 
