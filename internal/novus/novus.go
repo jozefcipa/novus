@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/shared"
@@ -66,7 +67,9 @@ func LoadState() {
 	state.validate()
 }
 
-func GetState(appName string) *AppState {
+func GetState() *AppState {
+	appName := config.AppName
+
 	// if state is empty, load the state file first
 	if state == nil {
 		LoadState()

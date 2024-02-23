@@ -33,7 +33,7 @@ func EnsureSSLCertificates(conf config.NovusConfig) shared.DomainCertificates {
 }
 
 func createCert(domain string) shared.Certificate {
-	appState := novus.GetState(config.AppName)
+	appState := novus.GetState()
 
 	// check if the certificate already exists
 	storedCert, exists := appState.SSLCertificates[domain]

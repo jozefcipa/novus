@@ -71,7 +71,7 @@ func buildServerConfig(novusConfig config.NovusConfig, sslCerts shared.DomainCer
 	serverConfigTemplate := fs.ReadFileOrExit("./assets/nginx/server.template.conf")
 
 	// update routes in state
-	appState := novus.GetState(config.AppName)
+	appState := novus.GetState()
 	appState.Routes = novusConfig.Routes
 
 	// Iterate through all the routes and generate Nginx config

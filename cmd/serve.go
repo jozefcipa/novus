@@ -13,8 +13,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var startCmd = &cobra.Command{
-	Use:   "start",
+var serveCmd = &cobra.Command{
+	Use:   "serve",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -49,7 +49,7 @@ to quickly create a Cobra application.`,
 		// }
 
 		// Everything's set, start routing
-		logger.Messagef("🚀 Starting routing...\n")
+		logger.Messagef("🚀 starting routing...\n")
 		for _, route := range conf.Routes {
 			logger.Infof("  - %s -> ", route.Upstream)
 			logger.Successf("https://%s\n", route.Domain)
@@ -61,5 +61,5 @@ to quickly create a Cobra application.`,
 }
 
 func init() {
-	rootCmd.AddCommand(startCmd)
+	rootCmd.AddCommand(serveCmd)
 }
