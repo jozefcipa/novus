@@ -13,6 +13,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var shouldCreateConfigFile bool
+
 var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "A brief description of your command",
@@ -23,9 +25,9 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		brew.InstallBinaries() // Make sure we have the necessary binaries available
-		novus.LoadState()      // Load application state
-		conf := config.Load()  // Load configuration file
+		brew.InstallBinaries()                      // Make sure we have the necessary binaries available
+		novus.LoadState()                           // Load application state
+		conf := config.Load(shouldCreateConfigFile) // Load configuration file
 
 		// Configure SSL
 		mkcert.Configure(conf)
@@ -61,5 +63,6 @@ to quickly create a Cobra application.`,
 }
 
 func init() {
+	serveCmd.PersistentFlags().BoolVar(&shouldCreateConfigFile, "create-config", false, "create a configuration file")
 	rootCmd.AddCommand(serveCmd)
 }
