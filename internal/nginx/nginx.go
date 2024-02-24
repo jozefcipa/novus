@@ -29,6 +29,8 @@ func Stop() {
 	brew.StopService("nginx")
 }
 
+func IsRunning() bool {
+	return brew.IsServiceRunning("nginx")
 }
 
 func Configure(config config.NovusConfig, sslCerts shared.DomainCertificates) bool {

@@ -27,6 +27,8 @@ func Stop() {
 	brew.StopServiceWithSudo("dnsmasq")
 }
 
+func IsRunning() bool {
+	return brew.IsSudoServiceRunning("dnsmasq")
 }
 
 func Configure(config config.NovusConfig) bool {

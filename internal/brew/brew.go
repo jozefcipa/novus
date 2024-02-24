@@ -2,6 +2,7 @@ package brew
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -14,6 +15,12 @@ var BrewPath string
 
 var svcStartCommands []string
 var svcStopCommands []string
+var svcStatusCommands []string
+
+type BrewServiceStatus struct {
+	Running bool `json:"running"`
+}
+
 func init() {
 	out, err := exec.Command("brew", "--prefix").Output()
 	if err != nil {
@@ -24,6 +31,7 @@ func init() {
 	BrewPath = strings.Replace(string(out), "\n", "", 1)
 	svcStartCommands = []string{"brew", "services", "restart"}
 	svcStopCommands = []string{"brew", "services", "stop"}
+	svcStatusCommands = []string{"brew", "services", "info", "--json"}
 }
 
 func InstallBinaries() {
@@ -75,6 +83,27 @@ func StopServiceWithSudo(svc string) {
 	execBrewCommand(cmds)
 }
 
+func checkService(svc string, cmdOutput []byte) bool {
+	// parse json output
+	var svcStatus []BrewServiceStatus
+	json.Unmarshal(cmdOutput, &svcStatus)
+
+	isRunning := len(svcStatus) > 0 && svcStatus[0].Running
+	logger.Debugf("Checking service status of \"%s\" [running=%t]", svc, isRunning)
+
+	return isRunning
+}
+
+func IsServiceRunning(svc string) bool {
+	cmds := append(svcStatusCommands, svc)
+	out := execBrewCommand(cmds)
+	return checkService(svc, out)
+}
+
+func IsSudoServiceRunning(svc string) bool {
+	cmds := append([]string{"sudo"}, append(svcStatusCommands, svc)...)
+	out := execBrewCommand(cmds)
+	return checkService(svc, out)
 }
 
 func brewInstall(bin string) {

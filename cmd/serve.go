@@ -31,24 +31,30 @@ to quickly create a Cobra application.`,
 
 		// Configure SSL
 		mkcert.Configure(conf)
-		domainCerts := ssl_manager.EnsureSSLCertificates(conf)
+		domainCerts, hasNewCerts := ssl_manager.EnsureSSLCertificates(conf)
 
 		// Configure Nginx
-		/* nginxConfigUpdated := */
-		nginx.Configure(conf, domainCerts)
+		nginxConfigUpdated := nginx.Configure(conf, domainCerts)
 
 		// Configure DNSMasq
-		/* dnsMasqConfigUpdated := */
-		dnsmasq.Configure(conf)
+		dnsMasqConfigUpdated := dnsmasq.Configure(conf)
 
-		// TODO: should start if not running
-		// Reload services
-		// if nginxConfigUpdated || certsUpdated {
-		// nginx.Restart()
-		// }
-		// if dnsMasqConfigUpdated {
-		// dnsmasq.Restart()
-		// }
+		// Restart services
+		// Nginx
+		isNginxRunning := nginx.IsRunning()
+		if nginxConfigUpdated || hasNewCerts || !isNginxRunning {
+			nginx.Restart()
+		} else {
+			logger.Checkf("Nginx running.")
+		}
+
+		// DNSMasq
+		isDNSMasqRunning := dnsmasq.IsRunning()
+		if dnsMasqConfigUpdated || !isDNSMasqRunning {
+			dnsmasq.Restart()
+		} else {
+			logger.Checkf("DNSMasq running.")
+		}
 
 		// Everything's set, start routing
 		logger.Messagef("🚀 Starting routing...\n")
