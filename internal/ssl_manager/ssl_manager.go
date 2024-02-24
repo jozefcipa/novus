@@ -19,20 +19,24 @@ func init() {
 	fs.MakeDirOrExit(certsDir)
 }
 
-func EnsureSSLCertificates(conf config.NovusConfig) shared.DomainCertificates {
+func EnsureSSLCertificates(conf config.NovusConfig) (shared.DomainCertificates, bool) {
 	domainCerts := make(shared.DomainCertificates, len(conf.Routes))
+	hasNewCerts := false
 
 	for _, route := range conf.Routes {
-		cert := createCert(route.Domain)
+		cert, isNew := createCert(route.Domain)
+		if isNew {
+			hasNewCerts = true
+		}
 		domainCerts[route.Domain] = cert
 	}
 
 	logger.Checkf("SSL certificates created.")
 
-	return domainCerts
+	return domainCerts, hasNewCerts
 }
 
-func createCert(domain string) shared.Certificate {
+func createCert(domain string) (shared.Certificate, bool) {
 	appState := novus.GetState()
 
 	// check if the certificate already exists
@@ -41,7 +45,7 @@ func createCert(domain string) shared.Certificate {
 		// TODO: check certificate expiration
 
 		logger.Debugf("SSL certificate already exists [%s]", storedCert.CertFilePath)
-		return storedCert
+		return storedCert, false
 	}
 
 	// create a directory for the domain certificate (~/.novus/certs/{domain})
@@ -57,5 +61,5 @@ func createCert(domain string) shared.Certificate {
 
 	logger.Successf("SSL certificate generated [%s]\n", domain)
 
-	return cert
+	return cert, true
 }
