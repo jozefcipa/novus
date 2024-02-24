@@ -19,12 +19,14 @@ func init() {
 }
 
 func Restart() {
-	brew.RestartBrewServiceWithSudo("dnsmasq")
+	brew.RestartServiceWithSudo("dnsmasq")
 	logger.Checkf("DNSMasq restarted.")
 }
 
 func Stop() {
-	brew.StopBrewService("dnsmasq")
+	brew.StopServiceWithSudo("dnsmasq")
+}
+
 }
 
 func Configure(config config.NovusConfig) bool {

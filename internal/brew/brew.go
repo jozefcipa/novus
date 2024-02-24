@@ -12,6 +12,8 @@ import (
 
 var BrewPath string
 
+var svcStartCommands []string
+var svcStopCommands []string
 func init() {
 	out, err := exec.Command("brew", "--prefix").Output()
 	if err != nil {
@@ -20,6 +22,8 @@ func init() {
 	}
 
 	BrewPath = strings.Replace(string(out), "\n", "", 1)
+	svcStartCommands = []string{"brew", "services", "restart"}
+	svcStopCommands = []string{"brew", "services", "stop"}
 }
 
 func InstallBinaries() {
@@ -45,48 +49,32 @@ func InstallBinaries() {
 	}
 }
 
-func StartBrewService(svc string) {
-	logger.Debugf("Running \"brew services start %s\"", svc)
-	cmd := exec.Command("brew", "services", "start", svc)
+func RestartService(svc string) {
+	cmds := append(svcStartCommands, svc)
 
-	err := cmd.Run()
-	if err != nil {
-		logger.Errorf("Failed to start %s: %v", svc, err)
-		os.Exit(1)
-	}
+	execBrewCommand(cmds)
 }
 
-func RestartBrewServiceWithSudo(svc string) {
-	logger.Debugf("Running \"sudo brew services restart %s\"", svc)
-	cmd := exec.Command("sudo", "brew", "services", "restart", svc)
+func RestartServiceWithSudo(svc string) {
+	// prepend with "sudo" and add "svc" at the end
+	cmds := append([]string{"sudo"}, append(svcStartCommands, svc)...)
 
-	err := cmd.Run()
-	if err != nil {
-		logger.Errorf("Failed to restart %s: %v", svc, err)
-		os.Exit(1)
-	}
+	execBrewCommand(cmds)
 }
 
-func StopBrewService(svc string) {
-	logger.Debugf("Running \"brew services stop %s\"", svc)
-	cmd := exec.Command("brew", "services", "stop", svc)
+func StopService(svc string) {
+	cmds := append(svcStopCommands, svc)
 
-	err := cmd.Run()
-	if err != nil {
-		logger.Errorf("Failed to stop %s: %v", svc, err)
-		os.Exit(1)
-	}
+	execBrewCommand(cmds)
 }
 
-func RestartBrewService(svc string) {
-	logger.Debugf("Running \"brew services restart %s\"", svc)
-	cmd := exec.Command("brew", "services", "restart", svc)
+func StopServiceWithSudo(svc string) {
+	// prepend with "sudo" and add "svc" at the end
+	cmds := append([]string{"sudo"}, append(svcStopCommands, svc)...)
 
-	err := cmd.Run()
-	if err != nil {
-		logger.Errorf("Failed to restart %s: %v", svc, err)
-		os.Exit(1)
-	}
+	execBrewCommand(cmds)
+}
+
 }
 
 func brewInstall(bin string) {
@@ -120,4 +108,18 @@ func binExists(bin string) bool {
 	logger.Debugf("Checking if binary [%s] exists: %t", bin, exists)
 
 	return exists
+}
+
+func execBrewCommand(commands []string) []byte {
+	commandString := strings.Join(commands, " ")
+	logger.Debugf("Running \"%s\"", commandString)
+	cmd := exec.Command(commands[0], commands[1:]...)
+
+	out, err := cmd.Output()
+	if err != nil {
+		logger.Errorf("Failed to run %s: %v", commandString, err)
+		os.Exit(1)
+	}
+
+	return out
 }

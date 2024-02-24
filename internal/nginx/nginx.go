@@ -21,12 +21,14 @@ func init() {
 }
 
 func Restart() {
-	brew.RestartBrewService("nginx")
+	brew.RestartService("nginx")
 	logger.Checkf("Nginx: Service restarted.")
 }
 
 func Stop() {
-	brew.StopBrewService("nginx")
+	brew.StopService("nginx")
+}
+
 }
 
 func Configure(config config.NovusConfig, sslCerts shared.DomainCertificates) bool {

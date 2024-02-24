@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"github.com/jozefcipa/novus/internal/brew"
+	"github.com/jozefcipa/novus/internal/dnsmasq"
 	"github.com/jozefcipa/novus/internal/logger"
+	"github.com/jozefcipa/novus/internal/nginx"
 
 	"github.com/spf13/cobra"
 )
@@ -17,10 +18,10 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		brew.StopBrewService("nginx")
+		nginx.Stop()
 		logger.Messagef("🚫 Nginx stopped.\n")
 
-		brew.StopBrewService("dnsmasq")
+		dnsmasq.Stop()
 		logger.Messagef("🚫 DNSMasq stopped.\n")
 	},
 }
