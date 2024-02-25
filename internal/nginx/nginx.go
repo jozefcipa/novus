@@ -22,7 +22,6 @@ func init() {
 
 func Restart() {
 	brew.RestartService("nginx")
-	logger.Checkf("Nginx: Service restarted.")
 }
 
 func Stop() {

@@ -20,7 +20,6 @@ func init() {
 
 func Restart() {
 	brew.RestartServiceWithSudo("dnsmasq")
-	logger.Checkf("DNSMasq restarted.")
 }
 
 func Stop() {

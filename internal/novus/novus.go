@@ -2,7 +2,6 @@ package novus
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -90,7 +89,6 @@ func SaveState() {
 
 	// encode JSON
 	jsonState, err := json.Marshal(state)
-	fmt.Print(string(jsonState))
 	if err != nil {
 		logger.Errorf("Failed to save state file.\n%v", err)
 		os.Exit(1)

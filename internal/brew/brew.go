@@ -89,7 +89,7 @@ func checkService(svc string, cmdOutput []byte) bool {
 	json.Unmarshal(cmdOutput, &svcStatus)
 
 	isRunning := len(svcStatus) > 0 && svcStatus[0].Running
-	logger.Debugf("Checking service status of \"%s\" [running=%t]", svc, isRunning)
+	logger.Debugf("Service status of \"%s\" [running=%t]", svc, isRunning)
 
 	return isRunning
 }

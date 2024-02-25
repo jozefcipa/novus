@@ -31,7 +31,11 @@ func EnsureSSLCertificates(conf config.NovusConfig) (shared.DomainCertificates, 
 		domainCerts[route.Domain] = cert
 	}
 
-	logger.Checkf("SSL certificates created.")
+	if hasNewCerts {
+		logger.Checkf("SSL certificates created.")
+	} else {
+		logger.Checkf("SSL certificates found.")
+	}
 
 	return domainCerts, hasNewCerts
 }
