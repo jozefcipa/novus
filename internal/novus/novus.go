@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
@@ -17,18 +18,33 @@ var novusStateFilePath string
 var state NovusState
 
 type AppState struct {
-	Directory       string                    `json:"directory"`
+	Directory       string                    `json:"directory" validate:"required,dirpath"`
 	SSLCertificates shared.DomainCertificates `json:"sslCertificates"`
-	Routes          []shared.Route            `json:"routes"`
+	Routes          []shared.Route            `json:"routes" validate:"required,dive"`
 }
 
 type NovusState map[string]*AppState
 
 func (config *NovusState) validate() {
 	logger.Debugf("Validating state file")
-	// TODO: make sure the loaded file is in the expected format
-	// https://github.com/go-playground/validator
-	// Example: https://github.com/go-playground/validator/blob/master/_examples/simple/main.go
+
+	validate := validator.New(validator.WithRequiredStructEnabled())
+
+	for _, appState := range *config {
+		err := validate.Struct(appState)
+		if err != nil {
+			logger.Errorf("Novus state file is corrupted.\n\n%s\n", err.(validator.ValidationErrors))
+			os.Exit(1)
+		}
+
+		for _, sslCerts := range appState.SSLCertificates {
+			err := validate.Struct(sslCerts)
+			if err != nil {
+				logger.Errorf("Novus state file is corrupted.\n\n%s\n", err.(validator.ValidationErrors))
+				os.Exit(1)
+			}
+		}
+	}
 }
 
 func init() {

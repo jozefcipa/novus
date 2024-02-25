@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/shared"
@@ -15,14 +16,19 @@ const configFileName = "novus.yml"
 var AppName = "default"
 
 type NovusConfig struct {
-	Routes []shared.Route
+	Routes []shared.Route `yaml:"routes" validate:"required,dive"`
 }
 
 func (config *NovusConfig) validate() {
 	logger.Debugf("Validating configuration file")
-	// TODO: make sure the loaded file is in the expected format
-	// https://github.com/go-playground/validator
-	// Example: https://github.com/go-playground/validator/blob/master/_examples/simple/main.go
+
+	validate := validator.New(validator.WithRequiredStructEnabled())
+
+	err := validate.Struct(config)
+	if err != nil {
+		logger.Errorf("Configuration file contains errors.\n\n%s\n", err.(validator.ValidationErrors))
+		os.Exit(1)
+	}
 }
 
 func createDefaultConfigFile() {
