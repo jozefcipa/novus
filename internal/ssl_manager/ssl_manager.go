@@ -32,9 +32,9 @@ func EnsureSSLCertificates(conf config.NovusConfig) (shared.DomainCertificates, 
 	}
 
 	if hasNewCerts {
-		logger.Checkf("SSL certificates created.")
+		logger.Checkf("SSL certificates created")
 	} else {
-		logger.Checkf("SSL certificates found.")
+		logger.Checkf("SSL certificates found")
 	}
 
 	return domainCerts, hasNewCerts
@@ -48,7 +48,7 @@ func createCert(domain string) (shared.Certificate, bool) {
 	if exists {
 		// TODO: check certificate expiration
 
-		logger.Debugf("SSL certificate already exists [%s]", storedCert.CertFilePath)
+		logger.Debugf("SSL certificate already exists [%s=%s]", domain, storedCert.CertFilePath)
 		return storedCert, false
 	}
 

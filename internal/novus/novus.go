@@ -67,7 +67,7 @@ func LoadState() {
 	file, err := fs.ReadFile(novusStateFilePath)
 	// if there's an error, probably we didn't find the state, so initialize a new one
 	if err != nil {
-		logger.Debugf("State file not found. Creating a new one.")
+		logger.Debugf("State file not found. Creating a new one...")
 		state = NovusState{
 			"default": initEmptyState(),
 		}
@@ -106,11 +106,11 @@ func SaveState() {
 	// encode JSON
 	jsonState, err := json.Marshal(state)
 	if err != nil {
-		logger.Errorf("Failed to save state file.\n%v", err)
+		logger.Errorf("Failed to save state file\n%v", err)
 		os.Exit(1)
 	}
 
 	// save file
-	logger.Debugf("Saving novus state.")
+	logger.Debugf("Saving novus state")
 	fs.WriteFileOrExit(novusStateFilePath, string(jsonState))
 }

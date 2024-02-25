@@ -44,22 +44,22 @@ to quickly create a Cobra application.`,
 		isNginxRunning := nginx.IsRunning()
 		if nginxConfigUpdated || hasNewCerts || !isNginxRunning {
 			nginx.Restart()
-			logger.Checkf("Nginx restarted.")
+			logger.Checkf("Nginx restarted")
 		} else {
-			logger.Checkf("Nginx running.")
+			logger.Checkf("Nginx running")
 		}
 
 		// DNSMasq
 		isDNSMasqRunning := dnsmasq.IsRunning()
 		if dnsMasqConfigUpdated || !isDNSMasqRunning {
 			dnsmasq.Restart()
-			logger.Checkf("DNSMasq restarted.")
+			logger.Checkf("DNSMasq restarted")
 		} else {
-			logger.Checkf("DNSMasq running.")
+			logger.Checkf("DNSMasq running")
 		}
 
 		// Everything's set, start routing
-		logger.Checkf("Starting routing 🚀")
+		logger.Checkf("Routing started 🚀")
 		for _, route := range conf.Routes {
 			logger.Infof("  - %s -> ", route.Upstream)
 			logger.Successf("https://%s\n", route.Domain)

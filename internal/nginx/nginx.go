@@ -32,26 +32,24 @@ func IsRunning() bool {
 	return brew.IsServiceRunning("nginx")
 }
 
-func Configure(config config.NovusConfig, sslCerts shared.DomainCertificates) bool {
-	appName := "default"
-	nginxConf := readServerConfig(appName)
-	newNginxConf := buildServerConfig(config, sslCerts)
+func Configure(novusConf config.NovusConfig, sslCerts shared.DomainCertificates) bool {
+	nginxConf := readServerConfig(config.AppName)
+	newNginxConf := buildServerConfig(novusConf, sslCerts)
 
 	if nginxConf == "" || nginxConf != newNginxConf {
-		writeServerConfig(appName, newNginxConf)
-		logger.Debugf("Nginx: Built new config: \n\n%s", newNginxConf)
-		logger.Checkf("Nginx: Routing configuration updated.")
-
+		writeServerConfig(config.AppName, newNginxConf)
+		logger.Debugf("Generated new Nginx config: \n\n%s", newNginxConf)
+		logger.Checkf("Nginx configuration updated")
 		return true
 	} else {
-		logger.Checkf("Nginx configuration is up to date.")
+		logger.Checkf("Nginx configuration is up to date")
 		return false
 	}
 }
 
 func readServerConfig(app string) string {
 	path := fmt.Sprintf("%s/novus-%s.conf", nginxServersDir, app)
-	logger.Debugf("Nginx: Reading config %s", path)
+	logger.Debugf("Reading Nginx config %s", path)
 
 	// If file doesn't exist (an error is thrown) just return an empty string and we'll create a new config later
 	file, _ := fs.ReadFile(path)

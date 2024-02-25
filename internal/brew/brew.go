@@ -134,7 +134,7 @@ func binExists(bin string) bool {
 	_, err := exec.LookPath(bin)
 	exists := err == nil
 
-	logger.Debugf("Checking if binary [%s] exists: %t", bin, exists)
+	logger.Debugf("Checking if binary exists [%s=%t]", bin, exists)
 
 	return exists
 }

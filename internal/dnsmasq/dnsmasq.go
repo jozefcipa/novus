@@ -56,17 +56,17 @@ func Configure(config config.NovusConfig) bool {
 	}
 
 	if updated {
-		logger.Checkf("DNSMasq configuration updated.")
+		logger.Checkf("DNSMasq configuration updated")
 		return true
 	} else {
-		logger.Checkf("DNSMasq config is up to date.")
+		logger.Checkf("DNSMasq config is up to date")
 		return false
 	}
 }
 
 func updateDNSMasqConfig() bool {
 	// open file
-	logger.Debugf("DNSMasq: reading config file %s", dnsmasqConfFile)
+	logger.Debugf("Reading DNSMasq configuration file %s", dnsmasqConfFile)
 	confFile := fs.ReadFileOrExit(dnsmasqConfFile)
 
 	// remove comment "#"
@@ -79,12 +79,12 @@ func updateDNSMasqConfig() bool {
 
 	// if the config differs (there was an actual change), write the changes
 	if confFile != updatedConf {
-		logger.Debugf("Updating DNSMasq config")
+		logger.Debugf("Updating DNSMasq configuration file")
 		fs.WriteFileOrExit(dnsmasqConfFile, updatedConf)
 
 		return true
 	} else {
-		logger.Debugf("DNSMasq config is up to date.")
+		logger.Debugf("DNSMasq configuration is up to date")
 
 		return false
 	}
@@ -95,19 +95,19 @@ func createDNSMasqDomainConfig(domain string) bool {
 
 	// first check if the file already exists
 	if confExists := fs.FileExists(configPath); confExists {
-		logger.Debugf("DNSMasq [*.%s]: Domain config already exists [%s].", domain, configPath)
+		logger.Debugf("DNSMasq [*.%s]: Domain config already exists [%s]", domain, configPath)
 
 		return false
 	}
 
-	logger.Debugf("[*.%s] Creating DNSMasq domain config.", domain)
+	logger.Debugf("[*.%s] Creating DNSMasq domain config", domain)
 
 	// prepare the configuration
 	configContent := fmt.Sprintf("address=/%s/127.0.0.1", domain)
 
 	// create a configuration file
 	fs.WriteFileOrExit(configPath, configContent)
-	logger.Debugf("DNSMasq [*.%s]: Domain config saved [%s].", domain, configPath)
+	logger.Debugf("DNSMasq [*.%s]: Domain config saved [%s]", domain, configPath)
 
 	return true
 }
@@ -117,16 +117,16 @@ func registerDomainResolver(domain string) bool {
 
 	// first check if the file already exists
 	if fExists := fs.FileExists(configPath); fExists {
-		logger.Debugf("DNSMasq [*.%s]: Domain resolver already exists [%s].", domain, configPath)
+		logger.Debugf("DNSMasq [*.%s]: Domain resolver already exists [%s]", domain, configPath)
 		return false
 	}
 
-	logger.Debugf("DNSMasq [*.%s]: Creating domain resolver.", domain)
+	logger.Debugf("DNSMasq [*.%s]: Creating domain resolver", domain)
 
 	// create a configuration file
 	configContent := "nameserver 127.0.0.1\n"
 	fs.WriteFileWithSudoOrExit(configPath, configContent)
-	logger.Debugf("DNSMasq [*.%s]: Domain resolver saved [%s].", domain, configPath)
+	logger.Debugf("DNSMasq [*.%s]: Domain resolver saved [%s]", domain, configPath)
 
 	return true
 }
