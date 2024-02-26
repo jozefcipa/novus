@@ -2,6 +2,7 @@ package ssl_manager
 
 import (
 	"path/filepath"
+	"time"
 
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/fs"
@@ -42,14 +43,19 @@ func EnsureSSLCertificates(conf config.NovusConfig) (shared.DomainCertificates, 
 
 func createCert(domain string) (shared.Certificate, bool) {
 	appState := novus.GetState()
+	timeNow := time.Now()
 
 	// check if the certificate already exists
 	storedCert, exists := appState.SSLCertificates[domain]
 	if exists {
-		// TODO: check certificate expiration
-
-		logger.Debugf("SSL certificate already exists [%s=%s]", domain, storedCert.CertFilePath)
-		return storedCert, false
+		// check certificate expiration
+		// if the certificate expires in less than a month, we will renew it
+		if timeNow.After(storedCert.ExpiresAt.AddDate(0, -1, 0)) {
+			logger.Debugf("SSL certificate expires in <1 month [%s=%s]", domain, storedCert.CertFilePath)
+		} else {
+			logger.Debugf("SSL certificate already exists [%s=%s]", domain, storedCert.CertFilePath)
+			return storedCert, false
+		}
 	}
 
 	// create a directory for the domain certificate (~/.novus/certs/{domain})
