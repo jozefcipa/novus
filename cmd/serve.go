@@ -17,13 +17,9 @@ var shouldCreateConfigFile bool
 
 var serveCmd = &cobra.Command{
 	Use:   "serve",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Setup Novus to start serving URLs",
+	Long: `Install Nginx, DNSMasq and mkcert and automatically
+expose HTTPs URLs for the endpoints defined in the config.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		brew.InstallBinaries()                      // Make sure we have the necessary binaries available
 		novus.LoadState()                           // Load application state

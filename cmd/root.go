@@ -9,13 +9,23 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "novus",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "Local web development done effortlessly",
+	Long: ` _   _
+| \ | | _____   ___   _ ___
+|  \| |/ _ \ \ / / | | / __|
+| |\  | (_) \ V /| |_| \__ \
+|_| \_|\___/ \_/  \__,_|___/
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Novus is a tool that improves developer experience when working
+on one or multiple web services by automatically providing
+SSL secured URLs that proxy traffic to your services.
+
+No more http://localhost:3000 calls.
+Instead, open the "novus.yml" configuration and add a nice custom domain name
+that will forward all the traffic to your upstream service.
+
+To start run "novus serve --create-config" to initialize Novus and create an example configuration.
+`,
 }
 
 func Execute() {

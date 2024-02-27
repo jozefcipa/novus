@@ -10,13 +10,11 @@ import (
 
 var stopCmd = &cobra.Command{
 	Use:   "stop",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Stop Nginx and DNSMasq services",
+	Long: `Running this command will stop the HTTP and DNS servers,
+so Novus will no longer serve application requests to the URLs
+defined in the novus.yml configuration file.
+	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		nginx.Stop()
 		logger.Messagef("🚫 Nginx stopped.\n")

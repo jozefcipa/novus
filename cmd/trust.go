@@ -13,13 +13,12 @@ import (
 
 var trustCmd = &cobra.Command{
 	Use:   "trust",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Allow running `novus` commands without password",
+	Long: `This command will create a record in "/etc/sudoers.d/novus",
+which will allow running Novus commands without asking for password.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Novus needs sudo access for manipulating DNS records via DNSMasq.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		sudoersFile := "/etc/sudoers.d/novus"
 
