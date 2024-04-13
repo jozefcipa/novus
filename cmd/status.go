@@ -32,6 +32,7 @@ and print a list of all URLs that are registered by Novus.`,
 
 		if isNginxRunning {
 			logger.Successf("✅ Nginx running.\n")
+			logger.Debugf("Nginx configuration loaded from %s", nginx.NginxServersDir)
 		} else {
 			logger.Errorf("❌ Nginx not running.\n")
 		}

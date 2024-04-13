@@ -12,12 +12,12 @@ import (
 	"github.com/jozefcipa/novus/internal/shared"
 )
 
-var nginxServersDir string
+var NginxServersDir string
 
 func init() {
 	// /opt/homebrew/etc/nginx/nginx.conf - main config
 	// /opt/homebrew/etc/nginx/servers/* - directory of loaded configs
-	nginxServersDir = brew.BrewPath + "/etc/nginx/servers"
+	NginxServersDir = brew.BrewPath + "/etc/nginx/servers"
 }
 
 func Restart() {
@@ -48,7 +48,7 @@ func Configure(novusConf config.NovusConfig, sslCerts shared.DomainCertificates)
 }
 
 func readServerConfig(app string) string {
-	path := fmt.Sprintf("%s/novus-%s.conf", nginxServersDir, app)
+	path := fmt.Sprintf("%s/novus-%s.conf", NginxServersDir, app)
 	logger.Debugf("Reading Nginx config %s", path)
 
 	// If file doesn't exist (an error is thrown) just return an empty string and we'll create a new config later
@@ -58,7 +58,7 @@ func readServerConfig(app string) string {
 }
 
 func writeServerConfig(app string, serverConfig string) {
-	path := fmt.Sprintf("%s/novus-%s.conf", nginxServersDir, app)
+	path := fmt.Sprintf("%s/novus-%s.conf", NginxServersDir, app)
 	logger.Debugf("Nginx: Writing config [%s]", path)
 
 	fs.WriteFileOrExit(path, serverConfig)
