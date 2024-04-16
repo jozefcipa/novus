@@ -104,7 +104,7 @@ func SaveState() {
 	state.validate()
 
 	// encode JSON
-	jsonState, err := json.Marshal(state)
+	jsonState, err := json.MarshalIndent(state, "", "    ")
 	if err != nil {
 		logger.Errorf("Failed to save state file\n%v", err)
 		os.Exit(1)
