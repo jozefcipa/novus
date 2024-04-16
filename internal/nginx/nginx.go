@@ -37,8 +37,8 @@ func Configure(novusConf config.NovusConfig, sslCerts shared.DomainCertificates)
 	newNginxConf := buildServerConfig(novusConf, sslCerts)
 
 	if nginxConf == "" || nginxConf != newNginxConf {
-		writeServerConfig(config.AppName, newNginxConf)
 		logger.Debugf("Generated new Nginx config: \n\n%s", newNginxConf)
+		writeServerConfig(config.AppName, newNginxConf)
 		logger.Checkf("Nginx configuration updated")
 		return true
 	} else {
@@ -49,7 +49,7 @@ func Configure(novusConf config.NovusConfig, sslCerts shared.DomainCertificates)
 
 func readServerConfig(app string) string {
 	path := fmt.Sprintf("%s/novus-%s.conf", NginxServersDir, app)
-	logger.Debugf("Reading Nginx config %s", path)
+	logger.Debugf("Reading Nginx config [%s]", path)
 
 	// If file doesn't exist (an error is thrown) just return an empty string and we'll create a new config later
 	file, _ := fs.ReadFile(path)
@@ -59,7 +59,7 @@ func readServerConfig(app string) string {
 
 func writeServerConfig(app string, serverConfig string) {
 	path := fmt.Sprintf("%s/novus-%s.conf", NginxServersDir, app)
-	logger.Debugf("Nginx: Writing config [%s]", path)
+	logger.Debugf("Updating Nginx config [%s]", path)
 
 	fs.WriteFileOrExit(path, serverConfig)
 }
@@ -72,7 +72,7 @@ func buildServerConfig(novusConfig config.NovusConfig, sslCerts shared.DomainCer
 	serverConfigTemplate := fs.ReadFileOrExit("./assets/nginx/server.template.conf")
 
 	// update routes in state
-	appState := novus.GetState()
+	appState, _ := novus.GetAppState()
 	appState.Routes = novusConfig.Routes
 
 	// Iterate through all the routes and generate Nginx config

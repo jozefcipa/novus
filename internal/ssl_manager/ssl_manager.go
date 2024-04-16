@@ -33,16 +33,21 @@ func EnsureSSLCertificates(conf config.NovusConfig) (shared.DomainCertificates, 
 	}
 
 	if hasNewCerts {
-		logger.Checkf("SSL certificates created")
+		logger.Checkf("SSL certificates updated")
 	} else {
-		logger.Checkf("SSL certificates found")
+		logger.Checkf("SSL certificates are up to date")
 	}
 
 	return domainCerts, hasNewCerts
 }
 
+func getCertificateDirectory(domain string) string {
+	// (~/.novus/certs/{domain})
+	return filepath.Join(certsDir, domain)
+}
+
 func createCert(domain string) (shared.Certificate, bool) {
-	appState := novus.GetState()
+	appState, _ := novus.GetAppState()
 	timeNow := time.Now()
 
 	// check if the certificate already exists
@@ -58,8 +63,8 @@ func createCert(domain string) (shared.Certificate, bool) {
 		}
 	}
 
-	// create a directory for the domain certificate (~/.novus/certs/{domain})
-	domainCertDir := filepath.Join(certsDir, domain)
+	// create a directory for the domain certificate
+	domainCertDir := getCertificateDirectory(domain)
 	fs.MakeDirOrExit(domainCertDir)
 
 	// generate certificate
@@ -72,4 +77,16 @@ func createCert(domain string) (shared.Certificate, bool) {
 	logger.Successf("SSL certificate generated [%s]\n", domain)
 
 	return cert, true
+}
+
+func DeleteCert(domain string) {
+	appState, _ := novus.GetAppState()
+	logger.Debugf("Deleting SSL certificate [%s]", domain)
+
+	// remove directory with SSL certificate for the given domain
+	domainCertDir := getCertificateDirectory(domain)
+	fs.DeleteDir(domainCertDir)
+
+	// remove cert from state
+	delete(appState.SSLCertificates, domain)
 }

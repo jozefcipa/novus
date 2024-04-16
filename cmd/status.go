@@ -16,7 +16,7 @@ var statusCmd = &cobra.Command{
 and print a list of all URLs that are registered by Novus.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		novus.LoadState() // Load application state
-		state := novus.GetState()
+		appState, _ := novus.GetAppState()
 
 		nginxChan := make(chan bool)
 		dnsMasqChan := make(chan bool)
@@ -47,8 +47,8 @@ and print a list of all URLs that are registered by Novus.`,
 			logger.Errorf("Please run `novus serve` to initialize the services.\n")
 		} else {
 			// All good, show the information
-			logger.Checkf("Routing [%s=%s]", config.AppName, state.Directory)
-			for _, route := range state.Routes {
+			logger.Checkf("Routing [%s=%s]", config.AppName, appState.Directory)
+			for _, route := range appState.Routes {
 				logger.Infof("  - %s -> ", route.Upstream)
 				logger.Successf("https://%s\n", route.Domain)
 			}

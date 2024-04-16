@@ -23,14 +23,26 @@ type AppState struct {
 	Routes          []shared.Route            `json:"routes" validate:"required,dive"`
 }
 
-type NovusState map[string]*AppState
+type DnsFiles struct {
+	DnsMasqConfig string `json:"dnsMasqConfig" validate:"required,dirpath"`
+	DnsResolver   string `json:"dnsResolver" validate:"required,dirpath"`
+}
+
+type NovusState struct {
+	// Track files that we create for DNS
+	// As we write into shared directory, we can later on only delete files that we're sure have been created by us
+	// e.g. /etc/resolver directory
+	DnsFiles map[string]*DnsFiles `json:"dnsFiles" validate:"required"`
+	// State for each of the apps
+	Apps map[string]*AppState `json:"apps" validate:"required"`
+}
 
 func (config *NovusState) validate() {
 	logger.Debugf("Validating state file")
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
 
-	for _, appState := range *config {
+	for _, appState := range config.Apps {
 		err := validate.Struct(appState)
 		if err != nil {
 			logger.Errorf("Novus state file is corrupted.\n\n%s\n", err.(validator.ValidationErrors))
@@ -65,11 +77,15 @@ func initEmptyState() *AppState {
 
 func LoadState() {
 	file, err := fs.ReadFile(novusStateFilePath)
+	logger.Debugf("Loading state file [%s]", novusStateFilePath)
 	// if there's an error, probably we didn't find the state, so initialize a new one
 	if err != nil {
 		logger.Debugf("State file not found. Creating a new one...")
 		state = NovusState{
-			"default": initEmptyState(),
+			DnsFiles: map[string]*DnsFiles{},
+			Apps: map[string]*AppState{
+				"default": initEmptyState(),
+			},
 		}
 		return
 	}
@@ -82,21 +98,26 @@ func LoadState() {
 	state.validate()
 }
 
-func GetState() *AppState {
-	appName := config.AppName
-
+func GetState() *NovusState {
 	// if state is empty, load the state file first
-	if state == nil {
+	if len(state.Apps) == 0 {
 		LoadState()
 	}
 
-	appState, exists := state[appName]
+	return &state
+}
+
+func GetAppState() (appState *AppState, isNewState bool) {
+	appName := config.AppName
+
+	appState, exists := GetState().Apps[appName]
 	if !exists {
-		state[appName] = initEmptyState()
-		appState = state[appName]
+		state.Apps[appName] = initEmptyState()
+		appState = state.Apps[appName]
+		return appState, true
 	}
 
-	return appState
+	return appState, false
 }
 
 func SaveState() {
