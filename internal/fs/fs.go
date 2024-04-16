@@ -68,11 +68,36 @@ func WriteFileWithSudoOrExit(path string, data string) {
 	}
 }
 
+func DeleteFile(path string) error {
+	if err := os.Remove(path); err != nil {
+		logger.Errorf("Failed to delete file %s\n%v\n", path, err)
+		return err
+	}
+	return nil
+}
+
+func DeleteFileWithSudo(path string) error {
+	if _, err := exec.Command("sudo", "rm", path).Output(); err != nil {
+		logger.Errorf("Failed to delete file %s\n%v\n", path, err)
+		return err
+	}
+
+	return nil
+}
+
 func MakeDirOrExit(path string) {
 	if err := os.MkdirAll(path, os.ModePerm); err != nil {
 		logger.Errorf("Failed to create directory %s\n%v\n", path, err)
 		os.Exit(1)
 	}
+}
+
+func DeleteDir(path string) error {
+	if err := os.RemoveAll(path); err != nil {
+		logger.Errorf("Failed to delete directory %s\n%v\n", path, err)
+		return err
+	}
+	return nil
 }
 
 func MakeDirWithSudoOrExit(path string) {
