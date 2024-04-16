@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>404 Not Found</title>
   <style>
+    * {margin:0;padding:0;}
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
       margin: 0;
       padding: 0;
       display: flex;
@@ -20,27 +21,38 @@
       text-align: center;
     }
 
-    .error-code {
-      font-size: 5em;
+    #error-code {
+      font-size: 15em;
       color: #e74c3c;
+      font-weight: 400;
+      background: -webkit-linear-gradient(#f29f97, #e3301e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
-    .error-message {
-      font-size: 1.5em;
-      color: #555;
+    #error-message {
+      font-size: 2em;
+      font-weight: 400;
+      color: #71797E;
+      text-transform: uppercase;
     }
 
-    .suggestion {
-      font-size: 1em;
-      color: #888;
+    #suggestion {
+      font-size: 1.1em;
+      line-height: 1.4em;
+      color: #71797E;
+      margin-top: 2em;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="error-code">404</div>
-    <div class="error-message">Not Found</div>
-    <p class="suggestion">This URL is not registered in Novus. <br>You can add it in your <code>novus.yml</code> configuration.</p>
+    <h1 id="error-code">404</h1>
+    <h2 id="error-message">Not Found</h2>
+    <p id="suggestion">
+      This URL is not registered in <code>novus.yml</code>&nbsp;🙈<br>
+      Open your editor and update the routing configuration
+    </p>
   </div>
 </body>
 </html>
