@@ -16,13 +16,16 @@ const configFileName = "novus.yml"
 var AppName = "default"
 
 type NovusConfig struct {
-	Routes []shared.Route `yaml:"routes" validate:"required,dive"`
+	Routes []shared.Route `yaml:"routes" validate:"required,unique_routes,dive"`
 }
 
 func (config *NovusConfig) validate() {
 	logger.Debugf("Validating configuration file")
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
+
+	// register custom `unique_routes` rule
+	shared.RegisterUniqueRoutesValidator(validate)
 
 	err := validate.Struct(config)
 	if err != nil {
