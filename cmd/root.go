@@ -3,6 +3,7 @@ package cmd
 import (
 	"os"
 
+	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/spf13/cobra"
 )
@@ -26,6 +27,9 @@ that will forward all the traffic to your upstream service.
 
 To start run "novus serve --create-config" to initialize Novus and create an example configuration.
 `,
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		fs.ResolveDirs()
+	},
 }
 
 func Execute() {

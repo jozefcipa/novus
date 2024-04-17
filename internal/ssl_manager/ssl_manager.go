@@ -14,13 +14,11 @@ import (
 
 var certsDir string
 
-func init() {
-	// create a directory for the SSL certificates (~/.novus/certs)
-	certsDir = filepath.Join(novus.NovusStateDir, "/certs")
-	fs.MakeDirOrExit(certsDir)
-}
-
 func EnsureSSLCertificates(conf config.NovusConfig) (shared.DomainCertificates, bool) {
+	// create a directory for the SSL certificates (~/.novus/certs)
+	certsDir = filepath.Join(novus.NovusStateDir, "certs")
+	fs.MakeDirOrExit(certsDir)
+
 	domainCerts := make(shared.DomainCertificates, len(conf.Routes))
 	hasNewCerts := false
 

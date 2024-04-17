@@ -90,10 +90,10 @@ func Configure(config config.NovusConfig) bool {
 	}
 
 	if updated {
-		logger.Checkf("DNSMasq: Configuration updated")
+		logger.Checkf("DNSMasq configuration updated")
 		return true
 	} else {
-		logger.Checkf("DNSMasq: Configuration is up to date")
+		logger.Checkf("DNSMasq configuration is up to date")
 		return false
 	}
 }
@@ -164,7 +164,7 @@ func createDNSMasqTLDConfig(tld string) (bool, string) {
 }
 
 func registerTLDResolver(tld string) (bool, string) {
-	configPath := fmt.Sprintf("%s/%s", dnsResolverDir, tld)
+	configPath := filepath.Join(dnsResolverDir, tld)
 
 	// first check if the file already exists
 	if fExists := fs.FileExists(configPath); fExists {

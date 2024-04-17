@@ -5,20 +5,52 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
+	"path/filepath"
+	"strings"
 
 	"github.com/jozefcipa/novus/internal/logger"
 )
 
 var UserHomeDir string
+var CurrentDir string
+var NovusDir string
 
-func init() {
+// Cannot use `init()` here because the order in which these init() functions are called across packages causes
+// that `DebugEnabled` flag is not yet available here (`rootCmd.init()` is called after `fs.init()`)
+func ResolveDirs() {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		logger.Errorf("Failed to get user home directory\n%v\n", err)
 		os.Exit(1)
 	}
+	currentDir, err := os.Getwd()
+	if err != nil {
+		logger.Errorf("Failed to get current working directory\n%v\n", err)
+		os.Exit(1)
+	}
+
+	executablePath, err := os.Executable()
+	if err != nil {
+		logger.Errorf("Failed to get novus binary directory\n%v\n", err)
+		os.Exit(1)
+	}
+	novusDir := filepath.Dir(executablePath)
+	// When running in development with `go run` it gives temporary directory,
+	// therefore set the novus dir path to the current directory
+	if strings.Contains(novusDir, "go-build") {
+		novusDir = currentDir
+	}
 
 	UserHomeDir = homeDir
+	NovusDir = novusDir
+	CurrentDir = currentDir
+
+	logger.Debugf(
+		"Filesystem initialized.\n\tUser Home Directory = %s\n\tNovus Binary Directory = %s\n\tCurrent Directory = %s",
+		UserHomeDir,
+		NovusDir,
+		CurrentDir,
+	)
 }
 
 func ReadFileOrExit(path string) string {
@@ -105,16 +137,6 @@ func MakeDirWithSudoOrExit(path string) {
 		logger.Errorf("Failed to create directory $s\n%v\n", path, err)
 		os.Exit(1)
 	}
-}
-
-func GetCurrentDir() string {
-	cwd, err := os.Getwd()
-	if err != nil {
-		logger.Errorf("Failed to get current working directory\n%v\n", err)
-		os.Exit(1)
-	}
-
-	return cwd
 }
 
 func FileExists(path string) bool {

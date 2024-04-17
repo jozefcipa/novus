@@ -59,7 +59,15 @@ func (config *NovusState) validate() {
 	}
 }
 
-func init() {
+func initEmptyState() *AppState {
+	return &AppState{
+		Directory:       fs.CurrentDir,
+		SSLCertificates: shared.DomainCertificates{},
+		Routes:          []shared.Route{},
+	}
+}
+
+func initStateFile() {
 	// Create a directory ~/.novus
 	// where we can store generated SSL certificates and application state
 	NovusStateDir = filepath.Join(fs.UserHomeDir, ".novus")
@@ -67,15 +75,9 @@ func init() {
 	novusStateFilePath = filepath.Join(NovusStateDir, "novus.json")
 }
 
-func initEmptyState() *AppState {
-	return &AppState{
-		Directory:       fs.GetCurrentDir(),
-		SSLCertificates: shared.DomainCertificates{},
-		Routes:          []shared.Route{},
-	}
-}
-
 func LoadState() {
+	initStateFile()
+
 	file, err := fs.ReadFile(novusStateFilePath)
 	logger.Debugf("Loading state file [%s]", novusStateFilePath)
 	// if there's an error, probably we didn't find the state, so initialize a new one
@@ -132,6 +134,6 @@ func SaveState() {
 	}
 
 	// save file
-	logger.Debugf("Saving novus state")
+	logger.Debugf("Saving novus state [%s]", novusStateFilePath)
 	fs.WriteFileOrExit(novusStateFilePath, string(jsonState))
 }

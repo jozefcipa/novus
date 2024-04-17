@@ -36,31 +36,33 @@ func (config *NovusConfig) validate() {
 
 func createDefaultConfigFile() {
 	// if we didn't find config file, let's create the default one
-	err := fs.Copy("./assets/novus.example.yml", "./"+configFileName)
+	err := fs.Copy(
+		filepath.Join(fs.NovusDir, "assets/novus.example.yml"),
+		filepath.Join(fs.CurrentDir, configFileName),
+	)
 
 	// if we weren't able to create a default config, throw an error
 	if err != nil {
-		logger.Errorf("%v\n", err)
 		// we failed to create a default config file
-		logger.Errorf("Example configuration file not found.\n%v", err)
+		logger.Errorf("Example configuration file not found: %v", err)
 		os.Exit(1)
 	}
 }
 
 func Load(shouldCreateIfNotExists bool) NovusConfig {
-	cwd := fs.GetCurrentDir()
+	configPath := filepath.Join(fs.CurrentDir, configFileName)
+	configFile, err := fs.ReadFile(configPath)
+	logger.Debugf("Loading configuration file [%s]", configPath)
 
-	configFile, err := fs.ReadFile(filepath.Join(cwd, configFileName))
 	if err != nil {
-		logger.Errorf("No configuration file found.\n")
-
 		if shouldCreateIfNotExists {
 			createDefaultConfigFile()
 
-			logger.Successf("Created a new config file.\n")
+			logger.Successf("Config file created.\n")
 			logger.Infof("Open \"%s\" and define your routes.\n", configFileName)
 		} else {
-			logger.Messagef("Make sure %s exists in your directory or run `novus serve --create-config` to create a default configuration file.\n", configFileName)
+			logger.Errorf("Configuration file not found.\n")
+			logger.Messagef("Run \"novus serve --create-config\" to initialize configuration.\n")
 		}
 
 		// exit now so the user can either update the generated config or call the command again properly
