@@ -28,9 +28,7 @@ routes:
   - domain: my-frontend.test
     upstream: http://localhost:3000
   - domain: my-api.test
-    upstream: http://localhost:5050
-  - domain: my-search-api.test
-    upstream: http://localhost:8000
+    upstream: http://localhost:5000
 ```
 
 - run `novus serve`
