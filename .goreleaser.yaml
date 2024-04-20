@@ -1,11 +1,3 @@
-# This is an example .goreleaser.yml file with some sensible defaults.
-# Make sure to check the documentation at https://goreleaser.com
-
-# The lines below are called `modelines`. See `:help modeline`
-# Feel free to remove those if you don't want/need to use them.
-# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
-# vim: set ts=2 sw=2 tw=0 fo=cnqoj
-
 version: 1
 
 before:
@@ -16,8 +8,6 @@ builds:
   - env:
       - CGO_ENABLED=0
     goos:
-      # - linux
-      # - windows
       - darwin
 
 archives:
@@ -30,15 +20,59 @@ archives:
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
-    # use zip for windows archives
-    # format_overrides:
-    #   - goos: windows
-    #     format: zip
 
 changelog:
-  sort: asc
+  # empty => use the output of `git log` as is
+  sort: 
   filters:
     exclude:
       - "^docs:"
-      - "^test:"
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: "Bug fixes"
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: Others
+      order: 999
 
+brews:
+  - name: novus
+    url_template: "https://github.com/jozefcipa/novus/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    download_strategy: CurlDownloadStrategy
+
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
+    commit_msg_template: "chore(release): brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+
+    # Directory inside the repository to put the formula.
+    directory: Formula
+    homepage: "https://github.com/jozefcipa/novus"
+    description: "A local HTTPS proxy for a delightful developer experience."
+    license: "MIT"
+
+    # Setting this will prevent goreleaser to actually try to commit the updated
+    # formula - instead, the formula file will be stored on the dist directory
+    # only, leaving the responsibility of publishing it to the user.
+    # If set to auto, the release will not be uploaded to the homebrew tap
+    # in case there is an indicator for prerelease in the tag e.g. v1.0.0-rc1
+
+    skip_upload: false
+
+    # Repository to push the generated files to.
+    repository:
+      owner: jozefcipa
+      name: homebrew-novus
+      git:
+        url: 'ssh://git@github.com:jozefcipa/homebrew-novus.git'
+        private_key: '{{ .Env.GITHUB_PRIVATE_KEY_PATH }}'
+
+        # The value to be passed to `GIT_SSH_COMMAND`.
+        # This is mainly used to specify the SSH private key used to pull/push
+        # to the Git URL.
+        #
+        # Default: 'ssh -i {{ .KeyPath }} -o StrictHostKeyChecking=accept-new -F /dev/null'
+        # Templates: allowed
+        # ssh_command: 'ssh -i {{ .Env.KEY }} -o SomeOption=yes'
