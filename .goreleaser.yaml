@@ -47,8 +47,7 @@ brews:
       email: bot@goreleaser.com
     commit_msg_template: "chore(release): brew formula update for {{ .ProjectName }} version {{ .Tag }}"
 
-    # Directory inside the repository to put the formula.
-    directory: Formula
+    directory: .
     homepage: "https://github.com/jozefcipa/novus"
     description: "A local HTTPS proxy for a delightful developer experience."
     license: "MIT"
@@ -58,21 +57,11 @@ brews:
     # only, leaving the responsibility of publishing it to the user.
     # If set to auto, the release will not be uploaded to the homebrew tap
     # in case there is an indicator for prerelease in the tag e.g. v1.0.0-rc1
+    skip_upload: false # TODO set to `auto`
 
-    skip_upload: false
-
-    # Repository to push the generated files to.
     repository:
       owner: jozefcipa
       name: homebrew-novus
       git:
         url: 'git@github.com:jozefcipa/homebrew-novus.git'
         private_key: '{{ .Env.GITHUB_PRIVATE_KEY_PATH }}'
-
-        # The value to be passed to `GIT_SSH_COMMAND`.
-        # This is mainly used to specify the SSH private key used to pull/push
-        # to the Git URL.
-        #
-        # Default: 'ssh -i {{ .KeyPath }} -o StrictHostKeyChecking=accept-new -F /dev/null'
-        # Templates: allowed
-        # ssh_command: 'ssh -i {{ .Env.KEY }} -o SomeOption=yes'
