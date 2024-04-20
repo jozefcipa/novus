@@ -21,6 +21,11 @@ archives:
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
 
+    files:
+      - LICENSE
+      - README.md
+      - assets/*
+
 changelog:
   # empty => use the output of `git log` as is
   sort: 
