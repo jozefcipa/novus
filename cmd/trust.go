@@ -15,7 +15,7 @@ var trustCmd = &cobra.Command{
 	Use:   "trust",
 	Short: "Allow running `novus` commands without password",
 	Long: `This command will create a record in "/etc/sudoers.d/novus",
-which will allow running Novus commands without asking for password.
+which allows running Novus commands without asking for a password.
 
 Novus needs sudo access for manipulating DNS records via DNSMasq.
 `,
@@ -27,10 +27,17 @@ Novus needs sudo access for manipulating DNS records via DNSMasq.
 			os.Exit(0)
 		}
 
-		novusBinPath := filepath.Join(brew.BrewPath, "bin/novus")
-		sudoPermissions := fmt.Sprintf("Cmnd_Alias NOVUS = %s *\n%%admin ALL=(root) NOPASSWD: NOVUS\n", novusBinPath)
+		// Register Homebrew to sudoers file so it can be ran without sudo password
+		brewBinPath := filepath.Join(brew.BrewPath, "bin/brew")
+		sudoPermissions := fmt.Sprintf("Cmnd_Alias HOMEBREW = %s *\n"+
+			"%%admin ALL=(root) NOPASSWD: HOMEBREW\n",
+			brewBinPath,
+		)
 		logger.Messagef("Creating /etc/sudoers.d file for Novus.\n")
+
 		fs.WriteFileWithSudoOrExit(sudoersFile, sudoPermissions)
+		fs.ChownOrExit(sudoersFile, "root") // sudoers file must be owned by root
+
 		logger.Successf("Novus is now registered in %s and can be used without sudo password.\n", sudoersFile)
 	},
 }

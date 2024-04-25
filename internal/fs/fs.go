@@ -61,10 +61,15 @@ func ResolveDirs() {
 	}
 
 	logger.Debugf(
-		"Filesystem initialized.\n\tUser Home Directory = %s\n\tCurrent Directory = %s\n\tAssets Directory = %s",
+		"Filesystem initialized.\n"+
+			"\tUser Home Directory = %s\n"+
+			"\tAssets Directory = %s\n"+
+			"\tNovus Binary Directory = %s\n"+
+			"\tCurrent Directory = %s",
 		UserHomeDir,
-		CurrentDir,
 		AssetsDir,
+		novusBinaryDir,
+		CurrentDir,
 	)
 }
 
@@ -101,12 +106,9 @@ func WriteFileWithSudoOrExit(path string, data string) {
 		os.Exit(1)
 	}
 
-	usr, _ := user.Current()
-	if _, err := exec.Command("sudo", "chown", usr.Username, path).Output(); err != nil {
-		logger.Errorf("Failed to call `chown` on file %s\n%v\n", path, err)
-		os.Exit(1)
-	}
-
+	// We need to change the file owner to the current user in order to be able to write to the file
+	user, _ := user.Current()
+	ChownOrExit(path, user.Username)
 	err := os.WriteFile(path, []byte(data), 0644)
 
 	if err != nil {
@@ -179,4 +181,11 @@ func Copy(src string, dest string) error {
 	}
 
 	return nil
+}
+
+func ChownOrExit(path string, user string) {
+	if _, err := exec.Command("sudo", "chown", user, path).Output(); err != nil {
+		logger.Errorf("Failed to call `chown` on file %s\n%v\n", path, err)
+		os.Exit(1)
+	}
 }
