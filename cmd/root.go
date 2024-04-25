@@ -9,8 +9,10 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "novus",
-	Short: "Local web development done effortlessly",
+	// version is passed down from the main.go, this is only a placeholder to enable the --version flag
+	Version: "-",
+	Use:     "novus",
+	Short:   "Local web development done effortlessly",
 	Long: ` _   _
 | \ | | _____   ___   _ ___
 |  \| |/ _ \ \ / / | | / __|
@@ -32,7 +34,8 @@ To start run "novus serve --create-config" to initialize Novus and create an exa
 	},
 }
 
-func Execute() {
+func Execute(version string) {
+	rootCmd.SetVersionTemplate(version)
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
