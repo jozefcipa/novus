@@ -13,7 +13,7 @@ import (
 
 var UserHomeDir string
 var CurrentDir string
-var NovusDir string
+var AssetsDir string
 
 // Cannot use `init()` here because the order in which these init() functions are called across packages causes
 // that `DebugEnabled` flag is not yet available here (`rootCmd.init()` is called after `fs.init()`)
@@ -23,33 +23,48 @@ func ResolveDirs() {
 		logger.Errorf("Failed to get user home directory\n%v\n", err)
 		os.Exit(1)
 	}
+	UserHomeDir = homeDir
+
 	currentDir, err := os.Getwd()
 	if err != nil {
 		logger.Errorf("Failed to get current working directory\n%v\n", err)
 		os.Exit(1)
 	}
+	CurrentDir = currentDir
 
 	executablePath, err := os.Executable()
 	if err != nil {
 		logger.Errorf("Failed to get novus binary directory\n%v\n", err)
 		os.Exit(1)
 	}
-	novusDir := filepath.Dir(executablePath)
+	novusBinaryDir := filepath.Dir(executablePath)
 	// When running in development with `go run` it gives temporary directory,
 	// therefore set the novus dir path to the current directory
-	if strings.Contains(novusDir, "go-build") {
-		novusDir = currentDir
+	if strings.Contains(novusBinaryDir, "go-build") {
+		novusBinaryDir = currentDir
+		// In local develop environment, the ./assets are stored next to the output binary
+		// - ./novus
+		// - ./assets/...
+		AssetsDir = filepath.Join(currentDir, "assets")
+	} else {
+		// If a non-develop binary is used, the ./assets directory is one level above in the filesystem
+		// This is the Homebrew structure
+		// - ./bin/novus
+		// - ./assets/...
+		AssetsDir = filepath.Join(novusBinaryDir, "..", "assets")
 	}
 
-	UserHomeDir = homeDir
-	NovusDir = novusDir
-	CurrentDir = currentDir
+	// Make sure assets directory is available
+	if !FileExists(AssetsDir) {
+		logger.Errorf("Assets directory not found: %s\n", AssetsDir)
+		os.Exit(1)
+	}
 
 	logger.Debugf(
-		"Filesystem initialized.\n\tUser Home Directory = %s\n\tNovus Binary Directory = %s\n\tCurrent Directory = %s",
+		"Filesystem initialized.\n\tUser Home Directory = %s\n\tCurrent Directory = %s\n\tAssets Directory = %s",
 		UserHomeDir,
-		NovusDir,
 		CurrentDir,
+		AssetsDir,
 	)
 }
 

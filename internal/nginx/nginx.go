@@ -67,8 +67,8 @@ func writeServerConfig(app string, serverConfig string) {
 
 func buildServerConfig(novusConfig config.NovusConfig, sslCerts shared.DomainCertificates) string {
 	// Read template files
-	configTemplate := fs.ReadFileOrExit(filepath.Join(fs.NovusDir, "assets/nginx/config.template.conf"))
-	serverConfigTemplate := fs.ReadFileOrExit(filepath.Join(fs.NovusDir, "assets/nginx/server.template.conf"))
+	configTemplate := fs.ReadFileOrExit(filepath.Join(fs.AssetsDir, "nginx/config.template.conf"))
+	serverConfigTemplate := fs.ReadFileOrExit(filepath.Join(fs.AssetsDir, "nginx/server.template.conf"))
 
 	// update routes in state
 	appState, _ := novus.GetAppState()
@@ -82,7 +82,7 @@ func buildServerConfig(novusConfig config.NovusConfig, sslCerts shared.DomainCer
 		// create Nginx server block
 		routeConfig := strings.Replace(serverConfigTemplate, "--SERVER_NAME--", route.Domain, -1)
 		routeConfig = strings.Replace(routeConfig, "--UPSTREAM_ADDR--", route.Upstream, -1)
-		routeConfig = strings.Replace(routeConfig, "--ERRORS_DIR--", filepath.Join(fs.NovusDir, "assets/nginx"), -1)
+		routeConfig = strings.Replace(routeConfig, "--ERRORS_DIR--", filepath.Join(fs.AssetsDir, "nginx"), -1)
 		routeConfig = strings.Replace(routeConfig, "--SSL_CERT_PATH--", sslCert.CertFilePath, 1)
 		routeConfig = strings.Replace(routeConfig, "--SSL_KEY_PATH--", sslCert.KeyFilePath, 1)
 
@@ -90,7 +90,7 @@ func buildServerConfig(novusConfig config.NovusConfig, sslCerts shared.DomainCer
 	}
 
 	// Insert servers section into the main config
-	serverConfig := strings.Replace(configTemplate, "--ERRORS_DIR--", filepath.Join(fs.NovusDir, "assets/nginx"), -1)
+	serverConfig := strings.Replace(configTemplate, "--ERRORS_DIR--", filepath.Join(fs.AssetsDir, "nginx"), -1)
 	serverConfig = strings.Replace(serverConfig, "--SERVERS_SECTION--", serversSection, 1)
 
 	return serverConfig

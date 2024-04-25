@@ -37,7 +37,7 @@ func (config *NovusConfig) validate() {
 func createDefaultConfigFile() {
 	// if we didn't find config file, let's create the default one
 	err := fs.Copy(
-		filepath.Join(fs.NovusDir, "assets/novus.example.yml"),
+		filepath.Join(fs.AssetsDir, "novus.example.yml"),
 		filepath.Join(fs.CurrentDir, configFileName),
 	)
 

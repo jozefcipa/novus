@@ -21,6 +21,7 @@ archives:
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
 
+    # Extra files to include in the archive
     files:
       - LICENSE
       - README.md
@@ -44,6 +45,10 @@ changelog:
 
 brews:
   - name: novus
+    homepage: "https://github.com/jozefcipa/novus"
+    description: "A local HTTPS proxy for a delightful developer experience."
+    license: "MIT"
+
     url_template: "https://github.com/jozefcipa/novus/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     download_strategy: CurlDownloadStrategy
 
@@ -51,11 +56,13 @@ brews:
       name: goreleaserbot
       email: bot@goreleaser.com
     commit_msg_template: "chore(release): brew formula update for {{ .ProjectName }} version {{ .Tag }}"
-
+    repository:
+      owner: jozefcipa
+      name: homebrew-novus
+      git:
+        url: 'git@github.com:jozefcipa/homebrew-novus.git'
+        private_key: '{{ .Env.GITHUB_PRIVATE_KEY_PATH }}'
     directory: .
-    homepage: "https://github.com/jozefcipa/novus"
-    description: "A local HTTPS proxy for a delightful developer experience."
-    license: "MIT"
 
     # Setting this will prevent goreleaser to actually try to commit the updated
     # formula - instead, the formula file will be stored on the dist directory
@@ -64,9 +71,5 @@ brews:
     # in case there is an indicator for prerelease in the tag e.g. v1.0.0-rc1
     skip_upload: false # TODO set to `auto`
 
-    repository:
-      owner: jozefcipa
-      name: homebrew-novus
-      git:
-        url: 'git@github.com:jozefcipa/homebrew-novus.git'
-        private_key: '{{ .Env.GITHUB_PRIVATE_KEY_PATH }}'
+    extra_install: |
+      prefix.install Dir["assets/*"]
