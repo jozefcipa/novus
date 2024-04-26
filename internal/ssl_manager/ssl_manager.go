@@ -15,7 +15,7 @@ import (
 var certsDir string
 
 func EnsureSSLCertificates(conf config.NovusConfig) (shared.DomainCertificates, bool) {
-	// create a directory for the SSL certificates (~/.novus/certs)
+	// Create a directory for the SSL certificates (~/.novus/certs)
 	certsDir = filepath.Join(novus.NovusStateDir, "certs")
 	fs.MakeDirOrExit(certsDir)
 
@@ -48,11 +48,11 @@ func createCert(domain string) (shared.Certificate, bool) {
 	appState, _ := novus.GetAppState()
 	timeNow := time.Now()
 
-	// check if the certificate already exists
+	// Check if the certificate already exists
 	storedCert, exists := appState.SSLCertificates[domain]
 	if exists {
-		// check certificate expiration
-		// if the certificate expires in less than a month, we will renew it
+		// Check certificate expiration
+		// If the certificate expires in less than a month, we will renew it
 		if timeNow.After(storedCert.ExpiresAt.AddDate(0, -1, 0)) {
 			logger.Debugf("SSL certificate expires in <1 month [%s=%s]", domain, storedCert.CertFilePath)
 		} else {
@@ -61,18 +61,18 @@ func createCert(domain string) (shared.Certificate, bool) {
 		}
 	}
 
-	// create a directory for the domain certificate
+	// Create a directory for the domain certificate
 	domainCertDir := getCertificateDirectory(domain)
 	fs.MakeDirOrExit(domainCertDir)
 
-	// generate certificate
+	// Generate certificate
 	logger.Debugf("Creating SSL certificate [%s]", domain)
 	cert := mkcert.GenerateSSLCert(domain, domainCertDir)
 
-	// save cert in state
+	// Save cert in state
 	appState.SSLCertificates[domain] = cert
 
-	logger.Successf("SSL certificate generated [%s]\n", domain)
+	logger.Successf("✅ SSL certificate generated [%s]\n", domain)
 
 	return cert, true
 }
@@ -81,10 +81,10 @@ func DeleteCert(domain string) {
 	appState, _ := novus.GetAppState()
 	logger.Debugf("Deleting SSL certificate [%s]", domain)
 
-	// remove directory with SSL certificate for the given domain
+	// Remove directory with SSL certificate for the given domain
 	domainCertDir := getCertificateDirectory(domain)
 	fs.DeleteDir(domainCertDir)
 
-	// remove cert from state
+	// Remove cert from state
 	delete(appState.SSLCertificates, domain)
 }

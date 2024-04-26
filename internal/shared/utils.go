@@ -1,5 +1,7 @@
 package shared
 
+import "strings"
+
 // difference returns the elements in `a` that aren't in `b`.
 // https://stackoverflow.com/a/45428032/4480179
 func Difference(a, b []string) []string {
@@ -14,4 +16,17 @@ func Difference(a, b []string) []string {
 		}
 	}
 	return diff
+}
+
+func ToKebabCase(input string) string {
+	return strings.ReplaceAll(
+		strings.ToLower(
+			strings.Join(
+				strings.Fields(input),
+				" ",
+			),
+		),
+		" ",
+		"-",
+	)
 }

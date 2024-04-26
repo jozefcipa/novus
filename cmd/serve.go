@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/jozefcipa/novus/internal/brew"
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/diff_manager"
@@ -14,16 +16,23 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var shouldCreateConfigFile bool
-
 var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Setup Novus to start serving URLs",
 	Long:  `Install Nginx, DNSMasq and mkcert and automatically expose HTTPs URLs for the endpoints defined in the config.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		brew.InstallBinaries()                        // Make sure we have the necessary binaries available
+		// if we don't have the binaries, exit here, the user needs to run `novus init` first.
+		if !brew.CheckRequiredBinariesPresence() {
+			os.Exit(1)
+		}
+
 		novusState, isNewState := novus.GetAppState() // Load application state
-		conf := config.Load(shouldCreateConfigFile)   // Load configuration file
+		conf, exists := config.Load()                 // Load configuration file
+		if !exists {
+			logger.Warnf("🙉 Novus is not initialized in this directory (no configuration found).\n")
+			logger.Messagef("💡 Run \"novus init\" to create a configuration file.\n")
+			os.Exit(1)
+		}
 
 		// Handle config changes diff
 		addedRoutes, deletedRoutes := diff_manager.DetectConfigDiff(conf, *novusState)
@@ -93,6 +102,5 @@ var serveCmd = &cobra.Command{
 }
 
 func init() {
-	serveCmd.PersistentFlags().BoolVar(&shouldCreateConfigFile, "create-config", false, "create a configuration file")
 	rootCmd.AddCommand(serveCmd)
 }

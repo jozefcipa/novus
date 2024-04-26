@@ -28,7 +28,7 @@ SSL secured URLs that proxy traffic to your services.
 That means no more http://localhost:3000 calls.
 Instead, open the "novus.yml" configuration and add a nice custom domain name
 that will forward all the traffic to your upstream service.
-To start run "novus serve --create-config" to initialize Novus and create an example configuration.`)
+To start run "novus init" to initialize Novus and create a configuration file.`)
 
 		cmd.Help()
 	},

@@ -1,3 +1,4 @@
+appName: --APP_NAME--
 routes:
   - domain: my-frontend.test
     upstream: http://localhost:3000

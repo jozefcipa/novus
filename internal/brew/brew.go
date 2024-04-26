@@ -34,6 +34,31 @@ func init() {
 	svcStatusCommands = []string{"brew", "services", "info", "--json"}
 }
 
+func CheckRequiredBinariesPresence() bool {
+	notInstalledMsg := "🙉 %s is not installed on this system!\n"
+	adviceMsg := "💡 Run \"novus init\" first to initialize Novus.\n"
+
+	if exists := binExists("nginx"); !exists {
+		logger.Warnf(notInstalledMsg, "Nginx")
+		logger.Messagef(adviceMsg)
+		return false
+	}
+
+	if exists := binExists("dnsmasq"); !exists {
+		logger.Warnf(notInstalledMsg, "DNSMasq")
+		logger.Messagef(adviceMsg)
+		return false
+	}
+
+	if exists := binExists("mkcert"); !exists {
+		logger.Warnf(notInstalledMsg, "mkcert")
+		logger.Messagef(adviceMsg)
+		return false
+	}
+
+	return true
+}
+
 func InstallBinaries() {
 	// First check that Homebrew is installed
 	brewExists := binExists("brew")

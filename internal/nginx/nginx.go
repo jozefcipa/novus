@@ -70,7 +70,7 @@ func buildServerConfig(novusConfig config.NovusConfig, sslCerts shared.DomainCer
 	configTemplate := fs.ReadFileOrExit(filepath.Join(fs.AssetsDir, "nginx/config.template.conf"))
 	serverConfigTemplate := fs.ReadFileOrExit(filepath.Join(fs.AssetsDir, "nginx/server.template.conf"))
 
-	// update routes in state
+	// Update routes in state
 	appState, _ := novus.GetAppState()
 	appState.Routes = novusConfig.Routes
 
@@ -79,12 +79,12 @@ func buildServerConfig(novusConfig config.NovusConfig, sslCerts shared.DomainCer
 	for _, route := range novusConfig.Routes {
 		sslCert := sslCerts[route.Domain]
 
-		// create Nginx server block
-		routeConfig := strings.Replace(serverConfigTemplate, "--SERVER_NAME--", route.Domain, -1)
-		routeConfig = strings.Replace(routeConfig, "--UPSTREAM_ADDR--", route.Upstream, -1)
-		routeConfig = strings.Replace(routeConfig, "--ERRORS_DIR--", filepath.Join(fs.AssetsDir, "nginx"), -1)
-		routeConfig = strings.Replace(routeConfig, "--SSL_CERT_PATH--", sslCert.CertFilePath, 1)
-		routeConfig = strings.Replace(routeConfig, "--SSL_KEY_PATH--", sslCert.KeyFilePath, 1)
+		// Create Nginx server block
+		routeConfig := strings.ReplaceAll(serverConfigTemplate, "--SERVER_NAME--", route.Domain)
+		routeConfig = strings.ReplaceAll(routeConfig, "--UPSTREAM_ADDR--", route.Upstream)
+		routeConfig = strings.ReplaceAll(routeConfig, "--ERRORS_DIR--", filepath.Join(fs.AssetsDir, "nginx"))
+		routeConfig = strings.ReplaceAll(routeConfig, "--SSL_CERT_PATH--", sslCert.CertFilePath)
+		routeConfig = strings.ReplaceAll(routeConfig, "--SSL_KEY_PATH--", sslCert.KeyFilePath)
 
 		serversSection += routeConfig + "\n"
 	}

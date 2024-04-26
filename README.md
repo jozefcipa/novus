@@ -21,7 +21,7 @@ $ brew install novus
 ```
 
 ## How to use
-- when first running run with --create-config option
+- `novus init`
 - then define your routes in the config
 ```yaml
 routes:
@@ -40,8 +40,8 @@ It will ask for your password as it performs some `sudo` calls (for managing DNS
 ## Commands
 Explain how to use your CLI tool, including command syntax and available options. Provide examples of common use cases to help users get started quickly.
 
+- novus init
 - novus serve
-- novus serve --create-config
 - novus status
 - novus stop
 - novus trust

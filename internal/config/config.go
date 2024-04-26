@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/jozefcipa/novus/internal/fs"
@@ -24,7 +25,7 @@ func (config *NovusConfig) validate() {
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
 
-	// register custom `unique_routes` rule
+	// Register custom `unique_routes` rule
 	shared.RegisterUniqueRoutesValidator(validate)
 
 	err := validate.Struct(config)
@@ -34,43 +35,32 @@ func (config *NovusConfig) validate() {
 	}
 }
 
-func createDefaultConfigFile() {
-	// if we didn't find config file, let's create the default one
-	err := fs.Copy(
-		filepath.Join(fs.AssetsDir, "novus.example.yml"),
-		filepath.Join(fs.CurrentDir, configFileName),
-	)
+func CreateDefaultConfigFile(appName string) (isDuplicateName bool) {
+	// Read the config file template
+	configTemplate := fs.ReadFileOrExit(filepath.Join(fs.AssetsDir, "novus.template.yml"))
 
-	// if we weren't able to create a default config, throw an error
-	if err != nil {
-		// we failed to create a default config file
-		logger.Errorf("Example configuration file not found: %v", err)
-		os.Exit(1)
-	}
+	// Set app name in the config
+	configTemplate = strings.Replace(configTemplate, "--APP_NAME--", appName, 1)
+
+	// TODO: check in state file if appName is already being used
+	// TODO: validate app name format
+	isDuplicateName = false
+
+	// Create a new config file
+	fs.WriteFileOrExit(filepath.Join(fs.CurrentDir, configFileName), configTemplate)
+	return
 }
 
-func Load(shouldCreateIfNotExists bool) NovusConfig {
+func Load() (NovusConfig, bool) {
 	configPath := filepath.Join(fs.CurrentDir, configFileName)
-	configFile, err := fs.ReadFile(configPath)
+
 	logger.Debugf("Loading configuration file [%s]", configPath)
-
+	configFile, err := fs.ReadFile(configPath)
 	if err != nil {
-		if shouldCreateIfNotExists {
-			createDefaultConfigFile()
-
-			logger.Successf("Config file created.\n")
-			logger.Infof("Open \"%s\" and define your routes.\n", configFileName)
-		} else {
-			logger.Errorf("Configuration file not found.\n")
-			logger.Messagef("Run \"novus serve --create-config\" to initialize configuration.\n")
-		}
-
-		// exit now so the user can either update the generated config or call the command again properly
-		os.Exit(0)
+		return NovusConfig{}, false
 	}
 
 	config := NovusConfig{}
-
 	err = yaml.Unmarshal([]byte(configFile), &config)
 	if err != nil {
 		logger.Errorf("Failed to parse the config file: %v", err)
@@ -79,5 +69,5 @@ func Load(shouldCreateIfNotExists bool) NovusConfig {
 
 	config.validate()
 
-	return config
+	return config, true
 }

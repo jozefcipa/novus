@@ -12,6 +12,8 @@ var Messagef = color.New(color.FgCyan).PrintfFunc()
 
 var Errorf = color.New(color.FgRed).PrintfFunc()
 
+var Warnf = color.New(color.FgYellow).PrintfFunc()
+
 func Checkf(format string, a ...interface{}) {
 	Messagef("✔ "+format+"\n", a...)
 }
@@ -21,6 +23,6 @@ var DebugEnabled bool
 
 func Debugf(format string, a ...interface{}) {
 	if DebugEnabled {
-		color.New(color.FgYellow).Printf("[DEBUG] "+format+"\n", a...)
+		color.New(color.FgMagenta).Printf("[DEBUG] "+format+"\n", a...)
 	}
 }
