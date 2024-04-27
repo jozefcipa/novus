@@ -1,9 +1,5 @@
-# novus
-
-> A local HTTPS proxy for a delightful developer experience
-
 <p align="center">
-  <img src="./assets/gopher.png" width="200">
+  <img src="./assets/banner.png">
 </p>
 
 Briefly introduce your CLI tool and its purpose. Explain how it helps developers deploy websites on localhost more efficiently.
@@ -14,9 +10,10 @@ Briefly introduce your CLI tool and its purpose. Explain how it helps developers
 
 - combines `mkcert`, `nginx` and `DNSMasq` to provide a simple way to work with your local web applications using regular HTTPS URLs instead of several `localhost` addresses with different ports.
 
-## Install - #revisit#
+## Install
 Installing Novus is as simple as running 
 ```bash
+$ brew tap jozefcipa/novus
 $ brew install novus
 ```
 
