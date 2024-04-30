@@ -26,9 +26,9 @@ var initCmd = &cobra.Command{
 			input := cli.AskUser("Enter a new app name: ")
 			appName := shared.ToKebabCase(input)
 
-			appNameExists := config.CreateDefaultConfigFile(appName)
-			if appNameExists {
-				logger.Errorf("You already have a configuration with the name \"%s\".", appName)
+			err := config.CreateDefaultConfigFile(appName)
+			if err != nil {
+				logger.Errorf("%s\n", err.Error())
 				os.Exit(1)
 			}
 			logger.Successf("✅ Novus has been initialized.\n")

@@ -1,8 +1,10 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
@@ -17,7 +19,8 @@ const configFileName = "novus.yml"
 var AppName = "default"
 
 type NovusConfig struct {
-	Routes []shared.Route `yaml:"routes" validate:"required,unique_routes,dive"`
+	AppName string         `yaml:"appName" validate:"required"`
+	Routes  []shared.Route `yaml:"routes" validate:"required,unique_routes,dive"`
 }
 
 func (config *NovusConfig) validate() {
@@ -28,27 +31,46 @@ func (config *NovusConfig) validate() {
 	// Register custom `unique_routes` rule
 	shared.RegisterUniqueRoutesValidator(validate)
 
-	err := validate.Struct(config)
-	if err != nil {
+	if err := validate.Struct(config); err != nil {
 		logger.Errorf("Configuration file contains errors.\n\n%s\n", err.(validator.ValidationErrors))
+		os.Exit(1)
+	}
+
+	if err := validateAppName(config.AppName); err != nil {
+		logger.Errorf("Configuration file contains errors.\n\n%s\n", err.Error())
 		os.Exit(1)
 	}
 }
 
-func CreateDefaultConfigFile(appName string) (isDuplicateName bool) {
+func validateAppName(appName string) error {
+	isValid, _ := regexp.MatchString("^[A-Za-z0-9-_]+$", appName)
+	if !isValid {
+		return fmt.Errorf("Invalid app name. Only alphanumeric characters are allowed.")
+	}
+
+	return nil
+}
+
+func CreateDefaultConfigFile(appName string) error {
 	// Read the config file template
 	configTemplate := fs.ReadFileOrExit(filepath.Join(fs.AssetsDir, "novus.template.yml"))
 
 	// Set app name in the config
 	configTemplate = strings.Replace(configTemplate, "--APP_NAME--", appName, 1)
 
+	if err := validateAppName(appName); err != nil {
+		return err
+	}
+
 	// TODO: check in state file if appName is already being used
-	// TODO: validate app name format
-	isDuplicateName = false
+	isDuplicateName := false
+	if isDuplicateName {
+		return fmt.Errorf("You already have a configuration with the name \"%s\"", appName)
+	}
 
 	// Create a new config file
 	fs.WriteFileOrExit(filepath.Join(fs.CurrentDir, configFileName), configTemplate)
-	return
+	return nil
 }
 
 func Load() (NovusConfig, bool) {
@@ -68,6 +90,8 @@ func Load() (NovusConfig, bool) {
 	}
 
 	config.validate()
+
+	AppName = config.AppName
 
 	return config, true
 }
