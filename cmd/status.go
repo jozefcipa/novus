@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/dnsmasq"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/nginx"
@@ -15,8 +14,7 @@ var statusCmd = &cobra.Command{
 	Long: `Show whether Nginx and DNSMasq services are running,
 and print a list of all URLs that are registered by Novus.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		novus.LoadState() // Load application state
-		appState, _ := novus.GetAppState()
+		novusState := novus.GetState()
 
 		nginxChan := make(chan bool)
 		dnsMasqChan := make(chan bool)
@@ -46,11 +44,13 @@ and print a list of all URLs that are registered by Novus.`,
 		if !isNginxRunning || !isDNSMasqRunning {
 			logger.Errorf("Please run `novus serve` to initialize the services.\n")
 		} else {
-			// All good, show the information
-			logger.Checkf("Routing [%s=%s]", config.AppName, appState.Directory)
-			for _, route := range appState.Routes {
-				logger.Infof("  - %s -> ", route.Upstream)
-				logger.Successf("https://%s\n", route.Domain)
+			// All good, show the routing info
+			for appName, appState := range novusState.Apps {
+				logger.Checkf("Routing %s [%s]", appName, appState.Directory)
+				for _, route := range appState.Routes {
+					logger.Infof("  - %s -> ", route.Upstream)
+					logger.Successf("https://%s\n", route.Domain)
+				}
 			}
 		}
 	},

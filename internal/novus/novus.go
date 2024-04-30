@@ -75,7 +75,7 @@ func initStateFile() {
 	novusStateFilePath = filepath.Join(NovusStateDir, "novus.json")
 }
 
-func LoadState() {
+func loadState() {
 	initStateFile()
 
 	file, err := fs.ReadFile(novusStateFilePath)
@@ -85,9 +85,7 @@ func LoadState() {
 		logger.Debugf("State file not found. Creating a new one...")
 		state = NovusState{
 			DnsFiles: map[string]*DnsFiles{},
-			Apps: map[string]*AppState{
-				"default": initEmptyState(),
-			},
+			Apps:     map[string]*AppState{},
 		}
 		return
 	}
@@ -103,7 +101,7 @@ func LoadState() {
 func GetState() *NovusState {
 	// if state is empty, load the state file first
 	if len(state.Apps) == 0 {
-		LoadState()
+		loadState()
 	}
 
 	return &state
@@ -118,6 +116,8 @@ func GetAppState() (appState *AppState, isNewState bool) {
 		appState = state.Apps[appName]
 		return appState, true
 	}
+
+	logger.Debugf("Fetching app state [app=%s]", appName)
 
 	return appState, false
 }

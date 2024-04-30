@@ -16,7 +16,7 @@ import (
 
 const configFileName = "novus.yml"
 
-var AppName = "default"
+var AppName = ""
 
 type NovusConfig struct {
 	AppName string         `yaml:"appName" validate:"required"`

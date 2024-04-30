@@ -26,13 +26,13 @@ var serveCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		novusState, isNewState := novus.GetAppState() // Load application state
-		conf, exists := config.Load()                 // Load configuration file
+		conf, exists := config.Load() // Load configuration file
 		if !exists {
 			logger.Warnf("🙉 Novus is not initialized in this directory (no configuration found).\n")
 			logger.Messagef("💡 Run \"novus init\" to create a configuration file.\n")
 			os.Exit(1)
 		}
+		novusState, isNewState := novus.GetAppState() // Load application state
 
 		// Handle config changes diff
 		addedRoutes, deletedRoutes := diff_manager.DetectConfigDiff(conf, *novusState)
