@@ -4,10 +4,10 @@ import (
 	"os"
 
 	"github.com/jozefcipa/novus/internal/brew"
-	"github.com/jozefcipa/novus/internal/cli"
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/shared"
+	"github.com/jozefcipa/novus/internal/tui"
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +23,7 @@ var initCmd = &cobra.Command{
 		_, exists := config.Load()
 		if !exists {
 			// If config doesn't exist, create a new one
-			input := cli.AskUser("Enter a new app name: ")
+			input := tui.AskUser("Enter a new app name: ")
 			appName := shared.ToKebabCase(input)
 
 			err := config.CreateDefaultConfigFile(appName)

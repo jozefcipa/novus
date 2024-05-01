@@ -5,6 +5,7 @@ import (
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/nginx"
 	"github.com/jozefcipa/novus/internal/novus"
+	"github.com/jozefcipa/novus/internal/tui"
 	"github.com/spf13/cobra"
 )
 
@@ -45,13 +46,7 @@ and print a list of all URLs that are registered by Novus.`,
 			logger.Errorf("Please run `novus serve` to initialize the services.\n")
 		} else {
 			// All good, show the routing info
-			for appName, appState := range novusState.Apps {
-				logger.Checkf("Routing %s [%s]", appName, appState.Directory)
-				for _, route := range appState.Routes {
-					logger.Infof("  - %s -> ", route.Upstream)
-					logger.Successf("https://%s\n", route.Domain)
-				}
-			}
+			tui.PrintRoutingTable(novusState.Apps)
 		}
 	},
 }

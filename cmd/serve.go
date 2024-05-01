@@ -12,6 +12,7 @@ import (
 	"github.com/jozefcipa/novus/internal/nginx"
 	"github.com/jozefcipa/novus/internal/novus"
 	"github.com/jozefcipa/novus/internal/ssl_manager"
+	"github.com/jozefcipa/novus/internal/tui"
 
 	"github.com/spf13/cobra"
 )
@@ -32,10 +33,10 @@ var serveCmd = &cobra.Command{
 			logger.Messagef("💡 Run \"novus init\" to create a configuration file.\n")
 			os.Exit(1)
 		}
-		novusState, isNewState := novus.GetAppState() // Load application state
+		appState, isNewState := novus.GetAppState() // Load application state
 
 		// Handle config changes diff
-		addedRoutes, deletedRoutes := diff_manager.DetectConfigDiff(conf, *novusState)
+		addedRoutes, deletedRoutes := diff_manager.DetectConfigDiff(conf, *appState)
 
 		// Remove domains that are no longer in config
 		if len(deletedRoutes) > 0 {
@@ -45,7 +46,7 @@ var serveCmd = &cobra.Command{
 			}
 
 			// Remove DNS records for unused TLDs
-			unusedTLDs := diff_manager.DetectUnusedTLDs(conf, *novusState)
+			unusedTLDs := diff_manager.DetectUnusedTLDs(conf, *appState)
 			if len(unusedTLDs) > 0 {
 				for _, tld := range unusedTLDs {
 					logger.Errorf("❌ Removing unused TLD domain [*.%s]\n", tld)
@@ -91,10 +92,7 @@ var serveCmd = &cobra.Command{
 
 		// Everything's set, start routing
 		logger.Checkf("Routing has started 🚀")
-		for _, route := range conf.Routes {
-			logger.Infof("  - %s -> ", route.Upstream)
-			logger.Successf("https://%s\n", route.Domain)
-		}
+		tui.PrintRoutingTable(novus.GetState().Apps)
 
 		// Save application state
 		novus.SaveState()
