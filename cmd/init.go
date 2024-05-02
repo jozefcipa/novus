@@ -28,14 +28,14 @@ var initCmd = &cobra.Command{
 
 			err := config.CreateDefaultConfigFile(appName)
 			if err != nil {
-				logger.Errorf("%s\n", err.Error())
+				logger.Errorf("%s", err.Error())
 				os.Exit(1)
 			}
-			logger.Successf("✅ Novus has been initialized.\n")
-			logger.Messagef("💡 Open \"novus.yml\" to add your route definitions.\n")
+			logger.Successf("Novus has been initialized.")
+			logger.Hintf("Open \"novus.yml\" to add your route definitions.")
 		} else {
 			logger.Checkf(" Novus is already initialized.")
-			logger.Messagef("💡 Run \"novus serve\" to start the proxy.\n")
+			logger.Hintf("Run \"novus serve\" to start the proxy.")
 		}
 	},
 }

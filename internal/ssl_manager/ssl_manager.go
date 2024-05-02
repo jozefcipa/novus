@@ -72,7 +72,7 @@ func createCert(domain string) (shared.Certificate, bool) {
 	// Save cert in state
 	appState.SSLCertificates[domain] = cert
 
-	logger.Successf("✅ SSL certificate generated [%s]\n", domain)
+	logger.Successf("SSL certificate generated [%s]\n", domain)
 
 	return cert, true
 }

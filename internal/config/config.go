@@ -32,12 +32,12 @@ func (config *NovusConfig) validate() {
 	shared.RegisterUniqueRoutesValidator(validate)
 
 	if err := validate.Struct(config); err != nil {
-		logger.Errorf("Configuration file contains errors.\n\n%s\n", err.(validator.ValidationErrors))
+		logger.Errorf("Configuration file contains errors.\n\n%s", err.(validator.ValidationErrors))
 		os.Exit(1)
 	}
 
 	if err := validateAppName(config.AppName); err != nil {
-		logger.Errorf("Configuration file contains errors.\n\n%s\n", err.Error())
+		logger.Errorf("Configuration file contains errors.\n\n%s", err.Error())
 		os.Exit(1)
 	}
 }

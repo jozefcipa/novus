@@ -35,24 +35,24 @@ func init() {
 }
 
 func CheckRequiredBinariesPresence() bool {
-	notInstalledMsg := "🙉 %s is not installed on this system!\n"
-	adviceMsg := "💡 Run \"novus init\" first to initialize Novus.\n"
+	notInstalledMsg := "🙉 %s is not installed on this system!"
+	adviceMsg := "Run \"novus init\" first to initialize Novus."
 
 	if exists := binExists("nginx"); !exists {
 		logger.Warnf(notInstalledMsg, "Nginx")
-		logger.Messagef(adviceMsg)
+		logger.Hintf(adviceMsg)
 		return false
 	}
 
 	if exists := binExists("dnsmasq"); !exists {
 		logger.Warnf(notInstalledMsg, "DNSMasq")
-		logger.Messagef(adviceMsg)
+		logger.Hintf(adviceMsg)
 		return false
 	}
 
 	if exists := binExists("mkcert"); !exists {
 		logger.Warnf(notInstalledMsg, "mkcert")
-		logger.Messagef(adviceMsg)
+		logger.Hintf(adviceMsg)
 		return false
 	}
 
@@ -63,8 +63,8 @@ func InstallBinaries() {
 	// First check that Homebrew is installed
 	brewExists := binExists("brew")
 	if !brewExists {
-		logger.Errorf("Novus requires Homebrew installed\n")
-		logger.Infof("You can get it on https://brew.sh/\n\n.")
+		logger.Errorf("Novus requires Homebrew installed")
+		logger.Hintf("You can get it on https://brew.sh/.")
 		os.Exit(1)
 	}
 
@@ -151,8 +151,8 @@ func brewInstall(bin string) {
 		logger.Errorf("An error occurred while installing \"%s\".\n\n%+v", bin, err)
 		os.Exit(1)
 	}
-
-	logger.Successf("\n✅ %s installed\n", bin)
+	fmt.Println() // print empty line
+	logger.Successf("%s installed", bin)
 }
 
 func binExists(bin string) bool {

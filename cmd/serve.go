@@ -29,8 +29,8 @@ var serveCmd = &cobra.Command{
 
 		conf, exists := config.Load() // Load configuration file
 		if !exists {
-			logger.Warnf("🙉 Novus is not initialized in this directory (no configuration found).\n")
-			logger.Messagef("💡 Run \"novus init\" to create a configuration file.\n")
+			logger.Warnf("🙉 Novus is not initialized in this directory (no configuration found).")
+			logger.Hintf("Run \"novus init\" to create a configuration file.")
 			os.Exit(1)
 		}
 		appState, isNewState := novus.GetAppState() // Load application state
@@ -41,15 +41,15 @@ var serveCmd = &cobra.Command{
 		// Remove domains that are no longer in config
 		if len(deletedRoutes) > 0 {
 			for _, deletedRoute := range deletedRoutes {
-				logger.Errorf("❌ Removing SSL certificate for domain [%s]\n", deletedRoute.Route.Domain)
-				ssl_manager.DeleteCert(deletedRoute.Route.Domain)
+				logger.Errorf("Removing SSL certificate for domain [%s]", deletedRoute.Domain)
+				ssl_manager.DeleteCert(deletedRoute.Domain)
 			}
 
 			// Remove DNS records for unused TLDs
 			unusedTLDs := diff_manager.DetectUnusedTLDs(conf, *appState)
 			if len(unusedTLDs) > 0 {
 				for _, tld := range unusedTLDs {
-					logger.Errorf("❌ Removing unused TLD domain [*.%s]\n", tld)
+					logger.Errorf("Removing unused TLD domain [*.%s]", tld)
 					dnsmasq.UnregisterTLD(tld)
 				}
 			}
@@ -57,7 +57,7 @@ var serveCmd = &cobra.Command{
 
 		if !isNewState && len(addedRoutes) > 0 {
 			for _, newRoute := range addedRoutes {
-				logger.Successf("Found new domain [%s]\n", newRoute.Route.Domain)
+				logger.Successf("Found new domain [%s]", newRoute.Domain)
 			}
 		}
 

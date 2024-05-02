@@ -45,14 +45,14 @@ func (config *NovusState) validate() {
 	for _, appState := range config.Apps {
 		err := validate.Struct(appState)
 		if err != nil {
-			logger.Errorf("Novus state file is corrupted.\n\n%s\n", err.(validator.ValidationErrors))
+			logger.Errorf("Novus state file is corrupted.\n\n%s", err.(validator.ValidationErrors))
 			os.Exit(1)
 		}
 
 		for _, sslCerts := range appState.SSLCertificates {
 			err := validate.Struct(sslCerts)
 			if err != nil {
-				logger.Errorf("Novus state file is corrupted.\n\n%s\n", err.(validator.ValidationErrors))
+				logger.Errorf("Novus state file is corrupted.\n\n%s", err.(validator.ValidationErrors))
 				os.Exit(1)
 			}
 		}
@@ -91,7 +91,7 @@ func loadState() {
 	}
 
 	if err := json.Unmarshal([]byte(file), &state); err != nil {
-		logger.Errorf("Corrupted state file.\n%v\n", err)
+		logger.Errorf("Corrupted state file.\n%v", err)
 		os.Exit(1)
 	}
 

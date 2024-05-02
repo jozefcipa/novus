@@ -20,21 +20,21 @@ var AssetsDir string
 func ResolveDirs() {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		logger.Errorf("Failed to get user home directory\n%v\n", err)
+		logger.Errorf("Failed to get user home directory\n%v", err)
 		os.Exit(1)
 	}
 	UserHomeDir = homeDir
 
 	currentDir, err := os.Getwd()
 	if err != nil {
-		logger.Errorf("Failed to get current working directory\n%v\n", err)
+		logger.Errorf("Failed to get current working directory\n%v", err)
 		os.Exit(1)
 	}
 	CurrentDir = currentDir
 
 	executablePath, err := os.Executable()
 	if err != nil {
-		logger.Errorf("Failed to get novus binary directory\n%v\n", err)
+		logger.Errorf("Failed to get novus binary directory\n%v", err)
 		os.Exit(1)
 	}
 	novusBinaryDir := filepath.Dir(executablePath)
@@ -56,7 +56,7 @@ func ResolveDirs() {
 
 	// Make sure assets directory is available
 	if !FileExists(AssetsDir) {
-		logger.Errorf("Assets directory not found: %s\n", AssetsDir)
+		logger.Errorf("Assets directory not found: %s", AssetsDir)
 		os.Exit(1)
 	}
 
@@ -76,7 +76,7 @@ func ResolveDirs() {
 func ReadFileOrExit(path string) string {
 	file, err := os.ReadFile(path)
 	if err != nil {
-		logger.Errorf("Failed to read a file\n%v\n", err)
+		logger.Errorf("Failed to read a file\n%v", err)
 		os.Exit(1)
 	}
 
@@ -95,14 +95,14 @@ func ReadFile(path string) (string, error) {
 func WriteFileOrExit(path string, data string) {
 	err := os.WriteFile(path, []byte(data), 0644)
 	if err != nil {
-		logger.Errorf("Failed to write to a file\n%v\n", err)
+		logger.Errorf("Failed to write to a file\n%v", err)
 		os.Exit(1)
 	}
 }
 
 func WriteFileWithSudoOrExit(path string, data string) {
 	if _, err := exec.Command("sudo", "touch", path).Output(); err != nil {
-		logger.Errorf("Failed to create file %s\n%v\n", path, err)
+		logger.Errorf("Failed to create file %s\n%v", path, err)
 		os.Exit(1)
 	}
 
@@ -112,14 +112,14 @@ func WriteFileWithSudoOrExit(path string, data string) {
 	err := os.WriteFile(path, []byte(data), 0644)
 
 	if err != nil {
-		logger.Errorf("Failed to write to a file\n%v\n", err)
+		logger.Errorf("Failed to write to a file\n%v", err)
 		os.Exit(1)
 	}
 }
 
 func DeleteFile(path string) error {
 	if err := os.Remove(path); err != nil {
-		logger.Errorf("Failed to delete file %s\n%v\n", path, err)
+		logger.Errorf("Failed to delete file %s\n%v", path, err)
 		return err
 	}
 	return nil
@@ -127,7 +127,7 @@ func DeleteFile(path string) error {
 
 func DeleteFileWithSudo(path string) error {
 	if _, err := exec.Command("sudo", "rm", path).Output(); err != nil {
-		logger.Errorf("Failed to delete file %s\n%v\n", path, err)
+		logger.Errorf("Failed to delete file %s\n%v", path, err)
 		return err
 	}
 
@@ -136,14 +136,14 @@ func DeleteFileWithSudo(path string) error {
 
 func MakeDirOrExit(path string) {
 	if err := os.MkdirAll(path, os.ModePerm); err != nil {
-		logger.Errorf("Failed to create directory %s\n%v\n", path, err)
+		logger.Errorf("Failed to create directory %s\n%v", path, err)
 		os.Exit(1)
 	}
 }
 
 func DeleteDir(path string) error {
 	if err := os.RemoveAll(path); err != nil {
-		logger.Errorf("Failed to delete directory %s\n%v\n", path, err)
+		logger.Errorf("Failed to delete directory %s\n%v", path, err)
 		return err
 	}
 	return nil
@@ -151,7 +151,7 @@ func DeleteDir(path string) error {
 
 func MakeDirWithSudoOrExit(path string) {
 	if _, err := exec.Command("sudo", "mkdir", "-p", path).Output(); err != nil {
-		logger.Errorf("Failed to create directory $s\n%v\n", path, err)
+		logger.Errorf("Failed to create directory $s\n%v", path, err)
 		os.Exit(1)
 	}
 }
@@ -185,7 +185,7 @@ func Copy(src string, dest string) error {
 
 func ChownOrExit(path string, user string) {
 	if _, err := exec.Command("sudo", "chown", user, path).Output(); err != nil {
-		logger.Errorf("Failed to call `chown` on file %s\n%v\n", path, err)
+		logger.Errorf("Failed to call `chown` on file %s\n%v", path, err)
 		os.Exit(1)
 	}
 }

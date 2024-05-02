@@ -30,20 +30,20 @@ and print a list of all URLs that are registered by Novus.`,
 		isDNSMasqRunning := <-dnsMasqChan
 
 		if isNginxRunning {
-			logger.Successf("✅ Nginx running.\n")
+			logger.Successf("Nginx running")
 			logger.Debugf("Nginx configuration loaded from %s", nginx.NginxServersDir)
 		} else {
-			logger.Errorf("❌ Nginx not running.\n")
+			logger.Errorf("Nginx not running")
 		}
 
 		if isDNSMasqRunning {
-			logger.Successf("✅ DNSMasq running.\n")
+			logger.Successf("DNSMasq running")
 		} else {
-			logger.Errorf("❌ DNSMasq not running.\n")
+			logger.Errorf("DNSMasq not running")
 		}
 
 		if !isNginxRunning || !isDNSMasqRunning {
-			logger.Errorf("Please run `novus serve` to initialize the services.\n")
+			logger.Hintf("Run \"novus serve\" to initialize the services")
 		} else {
 			// All good, show the routing info
 			tui.PrintRoutingTable(novusState.Apps)

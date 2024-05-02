@@ -25,7 +25,7 @@ Novus needs sudo access for manipulating DNS records via DNSMasq.
 
 		// Create file if it doesn't exist yet
 		novus.CreateSudoersFile()
-		logger.Successf("✅ Novus is now registered and can be used without sudo password.\n")
+		logger.Successf("Novus is now registered and can be used without sudo password.")
 	},
 }
 
