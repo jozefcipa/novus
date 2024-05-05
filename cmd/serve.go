@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"os"
+	"slices"
 
 	"github.com/jozefcipa/novus/internal/brew"
 	"github.com/jozefcipa/novus/internal/config"
@@ -60,6 +61,31 @@ var serveCmd = &cobra.Command{
 				logger.Successf("Found new domain [%s]", newRoute.Domain)
 			}
 		}
+
+		// TODO: refactor this into a function and move to some module
+		// Check if there are duplicate domains across apps
+		type AppDomain struct {
+			App    string
+			Domain string
+		}
+		allDomains := []AppDomain{}
+		for appName, appConfig := range novus.GetState().Apps {
+			for _, route := range appConfig.Routes {
+				allDomains = append(allDomains, AppDomain{App: appName, Domain: route.Domain})
+			}
+		}
+		for _, route := range addedRoutes {
+			if idx := slices.IndexFunc(allDomains, func(appDomain AppDomain) bool { return appDomain.Domain == route.Domain }); idx != -1 {
+				usedDomainAppName := allDomains[idx].App
+				logger.Errorf("Domain %s is already defined by app \"%s\"", route.Domain, usedDomainAppName)
+				logger.Hintf("Use a different domain name or temporarily stop \"%[1]s\" by running `novus stop %[1]s`", usedDomainAppName)
+				os.Exit(1)
+			}
+			allDomains = append(allDomains, AppDomain{App: conf.AppName, Domain: route.Domain})
+		}
+
+		// fmt.Print("all domains", allDomains)
+		// os.Exit(0)
 
 		// Configure SSL
 		mkcert.Configure(conf)
