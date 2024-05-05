@@ -7,18 +7,6 @@ import (
 	"github.com/jozefcipa/novus/internal/shared"
 )
 
-type DiffType int
-
-const (
-	Added DiffType = iota
-	Deleted
-)
-
-type Diff struct {
-	Route shared.Route
-	Diff  DiffType
-}
-
 func routeExists(domain string, routes []shared.Route) bool {
 	for _, route := range routes {
 		if route.Domain == domain {
@@ -29,24 +17,18 @@ func routeExists(domain string, routes []shared.Route) bool {
 	return false
 }
 
-func DetectConfigDiff(conf config.NovusConfig, state novus.AppState) (added []Diff, deleted []Diff) {
+func DetectConfigDiff(conf config.NovusConfig, state novus.AppState) (added []shared.Route, deleted []shared.Route) {
 	// detect routes that are stored in state but have been removed from the configuration file
 	for _, route := range state.Routes {
 		if !routeExists(route.Domain, conf.Routes) {
-			deleted = append(deleted, Diff{
-				Route: route,
-				Diff:  Deleted,
-			})
+			deleted = append(deleted, route)
 		}
 	}
 
 	// detect routes that are found in configuration file but are not stored in the state
 	for _, route := range conf.Routes {
 		if !routeExists(route.Domain, state.Routes) {
-			added = append(added, Diff{
-				Route: route,
-				Diff:  Added,
-			})
+			added = append(added, route)
 		}
 	}
 
