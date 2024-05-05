@@ -10,6 +10,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
+	"github.com/jozefcipa/novus/internal/novus"
 	"github.com/jozefcipa/novus/internal/shared"
 	"gopkg.in/yaml.v3"
 )
@@ -48,6 +49,13 @@ func validateAppName(appName string) error {
 		return fmt.Errorf("Invalid app name. Only alphanumeric characters are allowed.")
 	}
 
+	// Check in state file if appName is already being used
+	for appNameFromConfig, appConfig := range novus.GetState().Apps {
+		if appNameFromConfig == appName && appConfig.Directory != fs.CurrentDir {
+			return fmt.Errorf("App \"%s\" is already defined in a different directory (%s)", appName, appConfig.Directory)
+		}
+	}
+
 	return nil
 }
 
@@ -60,12 +68,6 @@ func CreateDefaultConfigFile(appName string) error {
 
 	if err := validateAppName(appName); err != nil {
 		return err
-	}
-
-	// TODO: check in state file if appName is already being used
-	isDuplicateName := false
-	if isDuplicateName {
-		return fmt.Errorf("You already have a configuration with the name \"%s\"", appName)
 	}
 
 	// Create a new config file

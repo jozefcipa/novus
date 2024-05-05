@@ -34,7 +34,7 @@ var serveCmd = &cobra.Command{
 			logger.Hintf("Run \"novus init\" to create a configuration file.")
 			os.Exit(1)
 		}
-		appState, isNewState := novus.GetAppState() // Load application state
+		appState, isNewState := novus.GetAppState(config.AppName) // Load application state
 
 		// Handle config changes diff
 		addedRoutes, deletedRoutes := diff_manager.DetectConfigDiff(conf, *appState)

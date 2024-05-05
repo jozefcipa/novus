@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/shared"
@@ -37,12 +36,12 @@ type NovusState struct {
 	Apps map[string]*AppState `json:"apps" validate:"required"`
 }
 
-func (config *NovusState) validate() {
+func (state *NovusState) validate() {
 	logger.Debugf("Validating state file")
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
 
-	for _, appState := range config.Apps {
+	for _, appState := range state.Apps {
 		err := validate.Struct(appState)
 		if err != nil {
 			logger.Errorf("Novus state file is corrupted.\n\n%s", err.(validator.ValidationErrors))
@@ -107,9 +106,7 @@ func GetState() *NovusState {
 	return &state
 }
 
-func GetAppState() (appState *AppState, isNewState bool) {
-	appName := config.AppName
-
+func GetAppState(appName string) (appState *AppState, isNewState bool) {
 	appState, exists := GetState().Apps[appName]
 	if !exists {
 		state.Apps[appName] = initEmptyState()

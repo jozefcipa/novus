@@ -45,7 +45,7 @@ func getCertificateDirectory(domain string) string {
 }
 
 func createCert(domain string) (shared.Certificate, bool) {
-	appState, _ := novus.GetAppState()
+	appState, _ := novus.GetAppState(config.AppName)
 	timeNow := time.Now()
 
 	// Check if the certificate already exists
@@ -78,7 +78,7 @@ func createCert(domain string) (shared.Certificate, bool) {
 }
 
 func DeleteCert(domain string) {
-	appState, _ := novus.GetAppState()
+	appState, _ := novus.GetAppState(config.AppName)
 	logger.Debugf("Deleting SSL certificate [%s]", domain)
 
 	// Remove directory with SSL certificate for the given domain
