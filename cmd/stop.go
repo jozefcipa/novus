@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/dnsmasq"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/nginx"
@@ -13,7 +14,7 @@ var stopCmd = &cobra.Command{
 	Short: "Stop Nginx and DNSMasq services",
 	Long: `Running this command will stop the HTTP and DNS servers,
 so Novus will no longer serve application requests to the URLs
-defined in the novus.yml configuration file.
+defined in the ` + config.ConfigFileName + ` configuration file.
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		nginx.Stop()

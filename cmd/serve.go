@@ -7,6 +7,7 @@ import (
 	"github.com/jozefcipa/novus/internal/brew"
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/diff_manager"
+	"github.com/jozefcipa/novus/internal/dns_manager"
 	"github.com/jozefcipa/novus/internal/dnsmasq"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/mkcert"
@@ -51,7 +52,7 @@ var serveCmd = &cobra.Command{
 			if len(unusedTLDs) > 0 {
 				for _, tld := range unusedTLDs {
 					logger.Errorf("Removing unused TLD domain [*.%s]", tld)
-					dnsmasq.UnregisterTLD(tld)
+					dns_manager.UnregisterTLD(tld)
 				}
 			}
 		}
@@ -84,9 +85,6 @@ var serveCmd = &cobra.Command{
 			allDomains = append(allDomains, AppDomain{App: conf.AppName, Domain: route.Domain})
 		}
 
-		// fmt.Print("all domains", allDomains)
-		// os.Exit(0)
-
 		// Configure SSL
 		mkcert.Configure(conf)
 		domainCerts, hasNewCerts := ssl_manager.EnsureSSLCertificates(conf)
@@ -94,30 +92,29 @@ var serveCmd = &cobra.Command{
 		// Configure Nginx
 		nginxConfigUpdated := nginx.Configure(conf, domainCerts)
 
-		// Configure DNSMasq
-		dnsMasqConfigUpdated := dnsmasq.Configure(conf)
+		// Configure DNS
+		dnsUpdated := dns_manager.Configure(conf)
 
 		// Restart services
 		// Nginx
 		isNginxRunning := nginx.IsRunning()
 		if nginxConfigUpdated || hasNewCerts || !isNginxRunning {
 			nginx.Restart()
-			logger.Checkf("Nginx restarted")
+			logger.Checkf("Nginx restarted 🔄")
 		} else {
-			logger.Checkf("Nginx is up and running")
+			logger.Checkf("Nginx running 🚀")
 		}
 
 		// DNSMasq
 		isDNSMasqRunning := dnsmasq.IsRunning()
-		if dnsMasqConfigUpdated || !isDNSMasqRunning {
+		if dnsUpdated || !isDNSMasqRunning {
 			dnsmasq.Restart()
-			logger.Checkf("DNSMasq restarted")
+			logger.Checkf("DNSMasq restarted 🔄")
 		} else {
-			logger.Checkf("DNSMasq is up and running")
+			logger.Checkf("DNSMasq running 🚀")
 		}
 
 		// Everything's set, start routing
-		logger.Checkf("Routing has started 🚀")
 		tui.PrintRoutingTable(novus.GetState().Apps)
 
 		// Save application state

@@ -2,7 +2,7 @@ package diff_manager
 
 import (
 	"github.com/jozefcipa/novus/internal/config"
-	"github.com/jozefcipa/novus/internal/dnsmasq"
+	"github.com/jozefcipa/novus/internal/dns_manager"
 	"github.com/jozefcipa/novus/internal/novus"
 	"github.com/jozefcipa/novus/internal/shared"
 )
@@ -36,8 +36,8 @@ func DetectConfigDiff(conf config.NovusConfig, state novus.AppState) (added []sh
 }
 
 func DetectUnusedTLDs(conf config.NovusConfig, state novus.AppState) (unusedTLDs []string) {
-	configTLDs := dnsmasq.GetTLDs(conf.Routes)
-	stateTLDs := dnsmasq.GetTLDs(state.Routes)
+	configTLDs := dns_manager.GetTLDs(conf.Routes)
+	stateTLDs := dns_manager.GetTLDs(state.Routes)
 
 	// get TLDs that exist in the state but not in the config
 	unusedTLDs = shared.Difference(stateTLDs, configTLDs)

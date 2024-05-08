@@ -30,3 +30,11 @@ func ToKebabCase(input string) string {
 		"-",
 	)
 }
+
+func MapKeys[K string, V interface{}](obj map[K]V) []K {
+	keys := make([]K, 0, len(obj))
+	for k := range obj {
+		keys = append(keys, k)
+	}
+	return keys
+}
