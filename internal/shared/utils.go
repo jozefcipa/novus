@@ -2,7 +2,7 @@ package shared
 
 import "strings"
 
-// difference returns the elements in `a` that aren't in `b`.
+// Difference returns the elements in `a` that aren't in `b`.
 // https://stackoverflow.com/a/45428032/4480179
 func Difference(a, b []string) []string {
 	mb := make(map[string]struct{}, len(b))

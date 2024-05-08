@@ -13,7 +13,7 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	// version is passed down from the main.go, this is only a placeholder to enable the --version flag
+	// Version is passed down from the main.go, this is only a placeholder to enable the --version flag
 	Version: "-",
 	Use:     "novus",
 	Short:   "Local web development done effortlessly",
@@ -36,10 +36,10 @@ To start run "novus init" to initialize Novus and create a configuration file.`)
 }
 
 func Execute(version string) {
-	// show app version
+	// Show app version
 	rootCmd.SetVersionTemplate(version)
 
-	// configure colors
+	// Configure colors
 	cc.Init(&cc.Config{
 		RootCmd:  rootCmd,
 		Headings: cc.HiCyan + cc.Bold + cc.Underline,

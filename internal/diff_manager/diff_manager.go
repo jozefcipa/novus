@@ -20,14 +20,14 @@ func routeExists(domain string, routes []shared.Route) bool {
 }
 
 func DetectConfigDiff(conf config.NovusConfig, state novus.AppState) (added []shared.Route, deleted []shared.Route) {
-	// detect routes that are stored in state but have been removed from the configuration file
+	// Detect routes that are stored in state but have been removed from the configuration file
 	for _, route := range state.Routes {
 		if !routeExists(route.Domain, conf.Routes) {
 			deleted = append(deleted, route)
 		}
 	}
 
-	// detect routes that are found in configuration file but are not stored in the state
+	// Detect routes that are found in configuration file but are not stored in the state
 	for _, route := range conf.Routes {
 		if !routeExists(route.Domain, state.Routes) {
 			added = append(added, route)
@@ -41,7 +41,7 @@ func DetectUnusedTLDs(conf config.NovusConfig, state novus.AppState) (unusedTLDs
 	configTLDs := dns_manager.GetTLDs(conf.Routes)
 	stateTLDs := dns_manager.GetTLDs(state.Routes)
 
-	// get TLDs that exist in the state but not in the config
+	// Find TLDs that exist in the state but not in the config
 	unusedTLDs = shared.Difference(stateTLDs, configTLDs)
 
 	return unusedTLDs

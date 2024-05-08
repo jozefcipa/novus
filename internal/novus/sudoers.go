@@ -22,7 +22,7 @@ func CreateSudoersFile() {
 	logger.Infof("⏳ Creating /etc/sudoers.d file for Novus.")
 	fs.WriteFileWithSudoOrExit(sudoersFile, sudoPermissions)
 
-	// sudoers file must be owned by root
+	// Sudoers file must be owned by root
 	fs.ChownOrExit(sudoersFile, "root")
 }
 

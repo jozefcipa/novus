@@ -29,7 +29,7 @@ func IsRunning() bool {
 }
 
 func Configure() bool {
-	// open DNSMasq configuration file
+	// Open DNSMasq configuration file
 	logger.Debugf("DNSMasq: Reading configuration file [%s]", dnsmasqConfFile)
 	confFile := fs.ReadFileOrExit(dnsmasqConfFile)
 
@@ -41,7 +41,7 @@ func Configure() bool {
 		1,
 	)
 
-	// if the config differs (there was an actual change), write the changes
+	// If the config differs (there was an actual change), write the changes
 	if confFile != updatedConf {
 		logger.Debugf("DNSMasq: Updating configuration file [%s]", dnsmasqConfFile)
 		fs.WriteFileOrExit(dnsmasqConfFile, updatedConf)
@@ -57,7 +57,7 @@ func Configure() bool {
 func CreateTLDConfig(tld string) (bool, string) {
 	configPath := fmt.Sprintf(filepath.Join(brew.BrewPath, "/etc/dnsmasq.d/%s.conf"), tld)
 
-	// first check if the file already exists
+	// First check if the file already exists
 	if confExists := fs.FileExists(configPath); confExists {
 		logger.Debugf("DNSMasq [*.%s]: Domain config already exists [%s]", tld, configPath)
 
@@ -66,10 +66,10 @@ func CreateTLDConfig(tld string) (bool, string) {
 
 	logger.Debugf("DNSMasq [*.%s]: Creating domain config", tld)
 
-	// prepare the configuration
+	// Prepare the configuration
 	configContent := fmt.Sprintf("address=/%s/127.0.0.1", tld)
 
-	// create a configuration file
+	// Create a configuration file
 	fs.WriteFileOrExit(configPath, configContent)
 	logger.Debugf("DNSMasq [*.%s]: Domain config saved [%s]", tld, configPath)
 
