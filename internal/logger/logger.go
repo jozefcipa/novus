@@ -25,7 +25,7 @@ func Warnf(format string, a ...interface{}) {
 }
 
 func Checkf(format string, a ...interface{}) {
-	fmt.Printf(GREEN+"✔  "+GRAY+format+RESET+"\n", a...)
+	fmt.Printf(GREEN+" ✔ "+GRAY+format+RESET+"\n", a...)
 }
 
 func Successf(format string, a ...interface{}) {

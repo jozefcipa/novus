@@ -6,6 +6,7 @@ import (
 
 	"github.com/arsham/figurine/figurine"
 	cc "github.com/ivanpirog/coloredcobra"
+	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/spf13/cobra"
@@ -26,7 +27,7 @@ on one or multiple web services by automatically providing
 SSL secured URLs that proxy traffic to your services.
 
 That means no more http://localhost:3000 calls.
-Instead, open the "novus.yml" configuration and add a nice custom domain name
+Instead, open the ` + config.ConfigFileName + ` configuration and add a nice custom domain name
 that will forward all the traffic to your upstream service.
 To start run "novus init" to initialize Novus and create a configuration file.`)
 

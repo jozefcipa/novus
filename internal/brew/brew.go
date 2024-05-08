@@ -21,6 +21,10 @@ type BrewServiceStatus struct {
 	Running bool `json:"running"`
 }
 
+type BrewMissingError struct{}
+
+func (e *BrewMissingError) Error() string { return "Novus requires Homebrew installed" }
+
 func init() {
 	out, err := exec.Command("brew", "--prefix").Output()
 	if err != nil {
@@ -34,52 +38,51 @@ func init() {
 	svcStatusCommands = []string{"brew", "services", "info", "--json"}
 }
 
-func CheckRequiredBinariesPresence() bool {
-	notInstalledMsg := "🙉 %s is not installed on this system!"
-	adviceMsg := "Run \"novus init\" first to initialize Novus."
+func CheckIfRequiredBinariesInstalled() error {
+	notInstalledMsg := "%s is not installed on this system!"
 
 	if exists := binExists("nginx"); !exists {
-		logger.Warnf(notInstalledMsg, "Nginx")
-		logger.Hintf(adviceMsg)
-		return false
+		return fmt.Errorf(notInstalledMsg, "Nginx")
 	}
 
 	if exists := binExists("dnsmasq"); !exists {
-		logger.Warnf(notInstalledMsg, "DNSMasq")
-		logger.Hintf(adviceMsg)
-		return false
+		return fmt.Errorf(notInstalledMsg, "DNSMasq")
 	}
 
 	if exists := binExists("mkcert"); !exists {
-		logger.Warnf(notInstalledMsg, "mkcert")
-		logger.Hintf(adviceMsg)
-		return false
+		return fmt.Errorf(notInstalledMsg, "mkcert")
 	}
 
-	return true
+	return nil
 }
 
-func InstallBinaries() {
+func InstallBinaries() error {
 	// First check that Homebrew is installed
 	brewExists := binExists("brew")
-	if !brewExists {
-		logger.Errorf("Novus requires Homebrew installed")
-		logger.Hintf("You can get it on https://brew.sh/.")
-		os.Exit(1)
+	if brewExists {
+		return &BrewMissingError{}
 	}
 
 	// Install required binaries
 	if exists := binExists("nginx"); !exists {
-		brewInstall("nginx@1.25")
+		if err := brewInstall("nginx@1.25"); err != nil {
+			return err
+		}
 	}
 
 	if exists := binExists("dnsmasq"); !exists {
-		brewInstall("dnsmasq@2.90")
+		if err := brewInstall("dnsmasq@2.90"); err != nil {
+			return err
+		}
 	}
 
 	if exists := binExists("mkcert"); !exists {
-		brewInstall("mkcert@1.4")
+		if err := brewInstall("mkcert@1.4"); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 func RestartService(svc string) {
@@ -89,7 +92,7 @@ func RestartService(svc string) {
 }
 
 func RestartServiceWithSudo(svc string) {
-	// prepend with "sudo" and add "svc" at the end
+	// Prepend with "sudo" and add "svc" at the end
 	cmds := append([]string{"sudo"}, append(svcStartCommands, svc)...)
 
 	execBrewCommand(cmds)
@@ -102,14 +105,14 @@ func StopService(svc string) {
 }
 
 func StopServiceWithSudo(svc string) {
-	// prepend with "sudo" and add "svc" at the end
+	// Prepend with "sudo" and add "svc" at the end
 	cmds := append([]string{"sudo"}, append(svcStopCommands, svc)...)
 
 	execBrewCommand(cmds)
 }
 
 func checkService(svc string, cmdOutput []byte) bool {
-	// parse json output
+	// Parse json output
 	var svcStatus []BrewServiceStatus
 	json.Unmarshal(cmdOutput, &svcStatus)
 
@@ -131,7 +134,7 @@ func IsSudoServiceRunning(svc string) bool {
 	return checkService(svc, out)
 }
 
-func brewInstall(bin string) {
+func brewInstall(bin string) error {
 	logger.Infof("⏳ Installing %s...", bin)
 	logger.Debugf("Running \"brew install %s\"", bin)
 
@@ -148,11 +151,11 @@ func brewInstall(bin string) {
 	err := cmd.Wait()
 
 	if err != nil {
-		logger.Errorf("An error occurred while installing \"%s\".\n\n%+v", bin, err)
-		os.Exit(1)
+		return fmt.Errorf("An error occurred while installing \"%s\".\n\n%+v", bin, err)
 	}
 	fmt.Println() // print empty line
 	logger.Successf("%s installed", bin)
+	return nil
 }
 
 func binExists(bin string) bool {

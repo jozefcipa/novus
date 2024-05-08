@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"os"
 
 	"github.com/jozefcipa/novus/internal/brew"
@@ -14,10 +15,16 @@ import (
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize Novus configuration",
-	Long:  "Initialize Novus configuration by creating the novus.yml file and installs all required binaries if not installed yet.",
+	Long:  "Initialize Novus configuration by creating the " + config.AppName + " file and installs all required binaries if not installed yet.",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Install nginx, dnsmasq and mkcert if not installed
-		brew.InstallBinaries()
+		if err := brew.InstallBinaries(); err != nil {
+			if errors.Is(err, &brew.BrewMissingError{}) {
+				logger.Errorf(err.Error())
+				logger.Hintf("You can install it from \033[4mhttps://brew.sh/\033[0m")
+			}
+			os.Exit(1)
+		}
 
 		// Check if novus.yml config exists
 		_, exists := config.Load()
@@ -32,9 +39,9 @@ var initCmd = &cobra.Command{
 				os.Exit(1)
 			}
 			logger.Successf("Novus has been initialized.")
-			logger.Hintf("Open \"novus.yml\" to add your route definitions.")
+			logger.Hintf("Open " + config.ConfigFileName + " to add your route definitions.")
 		} else {
-			logger.Checkf(" Novus is already initialized.")
+			logger.Checkf("Novus is already initialized.")
 			logger.Hintf("Run \"novus serve\" to start the proxy.")
 		}
 	},

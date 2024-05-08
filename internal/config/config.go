@@ -15,7 +15,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const configFileName = "novus.yml"
+const ConfigFileName = "novus.yml"
 
 var AppName = ""
 
@@ -71,12 +71,12 @@ func CreateDefaultConfigFile(appName string) error {
 	}
 
 	// Create a new config file
-	fs.WriteFileOrExit(filepath.Join(fs.CurrentDir, configFileName), configTemplate)
+	fs.WriteFileOrExit(filepath.Join(fs.CurrentDir, ConfigFileName), configTemplate)
 	return nil
 }
 
 func Load() (NovusConfig, bool) {
-	configPath := filepath.Join(fs.CurrentDir, configFileName)
+	configPath := filepath.Join(fs.CurrentDir, ConfigFileName)
 
 	logger.Debugf("Loading configuration file [%s]", configPath)
 	configFile, err := fs.ReadFile(configPath)

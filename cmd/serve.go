@@ -24,20 +24,25 @@ var serveCmd = &cobra.Command{
 	Short: "Setup Novus to start serving URLs",
 	Long:  `Install Nginx, DNSMasq and mkcert and automatically expose HTTPs URLs for the endpoints defined in the config.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// if we don't have the binaries, exit here, the user needs to run `novus init` first.
-		if !brew.CheckRequiredBinariesPresence() {
+		// If the binaries are missing, exit here, user needs to run `novus init` first
+		if err := brew.CheckIfRequiredBinariesInstalled(); err != nil {
+			logger.Errorf(err.Error())
+			logger.Hintf("Run \"novus init\" first to initialize Novus.")
 			os.Exit(1)
 		}
 
-		conf, exists := config.Load() // Load configuration file
-		if !exists {
-			logger.Warnf("🙉 Novus is not initialized in this directory (no configuration found).")
+		// Load configuration file
+		conf, exists := config.Load()
+		if exists {
+			logger.Warnf("Novus is not initialized in this directory (" + config.ConfigFileName + " file does not exist).")
 			logger.Hintf("Run \"novus init\" to create a configuration file.")
 			os.Exit(1)
 		}
-		appState, isNewState := novus.GetAppState(config.AppName) // Load application state
 
-		// Handle config changes diff
+		// Load application state
+		appState, isNewState := novus.GetAppState(config.AppName)
+
+		// Compare state and current config to detect changes
 		addedRoutes, deletedRoutes := diff_manager.DetectConfigDiff(conf, *appState)
 
 		// Remove domains that are no longer in config
