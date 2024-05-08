@@ -58,14 +58,6 @@ func (state *NovusState) validate() {
 	}
 }
 
-func initEmptyState() *AppState {
-	return &AppState{
-		Directory:       fs.CurrentDir,
-		SSLCertificates: shared.DomainCertificates{},
-		Routes:          []shared.Route{},
-	}
-}
-
 func initStateFile() {
 	// Create a directory ~/.novus
 	// where we can store generated SSL certificates and application state
@@ -79,7 +71,7 @@ func loadState() {
 
 	file, err := fs.ReadFile(novusStateFilePath)
 	logger.Debugf("Loading state file [%s]", novusStateFilePath)
-	// if there's an error, probably we didn't find the state, so initialize a new one
+	// If there's an error, probably we didn't find the state, so initialize a new one
 	if err != nil {
 		logger.Debugf("State file not found. Creating a new one...")
 		state = NovusState{
@@ -98,7 +90,7 @@ func loadState() {
 }
 
 func GetState() *NovusState {
-	// if state is empty, load the state file first
+	// If state is empty, load the state file first
 	if len(state.Apps) == 0 {
 		loadState()
 	}
@@ -109,28 +101,31 @@ func GetState() *NovusState {
 func GetAppState(appName string) (appState *AppState, isNewState bool) {
 	appState, exists := GetState().Apps[appName]
 	if !exists {
-		state.Apps[appName] = initEmptyState()
+		// Init empty state
+		state.Apps[appName] = &AppState{
+			Directory:       fs.CurrentDir,
+			SSLCertificates: shared.DomainCertificates{},
+			Routes:          []shared.Route{},
+		}
 		appState = state.Apps[appName]
 		return appState, true
 	}
-
-	logger.Debugf("Fetching app state [app=%s]", appName)
 
 	return appState, false
 }
 
 func SaveState() {
-	// validate config before saving it
+	// Validate config before saving it
 	state.validate()
 
-	// encode JSON
+	// Encode JSON
 	jsonState, err := json.MarshalIndent(state, "", "    ")
 	if err != nil {
 		logger.Errorf("Failed to save state file\n%v", err)
 		os.Exit(1)
 	}
 
-	// save file
+	// Save file
 	logger.Debugf("Saving novus state [%s]", novusStateFilePath)
 	fs.WriteFileOrExit(novusStateFilePath, string(jsonState))
 }

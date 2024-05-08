@@ -1,6 +1,8 @@
 package diff_manager
 
 import (
+	"slices"
+
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/dns_manager"
 	"github.com/jozefcipa/novus/internal/novus"
@@ -43,4 +45,32 @@ func DetectUnusedTLDs(conf config.NovusConfig, state novus.AppState) (unusedTLDs
 	unusedTLDs = shared.Difference(stateTLDs, configTLDs)
 
 	return unusedTLDs
+}
+
+type appDomain struct {
+	App    string
+	Domain string
+}
+
+func DetectDuplicateDomains(existingApps map[string]*novus.AppState, addedRoutes []shared.Route) error {
+	allDomains := []appDomain{}
+
+	// Collect all existing domains across apps
+	for appName, appConfig := range existingApps {
+		for _, route := range appConfig.Routes {
+			allDomains = append(allDomains, appDomain{App: appName, Domain: route.Domain})
+		}
+	}
+
+	// Iterate through the newly added routes to see if some of them already exists in the slice
+	for _, route := range addedRoutes {
+		if idx := slices.IndexFunc(allDomains, func(appDomain appDomain) bool { return appDomain.Domain == route.Domain }); idx != -1 {
+			return &DuplicateDomainError{
+				DuplicateDomain:       route.Domain,
+				OriginalAppWithDomain: allDomains[idx].App,
+			}
+		}
+	}
+
+	return nil
 }

@@ -30,14 +30,14 @@ and print a list of all URLs that are registered by Novus.`,
 		isDNSMasqRunning := <-dnsMasqChan
 
 		if isNginxRunning {
-			logger.Successf("Nginx running")
+			logger.Successf("Nginx running 🚀")
 			logger.Debugf("Nginx configuration loaded from %s", nginx.NginxServersDir)
 		} else {
 			logger.Errorf("Nginx not running")
 		}
 
 		if isDNSMasqRunning {
-			logger.Successf("DNSMasq running")
+			logger.Successf("DNSMasq running 🚀")
 		} else {
 			logger.Errorf("DNSMasq not running")
 		}

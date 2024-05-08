@@ -1,81 +1,54 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
-	"github.com/jozefcipa/novus/internal/novus"
 	"github.com/jozefcipa/novus/internal/shared"
 	"gopkg.in/yaml.v3"
 )
 
 const ConfigFileName = "novus.yml"
 
-var AppName = ""
+var appName = ""
 
 type NovusConfig struct {
 	AppName string         `yaml:"appName" validate:"required"`
 	Routes  []shared.Route `yaml:"routes" validate:"required,unique_routes,dive"`
 }
 
-func (config *NovusConfig) validate() {
-	logger.Debugf("Validating configuration file")
-
-	validate := validator.New(validator.WithRequiredStructEnabled())
-
-	// Register custom `unique_routes` rule
-	shared.RegisterUniqueRoutesValidator(validate)
-
-	if err := validate.Struct(config); err != nil {
-		logger.Errorf("Configuration file contains errors.\n\n%s", err.(validator.ValidationErrors))
-		os.Exit(1)
-	}
-
-	if err := validateAppName(config.AppName); err != nil {
-		logger.Errorf("Configuration file contains errors.\n\n%s", err.Error())
-		os.Exit(1)
-	}
+func SetAppName(name string) {
+	logger.Debugf("Setting app [app=%s]", name)
+	appName = name
 }
 
-func validateAppName(appName string) error {
-	isValid, _ := regexp.MatchString("^[A-Za-z0-9-_]+$", appName)
-	if !isValid {
-		return fmt.Errorf("Invalid app name. Only alphanumeric characters are allowed.")
+func AppName() string {
+	if appName != "" {
+		return appName
 	}
 
-	// Check in state file if appName is already being used
-	for appNameFromConfig, appConfig := range novus.GetState().Apps {
-		if appNameFromConfig == appName && appConfig.Directory != fs.CurrentDir {
-			return fmt.Errorf("App \"%s\" is already defined in a different directory (%s)", appName, appConfig.Directory)
-		}
-	}
-
-	return nil
+	// This should not happen normally,
+	// but let's throw an error if the program tries to access config.AppName() when not set
+	logger.Errorf("[Internal error]: No app set, make sure to call `config.SetAppName()`")
+	os.Exit(1)
+	return ""
 }
 
-func CreateDefaultConfigFile(appName string) error {
+func WriteDefaultFile(appName string) {
 	// Read the config file template
 	configTemplate := fs.ReadFileOrExit(filepath.Join(fs.AssetsDir, "novus.template.yml"))
 
 	// Set app name in the config
 	configTemplate = strings.Replace(configTemplate, "--APP_NAME--", appName, 1)
 
-	if err := validateAppName(appName); err != nil {
-		return err
-	}
-
 	// Create a new config file
 	fs.WriteFileOrExit(filepath.Join(fs.CurrentDir, ConfigFileName), configTemplate)
-	return nil
 }
 
-func Load() (NovusConfig, bool) {
+func LoadFile() (NovusConfig, bool) {
 	configPath := filepath.Join(fs.CurrentDir, ConfigFileName)
 
 	logger.Debugf("Loading configuration file [%s]", configPath)
@@ -90,10 +63,6 @@ func Load() (NovusConfig, bool) {
 		logger.Errorf("Failed to parse the config file: %v", err)
 		os.Exit(1)
 	}
-
-	config.validate()
-
-	AppName = config.AppName
 
 	return config, true
 }

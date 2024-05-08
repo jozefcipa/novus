@@ -59,7 +59,7 @@ func CheckIfRequiredBinariesInstalled() error {
 func InstallBinaries() error {
 	// First check that Homebrew is installed
 	brewExists := binExists("brew")
-	if brewExists {
+	if !brewExists {
 		return &BrewMissingError{}
 	}
 
@@ -174,7 +174,7 @@ func execBrewCommand(commands []string) []byte {
 
 	out, err := cmd.Output()
 	if err != nil {
-		logger.Errorf("Failed to run %s: %v", commandString, err)
+		logger.Errorf("Failed to run \"%s\": %v", commandString, err)
 		os.Exit(1)
 	}
 

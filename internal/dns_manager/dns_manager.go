@@ -85,7 +85,7 @@ func registerTLDResolver(tld string) (bool, string) {
 
 	// First check if the file already exists
 	if fExists := fs.FileExists(configPath); fExists {
-		logger.Debugf("DNS resolver already exists [%s]", tld, configPath)
+		logger.Debugf("DNS resolver for TLD *.%s already exists [%s]", tld, configPath)
 		return false, configPath
 	}
 
@@ -94,7 +94,7 @@ func registerTLDResolver(tld string) (bool, string) {
 	// Create a configuration file
 	configContent := "nameserver 127.0.0.1\n"
 	fs.WriteFileWithSudoOrExit(configPath, configContent)
-	logger.Debugf("DNS resolver for [*.%s]saved [%s]", tld, configPath)
+	logger.Debugf("DNS resolver for *.%s saved [%s]", tld, configPath)
 
 	return true, configPath
 }
@@ -103,12 +103,12 @@ func UnregisterTLD(tld string) {
 	state := novus.GetState()
 
 	if state.DnsFiles[tld].DnsMasqConfig != "" {
-		logger.Debugf("Deleting DNSMasq configuration for [*.%s] [%s]", tld, state.DnsFiles[tld].DnsMasqConfig)
+		logger.Debugf("Deleting DNSMasq configuration for *.%s [%s]", tld, state.DnsFiles[tld].DnsMasqConfig)
 		fs.DeleteFile(state.DnsFiles[tld].DnsMasqConfig)
 	}
 
 	if state.DnsFiles[tld].DnsResolver != "" {
-		logger.Debugf("Deleting DNS resolver for [*.%s] [%s]", tld, state.DnsFiles[tld].DnsResolver)
+		logger.Debugf("Deleting DNS resolver for *.%s [%s]", tld, state.DnsFiles[tld].DnsResolver)
 		fs.DeleteFileWithSudo(state.DnsFiles[tld].DnsResolver)
 	}
 

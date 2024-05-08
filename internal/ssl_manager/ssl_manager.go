@@ -45,7 +45,7 @@ func getCertificateDirectory(domain string) string {
 }
 
 func createCert(domain string) (shared.Certificate, bool) {
-	appState, _ := novus.GetAppState(config.AppName)
+	appState, _ := novus.GetAppState(config.AppName())
 	timeNow := time.Now()
 
 	// Check if the certificate already exists
@@ -54,9 +54,9 @@ func createCert(domain string) (shared.Certificate, bool) {
 		// Check certificate expiration
 		// If the certificate expires in less than a month, we will renew it
 		if timeNow.After(storedCert.ExpiresAt.AddDate(0, -1, 0)) {
-			logger.Debugf("SSL certificate expires in <1 month [%s=%s]", domain, storedCert.CertFilePath)
+			logger.Debugf("SSL certificate for domain [%s] expires in <1 month [%s]", domain, storedCert.CertFilePath)
 		} else {
-			logger.Debugf("SSL certificate already exists [%s=%s]", domain, storedCert.CertFilePath)
+			logger.Debugf("SSL certificate for domain %s already exists [%s]", domain, storedCert.CertFilePath)
 			return storedCert, false
 		}
 	}
@@ -78,7 +78,7 @@ func createCert(domain string) (shared.Certificate, bool) {
 }
 
 func DeleteCert(domain string) {
-	appState, _ := novus.GetAppState(config.AppName)
+	appState, _ := novus.GetAppState(config.AppName())
 	logger.Debugf("Deleting SSL certificate [%s]", domain)
 
 	// Remove directory with SSL certificate for the given domain

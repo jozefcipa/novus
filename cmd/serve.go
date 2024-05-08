@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"os"
-	"slices"
 
 	"github.com/jozefcipa/novus/internal/brew"
 	"github.com/jozefcipa/novus/internal/config"
+	"github.com/jozefcipa/novus/internal/config_manager"
 	"github.com/jozefcipa/novus/internal/diff_manager"
 	"github.com/jozefcipa/novus/internal/dns_manager"
 	"github.com/jozefcipa/novus/internal/dnsmasq"
@@ -26,21 +26,20 @@ var serveCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		// If the binaries are missing, exit here, user needs to run `novus init` first
 		if err := brew.CheckIfRequiredBinariesInstalled(); err != nil {
-			logger.Errorf(err.Error())
 			logger.Hintf("Run \"novus init\" first to initialize Novus.")
 			os.Exit(1)
 		}
 
 		// Load configuration file
-		conf, exists := config.Load()
-		if exists {
+		conf, exists := config_manager.LoadConfiguration()
+		if !exists {
 			logger.Warnf("Novus is not initialized in this directory (" + config.ConfigFileName + " file does not exist).")
 			logger.Hintf("Run \"novus init\" to create a configuration file.")
 			os.Exit(1)
 		}
 
 		// Load application state
-		appState, isNewState := novus.GetAppState(config.AppName)
+		appState, isNewState := novus.GetAppState(config.AppName())
 
 		// Compare state and current config to detect changes
 		addedRoutes, deletedRoutes := diff_manager.DetectConfigDiff(conf, *appState)
@@ -66,28 +65,6 @@ var serveCmd = &cobra.Command{
 			for _, newRoute := range addedRoutes {
 				logger.Successf("Found new domain [%s]", newRoute.Domain)
 			}
-		}
-
-		// TODO: refactor this into a function and move to some module
-		// Check if there are duplicate domains across apps
-		type AppDomain struct {
-			App    string
-			Domain string
-		}
-		allDomains := []AppDomain{}
-		for appName, appConfig := range novus.GetState().Apps {
-			for _, route := range appConfig.Routes {
-				allDomains = append(allDomains, AppDomain{App: appName, Domain: route.Domain})
-			}
-		}
-		for _, route := range addedRoutes {
-			if idx := slices.IndexFunc(allDomains, func(appDomain AppDomain) bool { return appDomain.Domain == route.Domain }); idx != -1 {
-				usedDomainAppName := allDomains[idx].App
-				logger.Errorf("Domain %s is already defined by app \"%s\"", route.Domain, usedDomainAppName)
-				logger.Hintf("Use a different domain name or temporarily stop \"%[1]s\" by running `novus stop %[1]s`", usedDomainAppName)
-				os.Exit(1)
-			}
-			allDomains = append(allDomains, AppDomain{App: conf.AppName, Domain: route.Domain})
 		}
 
 		// Configure SSL

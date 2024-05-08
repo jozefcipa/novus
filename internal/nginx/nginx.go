@@ -51,12 +51,12 @@ func Configure(novusConf config.NovusConfig, sslCerts shared.DomainCertificates)
 	}
 
 	// Create application server config if it doesn't exist
-	nginxAppConf := readServerConfig(getAppConfigName(config.AppName))
+	nginxAppConf := readServerConfig(getAppConfigName(config.AppName()))
 	newNginxAppConf := buildServerConfig(novusConf, sslCerts)
 
 	if nginxAppConf == "" || nginxAppConf != newNginxAppConf {
 		logger.Debugf("Generated application server Nginx config: \n\n%s", newNginxAppConf)
-		writeServerConfig(getAppConfigName(config.AppName), newNginxAppConf)
+		writeServerConfig(getAppConfigName(config.AppName()), newNginxAppConf)
 		logger.Checkf("Nginx configuration updated")
 		return true
 	} else {
@@ -87,7 +87,7 @@ func buildServerConfig(appConfig config.NovusConfig, sslCerts shared.DomainCerti
 	serverConfigTemplate := fs.ReadFileOrExit(filepath.Join(fs.AssetsDir, "nginx/server.template.conf"))
 
 	// Update routes in state
-	appState, _ := novus.GetAppState(config.AppName)
+	appState, _ := novus.GetAppState(config.AppName())
 	appState.Routes = appConfig.Routes
 
 	// Iterate through all the routes and generate Nginx config
