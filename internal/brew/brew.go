@@ -132,7 +132,7 @@ func IsSudoServiceRunning(svc string) bool {
 }
 
 func brewInstall(bin string) {
-	logger.Messagef("⏳ Installing %s...\n", bin)
+	logger.Infof("⏳ Installing %s...", bin)
 	logger.Debugf("Running \"brew install %s\"", bin)
 
 	cmd := exec.Command("brew", "install", bin)

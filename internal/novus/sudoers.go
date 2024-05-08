@@ -19,7 +19,7 @@ func CreateSudoersFile() {
 		brewBinPath,
 	)
 
-	logger.Messagef("⏳ Creating /etc/sudoers.d file for Novus.\n")
+	logger.Infof("⏳ Creating /etc/sudoers.d file for Novus.")
 	fs.WriteFileWithSudoOrExit(sudoersFile, sudoPermissions)
 
 	// sudoers file must be owned by root

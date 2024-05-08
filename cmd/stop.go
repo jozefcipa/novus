@@ -17,10 +17,10 @@ defined in the novus.yml configuration file.
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		nginx.Stop()
-		logger.Messagef("🚫 Nginx stopped.\n")
+		logger.Infof("🚫 Nginx stopped.")
 
 		dnsmasq.Stop()
-		logger.Messagef("🚫 DNSMasq stopped.\n")
+		logger.Infof("🚫 DNSMasq stopped.")
 	},
 }
 

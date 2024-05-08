@@ -3,7 +3,6 @@ package tui
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -13,14 +12,13 @@ import (
 )
 
 func AskUser(prompt string) string {
-	logger.Messagef(prompt)
+	logger.Infof(prompt)
 
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 
 	err := scanner.Err()
 	if err != nil {
-		log.Fatal(err)
 		logger.Errorf("Failed to read from CLI: %v", err)
 		os.Exit(1)
 	}

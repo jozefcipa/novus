@@ -4,7 +4,6 @@ go 1.21.0
 
 require (
 	github.com/arsham/figurine v1.3.0
-	github.com/fatih/color v1.16.0
 	github.com/go-playground/validator/v10 v10.18.0
 	github.com/ivanpirog/coloredcobra v1.0.1
 	github.com/jedib0t/go-pretty/v6 v6.5.8
@@ -15,6 +14,7 @@ require (
 require (
 	github.com/arsham/rainbow v1.2.1 // indirect
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be // indirect
+	github.com/fatih/color v1.13.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
