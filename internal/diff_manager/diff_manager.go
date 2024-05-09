@@ -37,12 +37,19 @@ func DetectConfigDiff(conf config.NovusConfig, state novus.AppState) (added []sh
 	return added, deleted
 }
 
-func DetectUnusedTLDs(conf config.NovusConfig, state novus.AppState) (unusedTLDs []string) {
-	configTLDs := dns_manager.GetTLDs(conf.Routes)
-	stateTLDs := dns_manager.GetTLDs(state.Routes)
+func DetectUnusedTLDs(deletedRoutes []shared.Route, stateRoutes []shared.Route) []string {
+	deletedRoutesTLDs := dns_manager.GetTLDs(deletedRoutes)
+	stateTLDs := dns_manager.GetTLDs(stateRoutes)
+	unusedTLDs := []string{}
 
-	// Find TLDs that exist in the state but not in the config
-	unusedTLDs = shared.Difference(stateTLDs, configTLDs)
+	// Iterate through all routes that have been deleted
+	// and check if their TLD domain is used in the remaining routes in state
+	// if not, that means the TLD is not used anymore and can be removed
+	for _, deletedRouteTLD := range deletedRoutesTLDs {
+		if !slices.Contains(stateTLDs, deletedRouteTLD) {
+			unusedTLDs = append(unusedTLDs, deletedRouteTLD)
+		}
+	}
 
 	return unusedTLDs
 }

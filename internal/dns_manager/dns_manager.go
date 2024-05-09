@@ -12,8 +12,8 @@ import (
 	"github.com/jozefcipa/novus/internal/shared"
 )
 
-// TODO: describe the steps here, how it works
-// what's /etc/resolver & what's DNSMasq
+// DNSMasq & DNS resolver setup
+// https://gist.github.com/ogrrd/5831371
 
 var dnsResolverDir string
 

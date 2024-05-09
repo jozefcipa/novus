@@ -2,22 +2,6 @@ package shared
 
 import "strings"
 
-// Difference returns the elements in `a` that aren't in `b`.
-// https://stackoverflow.com/a/45428032/4480179
-func Difference(a, b []string) []string {
-	mb := make(map[string]struct{}, len(b))
-	for _, x := range b {
-		mb[x] = struct{}{}
-	}
-	var diff []string
-	for _, x := range a {
-		if _, found := mb[x]; !found {
-			diff = append(diff, x)
-		}
-	}
-	return diff
-}
-
 func ToKebabCase(input string) string {
 	return strings.ReplaceAll(
 		strings.ToLower(

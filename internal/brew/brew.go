@@ -21,10 +21,6 @@ type BrewServiceStatus struct {
 	Running bool `json:"running"`
 }
 
-type BrewMissingError struct{}
-
-func (e *BrewMissingError) Error() string { return "Novus requires Homebrew installed" }
-
 func init() {
 	out, err := exec.Command("brew", "--prefix").Output()
 	if err != nil {

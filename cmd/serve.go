@@ -13,6 +13,7 @@ import (
 	"github.com/jozefcipa/novus/internal/mkcert"
 	"github.com/jozefcipa/novus/internal/nginx"
 	"github.com/jozefcipa/novus/internal/novus"
+	"github.com/jozefcipa/novus/internal/shared"
 	"github.com/jozefcipa/novus/internal/ssl_manager"
 	"github.com/jozefcipa/novus/internal/tui"
 
@@ -52,7 +53,14 @@ var serveCmd = &cobra.Command{
 			}
 
 			// Remove DNS records for unused TLDs
-			unusedTLDs := diff_manager.DetectUnusedTLDs(conf, *appState)
+			otherAppsRoutes := []shared.Route{}
+			for appName, appState := range novus.GetState().Apps {
+				// we want to find usage in other apps, not the current one
+				if appName != config.AppName() {
+					otherAppsRoutes = append(otherAppsRoutes, appState.Routes...)
+				}
+			}
+			unusedTLDs := diff_manager.DetectUnusedTLDs(deletedRoutes, otherAppsRoutes)
 			if len(unusedTLDs) > 0 {
 				for _, tld := range unusedTLDs {
 					logger.Errorf("Removing unused TLD domain [*.%s]", tld)
