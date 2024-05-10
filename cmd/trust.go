@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/jozefcipa/novus/internal/logger"
-	"github.com/jozefcipa/novus/internal/novus"
+	"github.com/jozefcipa/novus/internal/sudoers"
 	"github.com/spf13/cobra"
 )
 
@@ -18,13 +18,13 @@ Novus needs sudo access for manipulating DNS records via DNSMasq.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Check if sudoers file already exists
-		if exists := novus.SudoersFileExists(); exists {
+		if isTrusted := sudoers.IsTrusted(); isTrusted {
 			logger.Checkf("Novus is already trusted.")
 			os.Exit(0)
 		}
 
 		// Create file if it doesn't exist yet
-		novus.CreateSudoersFile()
+		sudoers.Trust()
 		logger.Successf("Novus is now registered and can be used without sudo password.")
 	},
 }

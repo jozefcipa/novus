@@ -1,4 +1,4 @@
-package novus
+package sudoers
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 
 const sudoersFile = "/etc/sudoers.d/novus"
 
-func CreateSudoersFile() {
+func Trust() {
 	// Register Homebrew to sudoers file so it can be ran without sudo password
 	brewBinPath := filepath.Join(brew.BrewPath, "bin/brew")
 	sudoPermissions := fmt.Sprintf("Cmnd_Alias HOMEBREW = %s *\n"+
@@ -26,6 +26,6 @@ func CreateSudoersFile() {
 	fs.ChownOrExit(sudoersFile, "root")
 }
 
-func SudoersFileExists() bool {
+func IsTrusted() bool {
 	return fs.FileExists(sudoersFile)
 }
