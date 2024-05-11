@@ -12,7 +12,7 @@ import (
 )
 
 func AskUser(prompt string) string {
-	logger.Infof(prompt)
+	fmt.Print(prompt)
 
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
@@ -27,17 +27,23 @@ func AskUser(prompt string) string {
 }
 
 func Confirm(question string) bool {
-	// TODO: implement
-	return false
+	answer := AskUser(fmt.Sprintf("%s [Y/n]: ", question))
+	return answer == "Y"
 }
 
-func PrintRoutingTable(apps map[string]*novus.AppState) {
+func PrintRoutingTable(novusState novus.NovusState) {
+	if len(novusState.Apps) == 0 {
+		logger.Warnf("You don't have any apps configured.")
+		logger.Hintf("Run \"novus init\" or \"novus serve\" to start routing.")
+		return
+	}
+
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
 
 	t.AppendHeader(table.Row{"Application", "Upstream ", "Domain", "Status", "Directory"})
 
-	for appName, appState := range apps {
+	for appName, appState := range novusState.Apps {
 		for _, route := range appState.Routes {
 			t.AppendRow(table.Row{appName, route.Upstream, fmt.Sprintf("https://%s", route.Domain), "🚀", appState.Directory}, table.RowConfig{AutoMerge: true})
 		}

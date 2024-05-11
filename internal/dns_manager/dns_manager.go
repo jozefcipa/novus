@@ -15,11 +15,7 @@ import (
 // DNSMasq & DNS resolver setup
 // https://gist.github.com/ogrrd/5831371
 
-var dnsResolverDir string
-
-func init() {
-	dnsResolverDir = "/etc/resolver"
-}
+const dnsResolverDir = "/etc/resolver"
 
 func GetTLDs(routes []shared.Route) []string {
 	var tlds = make(map[string]bool)
@@ -36,9 +32,7 @@ func GetTLDs(routes []shared.Route) []string {
 	return shared.MapKeys(tlds)
 }
 
-func Configure(config config.NovusConfig) bool {
-	state := novus.GetState()
-
+func Configure(config config.NovusConfig, novusState *novus.NovusState) bool {
 	// Update main DNSMasq configuration
 	updated := dnsmasq.Configure()
 
@@ -52,14 +46,14 @@ func Configure(config config.NovusConfig) bool {
 		configCreated, configPath := dnsmasq.CreateTLDConfig(tld)
 
 		// Initialize state struct if not exists
-		if _, exists := state.DnsFiles[tld]; !exists {
-			state.DnsFiles[tld] = &novus.DnsFiles{}
+		if _, exists := novusState.DnsFiles[tld]; !exists {
+			novusState.DnsFiles[tld] = &novus.DnsFiles{}
 		}
 
 		if configCreated {
 			updated = true
 			// Store config path in state
-			state.DnsFiles[tld].DnsMasqConfig = configPath
+			novusState.DnsFiles[tld].DnsMasqConfig = configPath
 		}
 
 		// Register the system's DNS TLD resolver
@@ -67,7 +61,7 @@ func Configure(config config.NovusConfig) bool {
 		if resolverCreated {
 			updated = true
 			// Store config path in state
-			state.DnsFiles[tld].DnsResolver = resolverPath
+			novusState.DnsFiles[tld].DnsResolver = resolverPath
 		}
 	}
 
@@ -99,19 +93,17 @@ func registerTLDResolver(tld string) (bool, string) {
 	return true, configPath
 }
 
-func UnregisterTLD(tld string) {
-	state := novus.GetState()
-
-	if state.DnsFiles[tld].DnsMasqConfig != "" {
-		logger.Debugf("Deleting DNSMasq configuration for *.%s [%s]", tld, state.DnsFiles[tld].DnsMasqConfig)
-		fs.DeleteFile(state.DnsFiles[tld].DnsMasqConfig)
+func UnregisterTLD(tld string, novusState *novus.NovusState) {
+	if novusState.DnsFiles[tld].DnsMasqConfig != "" {
+		logger.Debugf("Deleting DNSMasq configuration for *.%s [%s]", tld, novusState.DnsFiles[tld].DnsMasqConfig)
+		fs.DeleteFile(novusState.DnsFiles[tld].DnsMasqConfig)
 	}
 
-	if state.DnsFiles[tld].DnsResolver != "" {
-		logger.Debugf("Deleting DNS resolver for *.%s [%s]", tld, state.DnsFiles[tld].DnsResolver)
-		fs.DeleteFileWithSudo(state.DnsFiles[tld].DnsResolver)
+	if novusState.DnsFiles[tld].DnsResolver != "" {
+		logger.Debugf("Deleting DNS resolver for *.%s [%s]", tld, novusState.DnsFiles[tld].DnsResolver)
+		fs.DeleteFileWithSudo(novusState.DnsFiles[tld].DnsResolver)
 	}
 
 	// Remove from state
-	delete(state.DnsFiles, tld)
+	delete(novusState.DnsFiles, tld)
 }

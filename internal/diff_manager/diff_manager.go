@@ -59,7 +59,7 @@ type appDomain struct {
 	Domain string
 }
 
-func DetectDuplicateDomains(existingApps map[string]*novus.AppState, addedRoutes []shared.Route) error {
+func DetectDuplicateDomains(existingApps map[string]novus.AppState, addedRoutes []shared.Route) error {
 	allDomains := []appDomain{}
 
 	// Collect all existing domains across apps

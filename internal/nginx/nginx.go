@@ -38,7 +38,7 @@ func IsRunning() bool {
 	return brew.IsServiceRunning("nginx")
 }
 
-func Configure(novusConf config.NovusConfig, sslCerts shared.DomainCertificates) bool {
+func Configure(novusConf config.NovusConfig, sslCerts shared.DomainCertificates, appState *novus.AppState) bool {
 	// Create default server config if it doesn't exist
 	nginxDefaultConf := readServerConfig(getDefaultConfigName())
 	if nginxDefaultConf == "" {
@@ -52,7 +52,7 @@ func Configure(novusConf config.NovusConfig, sslCerts shared.DomainCertificates)
 
 	// Create application server config if it doesn't exist
 	nginxAppConf := readServerConfig(getAppConfigName(config.AppName()))
-	newNginxAppConf := buildServerConfig(novusConf, sslCerts)
+	newNginxAppConf := buildServerConfig(novusConf, sslCerts, appState)
 
 	if nginxAppConf == "" || nginxAppConf != newNginxAppConf {
 		logger.Debugf("Generated application server Nginx config: \n\n%s", newNginxAppConf)
@@ -63,6 +63,14 @@ func Configure(novusConf config.NovusConfig, sslCerts shared.DomainCertificates)
 		logger.Checkf("Nginx configuration is up to date")
 		return false
 	}
+}
+
+func RemoveConfiguration(appName string) {
+	configFilePath := filepath.Join(NginxServersDir, getAppConfigName(appName))
+
+	logger.Debugf("Removing application server Nginx config for app %s [%s]", appName, configFilePath)
+
+	fs.DeleteFile(configFilePath)
 }
 
 func readServerConfig(fileName string) string {
@@ -82,12 +90,11 @@ func writeServerConfig(fileName string, serverConfig string) {
 	fs.WriteFileOrExit(path, serverConfig)
 }
 
-func buildServerConfig(appConfig config.NovusConfig, sslCerts shared.DomainCertificates) string {
+func buildServerConfig(appConfig config.NovusConfig, sslCerts shared.DomainCertificates, appState *novus.AppState) string {
 	// Read template file
 	serverConfigTemplate := fs.ReadFileOrExit(filepath.Join(fs.AssetsDir, "nginx/server.template.conf"))
 
 	// Update routes in state
-	appState, _ := novus.GetAppState(config.AppName())
 	appState.Routes = appConfig.Routes
 
 	// Iterate through all the routes and generate Nginx config

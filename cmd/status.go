@@ -15,19 +15,8 @@ var statusCmd = &cobra.Command{
 	Long: `Show whether Nginx and DNSMasq services are running,
 and print a list of all URLs that are registered by Novus.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		novusState := novus.GetState()
-
-		nginxChan := make(chan bool)
-		dnsMasqChan := make(chan bool)
-		go func() {
-			nginxChan <- nginx.IsRunning()
-		}()
-		go func() {
-			dnsMasqChan <- dnsmasq.IsRunning()
-		}()
-
-		isNginxRunning := <-nginxChan
-		isDNSMasqRunning := <-dnsMasqChan
+		isNginxRunning := nginx.IsRunning()
+		isDNSMasqRunning := dnsmasq.IsRunning()
 
 		if isNginxRunning {
 			logger.Successf("Nginx running 🚀")
@@ -46,7 +35,8 @@ and print a list of all URLs that are registered by Novus.`,
 			logger.Hintf("Run \"novus serve\" to initialize the services")
 		} else {
 			// All good, show the routing info
-			tui.PrintRoutingTable(novusState.Apps)
+			novusState := novus.GetState()
+			tui.PrintRoutingTable(*novusState)
 		}
 	},
 }

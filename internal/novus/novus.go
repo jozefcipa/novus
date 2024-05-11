@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/shared"
@@ -15,53 +14,19 @@ var NovusStateDir string
 
 var novusStateFilePath string
 var state NovusState
+var stateLoaded bool
 
-type AppState struct {
-	Directory       string                    `json:"directory" validate:"required,dirpath"`
-	SSLCertificates shared.DomainCertificates `json:"sslCertificates"`
-	Routes          []shared.Route            `json:"routes" validate:"required,dive"`
+func init() {
+	stateLoaded = false
 }
 
-type DnsFiles struct {
-	DnsMasqConfig string `json:"dnsMasqConfig" validate:"required,dirpath"`
-	DnsResolver   string `json:"dnsResolver" validate:"required,dirpath"`
-}
-
-type NovusState struct {
-	// Track files that we create for DNS
-	// As we write into shared directory, we can later on only delete files that we're sure have been created by us
-	// e.g. /etc/resolver directory
-	DnsFiles map[string]*DnsFiles `json:"dnsFiles" validate:"required"`
-	// State for each of the apps
-	Apps map[string]*AppState `json:"apps" validate:"required"`
-}
-
-func (state *NovusState) validate() {
-	logger.Debugf("Validating state file")
-
-	validate := validator.New(validator.WithRequiredStructEnabled())
-
-	for _, appState := range state.Apps {
-		err := validate.Struct(appState)
-		if err != nil {
-			logger.Errorf("Novus state file is corrupted.\n\n%s", err.(validator.ValidationErrors))
-			os.Exit(1)
-		}
-
-		for _, sslCerts := range appState.SSLCertificates {
-			err := validate.Struct(sslCerts)
-			if err != nil {
-				logger.Errorf("Novus state file is corrupted.\n\n%s", err.(validator.ValidationErrors))
-				os.Exit(1)
-			}
-		}
-	}
+func ResolveDirs() {
+	// where we can store generated SSL certificates and application state
+	NovusStateDir = filepath.Join(fs.UserHomeDir, ".novus")
 }
 
 func initStateFile() {
 	// Create a directory ~/.novus
-	// where we can store generated SSL certificates and application state
-	NovusStateDir = filepath.Join(fs.UserHomeDir, ".novus")
 	fs.MakeDirOrExit(NovusStateDir)
 	novusStateFilePath = filepath.Join(NovusStateDir, "novus.json")
 }
@@ -87,19 +52,26 @@ func loadState() {
 	}
 
 	state.validate()
+	stateLoaded = true
 }
 
 func GetState() *NovusState {
-	// If state is empty, load the state file first
-	if len(state.Apps) == 0 {
+	// If state hasn't been loaded yet, load it now
+	if !stateLoaded {
 		loadState()
 	}
 
 	return &state
 }
 
-func GetAppState(appName string) (appState *AppState, isNewState bool) {
+func GetAppState(appName string) (*AppState, bool) {
 	appState, exists := GetState().Apps[appName]
+	return appState, exists
+}
+
+func InitializeAppState(appName string) *AppState {
+	appState, exists := GetAppState(appName)
+
 	if !exists {
 		// Init empty state
 		state.Apps[appName] = &AppState{
@@ -108,10 +80,14 @@ func GetAppState(appName string) (appState *AppState, isNewState bool) {
 			Routes:          []shared.Route{},
 		}
 		appState = state.Apps[appName]
-		return appState, true
 	}
 
-	return appState, false
+	return appState
+}
+
+func RemoveAppState(appName string) {
+	logger.Debugf("Removing app configuration from state [%s]", appName)
+	delete(state.Apps, appName)
 }
 
 func SaveState() {

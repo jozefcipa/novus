@@ -16,10 +16,10 @@ import (
 
 func LoadConfiguration() (config.NovusConfig, bool) {
 	conf, exists := config.LoadFile()
-	if !exists {
-		return conf, false
-	}
+	return conf, exists
+}
 
+func ValidateConfig(conf config.NovusConfig, novusState novus.NovusState) {
 	// Validate configuration
 	if err := validateConfigSyntax(conf); err != nil {
 		logger.Errorf("Configuration file contains errors.\n\n%s", err.(validator.ValidationErrors))
@@ -27,13 +27,14 @@ func LoadConfiguration() (config.NovusConfig, bool) {
 	}
 
 	// Validate app name syntax and whether it is unique across apps
-	if err := validateConfigAppName(conf.AppName); err != nil {
+	if err := validateConfigAppName(conf.AppName, novusState); err != nil {
 		logger.Errorf(err.Error())
 		os.Exit(1)
 	}
+	config.SetAppName(conf.AppName)
 
 	// Check if the config contains domains that are already registered in another app
-	if err := checkForDuplicateDomains(conf); err != nil {
+	if err := checkForDuplicateDomains(conf, novusState); err != nil {
 		logger.Errorf(err.Error())
 		if err, ok := err.(*diff_manager.DuplicateDomainError); ok {
 			logger.Hintf(
@@ -43,14 +44,14 @@ func LoadConfiguration() (config.NovusConfig, bool) {
 		}
 		os.Exit(1)
 	}
-
-	config.SetAppName(conf.AppName)
-
-	return conf, true
 }
 
-func CreateNewConfiguration(appName string) error {
-	if err := validateConfigAppName(appName); err != nil {
+func ConfigFileExists() bool {
+	return config.ConfigFileExists()
+}
+
+func CreateNewConfiguration(appName string, novusState novus.NovusState) error {
+	if err := validateConfigAppName(appName, novusState); err != nil {
 		return err
 	}
 
@@ -69,7 +70,7 @@ func validateConfigSyntax(conf config.NovusConfig) error {
 	return validate.Struct(conf)
 }
 
-func validateConfigAppName(appName string) error {
+func validateConfigAppName(appName string, novusState novus.NovusState) error {
 	logger.Debugf("Validating configuration file app name [%s]", appName)
 
 	isValid, _ := regexp.MatchString("^[A-Za-z0-9-_]+$", appName)
@@ -78,7 +79,7 @@ func validateConfigAppName(appName string) error {
 	}
 
 	// Check in state file if appName is already being used
-	for appNameFromConfig, appConfig := range novus.GetState().Apps {
+	for appNameFromConfig, appConfig := range novusState.Apps {
 		if appNameFromConfig == appName && appConfig.Directory != fs.CurrentDir {
 			return fmt.Errorf("App \"%s\" is already defined in a different directory (%s)", appName, appConfig.Directory)
 		}
@@ -87,11 +88,15 @@ func validateConfigAppName(appName string) error {
 	return nil
 }
 
-func checkForDuplicateDomains(conf config.NovusConfig) error {
+func checkForDuplicateDomains(conf config.NovusConfig, novusState novus.NovusState) error {
 	logger.Debugf("Checking for duplicate domains across apps")
 
-	appState, _ := novus.GetAppState(conf.AppName)
-	addedRoutes, _ := diff_manager.DetectConfigDiff(conf, *appState)
-
-	return diff_manager.DetectDuplicateDomains(novus.GetState().Apps, addedRoutes)
+	// pick all existing apps except the current one (based on the config)
+	otherApps := map[string]novus.AppState{}
+	for appName, appState := range novusState.Apps {
+		if appName != conf.AppName {
+			otherApps[appName] = *appState
+		}
+	}
+	return diff_manager.DetectDuplicateDomains(otherApps, conf.Routes)
 }

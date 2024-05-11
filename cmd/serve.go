@@ -9,11 +9,11 @@ import (
 	"github.com/jozefcipa/novus/internal/diff_manager"
 	"github.com/jozefcipa/novus/internal/dns_manager"
 	"github.com/jozefcipa/novus/internal/dnsmasq"
+	"github.com/jozefcipa/novus/internal/domain_cleanup_manager"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/mkcert"
 	"github.com/jozefcipa/novus/internal/nginx"
 	"github.com/jozefcipa/novus/internal/novus"
-	"github.com/jozefcipa/novus/internal/shared"
 	"github.com/jozefcipa/novus/internal/ssl_manager"
 	"github.com/jozefcipa/novus/internal/tui"
 
@@ -39,37 +39,25 @@ var serveCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		// Load Novus state & validate config file
+		novusState := novus.GetState()
+		config_manager.ValidateConfig(conf, *novusState)
+
 		// Load application state
-		appState, isNewState := novus.GetAppState(config.AppName())
+		appState, appStateExists := novus.GetAppState(config.AppName())
+		if !appStateExists {
+			appState = novus.InitializeAppState(config.AppName())
+		}
 
 		// Compare state and current config to detect changes
 		addedRoutes, deletedRoutes := diff_manager.DetectConfigDiff(conf, *appState)
 
 		// Remove domains that are no longer in config
 		if len(deletedRoutes) > 0 {
-			for _, deletedRoute := range deletedRoutes {
-				logger.Errorf("Removing SSL certificate for domain [%s]", deletedRoute.Domain)
-				ssl_manager.DeleteCert(deletedRoute.Domain)
-			}
-
-			// Remove DNS records for unused TLDs
-			otherAppsRoutes := []shared.Route{}
-			for appName, appState := range novus.GetState().Apps {
-				// we want to find usage in other apps, not the current one
-				if appName != config.AppName() {
-					otherAppsRoutes = append(otherAppsRoutes, appState.Routes...)
-				}
-			}
-			unusedTLDs := diff_manager.DetectUnusedTLDs(deletedRoutes, otherAppsRoutes)
-			if len(unusedTLDs) > 0 {
-				for _, tld := range unusedTLDs {
-					logger.Errorf("Removing unused TLD domain [*.%s]", tld)
-					dns_manager.UnregisterTLD(tld)
-				}
-			}
+			domain_cleanup_manager.RemoveDomains(deletedRoutes, config.AppName(), novusState)
 		}
 
-		if !isNewState && len(addedRoutes) > 0 {
+		if len(addedRoutes) > 0 {
 			for _, newRoute := range addedRoutes {
 				logger.Successf("Found new domain [%s]", newRoute.Domain)
 			}
@@ -77,13 +65,13 @@ var serveCmd = &cobra.Command{
 
 		// Configure SSL
 		mkcert.Configure(conf)
-		domainCerts, hasNewCerts := ssl_manager.EnsureSSLCertificates(conf)
+		domainCerts, hasNewCerts := ssl_manager.EnsureSSLCertificates(conf, appState)
 
 		// Configure Nginx
-		nginxConfigUpdated := nginx.Configure(conf, domainCerts)
+		nginxConfigUpdated := nginx.Configure(conf, domainCerts, appState)
 
 		// Configure DNS
-		dnsUpdated := dns_manager.Configure(conf)
+		dnsUpdated := dns_manager.Configure(conf, novusState)
 
 		// Restart services
 		// Nginx
@@ -105,7 +93,7 @@ var serveCmd = &cobra.Command{
 		}
 
 		// Everything's set, start routing
-		tui.PrintRoutingTable(novus.GetState().Apps)
+		tui.PrintRoutingTable(*novusState)
 
 		// Save application state
 		novus.SaveState()

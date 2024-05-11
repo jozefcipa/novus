@@ -37,6 +37,10 @@ func AppName() string {
 	return ""
 }
 
+func ConfigFileExists() bool {
+	return fs.FileExists(filepath.Join(fs.CurrentDir, ConfigFileName))
+}
+
 func WriteDefaultFile(appName string) {
 	// Read the config file template
 	configTemplate := fs.ReadFileOrExit(filepath.Join(fs.AssetsDir, "novus.template.yml"))

@@ -9,6 +9,8 @@ import (
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
+	"github.com/jozefcipa/novus/internal/novus"
+	"github.com/jozefcipa/novus/internal/ssl_manager"
 	"github.com/spf13/cobra"
 )
 
@@ -19,6 +21,8 @@ var rootCmd = &cobra.Command{
 	Short:   "Local web development done effortlessly",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		fs.ResolveDirs()
+		novus.ResolveDirs()
+		ssl_manager.ResolveDirs()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		figurine.Write(os.Stdout, "Novus", "ANSI Regular.flf")
