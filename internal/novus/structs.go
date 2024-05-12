@@ -8,8 +8,16 @@ import (
 	"github.com/jozefcipa/novus/internal/shared"
 )
 
+type AppStatus string
+
+const (
+	APP_ACTIVE AppStatus = "active"
+	APP_PAUSED AppStatus = "paused"
+)
+
 type AppState struct {
 	Directory       string                    `json:"directory" validate:"required,dirpath"`
+	Status          AppStatus                 `json:"appStatus" validate:"required"`
 	SSLCertificates shared.DomainCertificates `json:"sslCertificates"`
 	Routes          []shared.Route            `json:"routes" validate:"required,dive"`
 }

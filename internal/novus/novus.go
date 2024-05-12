@@ -75,6 +75,7 @@ func InitializeAppState(appName string) *AppState {
 	if !exists {
 		// Init empty state
 		state.Apps[appName] = &AppState{
+			Status:          APP_ACTIVE,
 			Directory:       fs.CurrentDir,
 			SSLCertificates: shared.DomainCertificates{},
 			Routes:          []shared.Route{},
