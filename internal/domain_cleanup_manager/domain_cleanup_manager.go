@@ -19,8 +19,8 @@ func RemoveDomains(routes []shared.Route, appName string, novusState *novus.Novu
 
 	// Remove DNS records for unused TLDs
 	otherAppsRoutes := []shared.Route{}
-	for novusAppName, novusAppState := range novusState.Apps {
-		// we want to find usage only in other apps,
+	for novusAppName, novusAppState := range novusState.GetActiveApps() {
+		// We want to find usage only in other apps,
 		// current app's state has not yet been updated so it contains routes that we're deleting,
 		// thus this would yield false results claiming the TLD is still used
 		if novusAppName != appName {

@@ -13,14 +13,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var removeCmd = &cobra.Command{
-	Use:   "remove [app-name]",
-	Short: "Remove app configuration from Novus",
-	Long:  "Remove all domains registered in the configuration for the given app",
+var pauseCmd = &cobra.Command{
+	Use:   "pause [app-name]",
+	Short: "",
+	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
 		appName, appState := tui.ParseAppFromArgs(args)
 
-		if !tui.Confirm(fmt.Sprintf("Do you want to remove \"%s\" configuration?", appName)) {
+		if appState.Status == novus.APP_PAUSED {
+			logger.Checkf("\"%s\" is already paused.", appName)
+			tui.PrintRoutingTable(*novus.GetState())
+			os.Exit(0)
+		}
+
+		if !tui.Confirm(fmt.Sprintf("Do you want to pause \"%s\"?", appName)) {
 			os.Exit(0)
 		}
 
@@ -30,8 +36,8 @@ var removeCmd = &cobra.Command{
 		// Remove NGINX configuration
 		nginx.RemoveConfiguration(appName)
 
-		// Remove app from Novus state
-		novus.RemoveAppState(appName)
+		// Mark app as paused so it won't be routed
+		appState.Status = novus.APP_PAUSED
 
 		// Restart services
 		nginx.Restart()
@@ -47,5 +53,5 @@ var removeCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(removeCmd)
+	rootCmd.AddCommand(pauseCmd)
 }

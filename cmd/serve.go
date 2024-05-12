@@ -92,6 +92,9 @@ var serveCmd = &cobra.Command{
 			logger.Checkf("DNSMasq running 🚀")
 		}
 
+		// If app has been paused, make sure to set it to ACTIVE
+		appState.Status = novus.APP_ACTIVE
+
 		// Everything's set, start routing
 		tui.PrintRoutingTable(*novusState)
 

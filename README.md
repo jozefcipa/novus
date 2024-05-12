@@ -40,7 +40,8 @@ Explain how to use your CLI tool, including command syntax and available options
 - novus init
 - novus serve
 - novus status
-- novus stop
+- novus pause
+- novus resume
 - novus trust
 
 ## Notes
