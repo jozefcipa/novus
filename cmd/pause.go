@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/jozefcipa/novus/internal/dnsmasq"
@@ -15,18 +14,14 @@ import (
 
 var pauseCmd = &cobra.Command{
 	Use:   "pause [app-name]",
-	Short: "",
-	Long:  "",
+	Short: "Pause existing app in Novus",
+	Long:  "Pause existing app in Novus so the routing will stop. Run `novus resume [app-name]` to start routing again.",
 	Run: func(cmd *cobra.Command, args []string) {
-		appName, appState := tui.ParseAppFromArgs(args)
+		appName, appState := tui.ParseAppFromArgs(args, "pause")
 
 		if appState.Status == novus.APP_PAUSED {
 			logger.Checkf("\"%s\" is already paused.", appName)
 			tui.PrintRoutingTable(*novus.GetState())
-			os.Exit(0)
-		}
-
-		if !tui.Confirm(fmt.Sprintf("Do you want to pause \"%s\"?", appName)) {
 			os.Exit(0)
 		}
 

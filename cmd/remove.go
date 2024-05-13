@@ -18,7 +18,7 @@ var removeCmd = &cobra.Command{
 	Short: "Remove app configuration from Novus",
 	Long:  "Remove all domains registered in the configuration for the given app",
 	Run: func(cmd *cobra.Command, args []string) {
-		appName, appState := tui.ParseAppFromArgs(args)
+		appName, appState := tui.ParseAppFromArgs(args, "remove")
 
 		if !tui.Confirm(fmt.Sprintf("Do you want to remove \"%s\" configuration?", appName)) {
 			os.Exit(0)

@@ -83,10 +83,10 @@ func PrintRoutingTable(novusState novus.NovusState) {
 	table.Render()
 }
 
-func ParseAppFromArgs(args []string) (string, *novus.AppState) {
+func ParseAppFromArgs(args []string, cmd string) (string, *novus.AppState) {
 	if len(args) < 1 {
 		logger.Errorf("App name not provided!")
-		logger.Hintf("Please specify app that you want to remove by running \"novus remove [app-name]\"")
+		logger.Hintf("Please specify app name by running \"novus %s [app-name]\"", cmd)
 		os.Exit(1)
 	}
 	appName := args[0]

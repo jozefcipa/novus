@@ -19,6 +19,13 @@ func LoadConfiguration() (config.NovusConfig, bool) {
 	return conf, exists
 }
 
+func LoadConfigurationFromState(appName string, novusState novus.NovusState) config.NovusConfig {
+	return config.NovusConfig{
+		AppName: appName,
+		Routes:  novusState.Apps[appName].Routes,
+	}
+}
+
 func ValidateConfig(conf config.NovusConfig, novusState novus.NovusState) {
 	// Validate configuration
 	if err := validateConfigSyntax(conf); err != nil {
