@@ -2,13 +2,16 @@ package tui
 
 import (
 	"bufio"
+	"cmp"
 	"fmt"
 	"os"
+	"slices"
+	"strings"
 
-	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/novus"
+	"github.com/jozefcipa/novus/internal/shared"
+	"github.com/olekukonko/tablewriter"
 )
 
 func AskUser(prompt string) string {
@@ -39,37 +42,45 @@ func PrintRoutingTable(novusState novus.NovusState) {
 		return
 	}
 
-	t := table.NewWriter()
-	t.SetOutputMirror(os.Stdout)
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Application", "Upstream ", "Domain", "Status", "Directory"})
+	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: true})
+	table.SetAutoMergeCellsByColumnIndex([]int{0, 3, 4})
+	table.SetCenterSeparator("|")
+	table.SetRowLine(true)
 
-	t.AppendHeader(table.Row{"Application", "Upstream ", "Domain", "Status", "Directory"})
+	// Sort apps
+	sortedAppNames := shared.MapKeys(allApps)
+	slices.SortFunc(sortedAppNames, func(a, b string) int { return cmp.Compare(a, b) })
 
-	for appName, appState := range allApps {
-		statusIcon := "🚀"
+	for _, appName := range sortedAppNames {
+		appState := allApps[appName]
+		color := tablewriter.FgGreenColor
 		if appState.Status == novus.APP_PAUSED {
-			statusIcon = "🛑" // TODO: try to use ⏸️ with the new library
+			color = tablewriter.FgYellowColor
 		}
 
 		for _, route := range appState.Routes {
-			t.AppendRow(table.Row{appName, route.Upstream, fmt.Sprintf("https://%s", route.Domain), statusIcon, appState.Directory}, table.RowConfig{AutoMerge: true})
+			table.Rich(
+				[]string{
+					appName,
+					route.Upstream,
+					fmt.Sprintf("https://%s", route.Domain),
+					strings.ToUpper(string(appState.Status)),
+					appState.Directory,
+				},
+				[]tablewriter.Colors{
+					{tablewriter.FgCyanColor},
+					{tablewriter.UnderlineSingle},
+					{tablewriter.Bold, tablewriter.UnderlineSingle, color},
+					{color},
+					{},
+				})
 		}
 	}
 
-	// TODO: refactor table to use https://github.com/olekukonko/tablewriter instead
-	// TODO: domain should not be green when the app is paused
-	t.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 1, AutoMerge: true, Colors: text.Colors{text.FgCyan}, VAlign: text.VAlignMiddle},
-		{Number: 2, AutoMerge: false},
-		{Number: 3, AutoMerge: false, Colors: text.Colors{text.FgHiGreen}},
-		{Number: 4, AutoMerge: true, Align: text.AlignCenter, VAlign: text.VAlignMiddle}, // TODO: set to true when figure out how to vertical align to middle
-		{Number: 5, AutoMerge: true},
-	})
-
-	t.SortBy([]table.SortBy{{Name: "Application", Mode: table.Asc}})
-	t.SetStyle(table.StyleLight)
-	t.Style().Options.SeparateRows = true
-
-	t.Render()
+	fmt.Println() // print empty line
+	table.Render()
 }
 
 func ParseAppFromArgs(args []string) (string, *novus.AppState) {
