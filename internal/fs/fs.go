@@ -14,6 +14,7 @@ import (
 var UserHomeDir string
 var CurrentDir string
 var AssetsDir string
+var NovusBinaryDir string
 
 // Cannot use `init()` here because the order in which these init() functions are called across packages causes
 // that `DebugEnabled` flag is not yet available here (`rootCmd.init()` is called after `fs.init()`)
@@ -37,11 +38,11 @@ func ResolveDirs() {
 		logger.Errorf("Failed to get novus binary directory\n   Reason: %v", err)
 		os.Exit(1)
 	}
-	novusBinaryDir := filepath.Dir(executablePath)
+	NovusBinaryDir = filepath.Dir(executablePath)
 	// When running in development with `go run` it gives temporary directory,
 	// therefore set the novus dir path to the current directory
-	if strings.Contains(novusBinaryDir, "go-build") {
-		novusBinaryDir = currentDir
+	if strings.Contains(NovusBinaryDir, "go-build") {
+		NovusBinaryDir = currentDir
 		// In local develop environment, the ./assets are stored next to the output binary
 		// - ./novus
 		// - ./assets/...
@@ -51,7 +52,7 @@ func ResolveDirs() {
 		// This is the Homebrew structure
 		// - ./bin/novus
 		// - ./assets/...
-		AssetsDir = filepath.Join(novusBinaryDir, "..", "assets")
+		AssetsDir = filepath.Join(NovusBinaryDir, "..", "assets")
 	}
 
 	// Make sure assets directory is available
@@ -68,7 +69,7 @@ func ResolveDirs() {
 			"\tCurrent Directory = %s",
 		UserHomeDir,
 		AssetsDir,
-		novusBinaryDir,
+		NovusBinaryDir,
 		CurrentDir,
 	)
 }

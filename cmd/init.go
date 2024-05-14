@@ -43,7 +43,7 @@ var initCmd = &cobra.Command{
 			logger.Successf("Novus has been initialized.")
 			logger.Hintf("Open " + config.ConfigFileName + " to add your route definitions.")
 		} else {
-			logger.Checkf("Novus is already initialized.")
+			logger.Checkf("Novus is already initialized (%s file exists).", config.ConfigFileName)
 			logger.Hintf("Run \"novus serve\" to start the proxy.")
 		}
 	},

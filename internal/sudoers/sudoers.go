@@ -14,12 +14,18 @@ const sudoersFile = "/etc/sudoers.d/novus"
 func Trust() {
 	// Register Homebrew to sudoers file so it can be ran without sudo password
 	brewBinPath := filepath.Join(brew.BrewPath, "bin/brew")
-	sudoPermissions := fmt.Sprintf("Cmnd_Alias HOMEBREW = %s *\n"+
-		"%%admin ALL=(root) NOPASSWD: HOMEBREW\n",
+	novusBinPath := filepath.Join(fs.NovusBinaryDir, "novus")
+	sudoPermissions := fmt.Sprintf(`Cmnd_Alias HOMEBREW = %s *
+Cmnd_Alias NOVUS = %s *
+%%admin ALL=(root) NOPASSWD: HOMEBREW, NOVUS
+`,
 		brewBinPath,
+		novusBinPath,
 	)
 
-	logger.Infof("⏳ Creating /etc/sudoers.d file for Novus.")
+	// TODO: this only works when running it as `sudo novus ...` -> how to run it without sudo?
+
+	logger.Debugf("Creating /etc/sudoers.d/novus file:\n\n%s", sudoPermissions)
 	fs.WriteFileWithSudoOrExit(sudoersFile, sudoPermissions)
 
 	// Sudoers file must be owned by root
@@ -27,5 +33,6 @@ func Trust() {
 }
 
 func IsTrusted() bool {
+	logger.Debugf("Checking if %s exists", sudoersFile)
 	return fs.FileExists(sudoersFile)
 }
