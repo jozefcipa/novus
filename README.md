@@ -21,6 +21,7 @@ $ brew install novus
 - `novus init`
 - then define your routes in the config
 ```yaml
+appName: my-app
 routes:
   - domain: my-frontend.test
     upstream: http://localhost:3000
@@ -32,7 +33,6 @@ routes:
 
 It will ask for your password as it performs some `sudo` calls (for managing DNS resolvers)
 
-- run `novus trust`
 
 ## Commands
 Explain how to use your CLI tool, including command syntax and available options. Provide examples of common use cases to help users get started quickly.
@@ -40,9 +40,10 @@ Explain how to use your CLI tool, including command syntax and available options
 - novus init
 - novus serve
 - novus status
-- novus pause
-- novus resume
-- novus trust
+- novus stop
+- novus pause [app]
+- novus resume [app]
+- novus remove [app]
 
 ## Notes
 Do not use top level domains (TLD) defined by [IANA](https://www.iana.org/domains/root/db)
