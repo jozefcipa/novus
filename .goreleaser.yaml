@@ -61,7 +61,7 @@ brews:
       name: homebrew-novus
       git:
         url: 'git@github.com:jozefcipa/homebrew-novus.git'
-        private_key: '{{ .Env.GITHUB_PRIVATE_KEY_PATH }}'
+        private_key: '{{ .Env.GH_PAT }}'
     directory: .
 
     # Setting this will prevent goreleaser to actually try to commit the updated
