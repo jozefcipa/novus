@@ -52,6 +52,12 @@ func ResolveDirs() {
 		// This is the Homebrew structure
 		// - ./bin/novus
 		// - ./assets/...
+		// Homebrew creates symlinks for binaries, we need to get the original binary location
+		NovusBinaryDir, err = filepath.EvalSymlinks(NovusBinaryDir)
+		if err != nil {
+			logger.Errorf("Failed to evaluate novus symlink\n   Reason: %v", err)
+			os.Exit(1)
+		}
 		AssetsDir = filepath.Join(NovusBinaryDir, "..", "assets")
 	}
 
