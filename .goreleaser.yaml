@@ -72,4 +72,4 @@ brews:
     skip_upload: false # TODO set to `auto`
 
     extra_install: |
-      prefix.install Dir["assets/*"]
+      prefix.install Dir["assets/"]
