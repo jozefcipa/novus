@@ -2,60 +2,86 @@
   <img src="./assets/banner.png">
 </p>
 
-Briefly introduce your CLI tool and its purpose. Explain how it helps developers deploy websites on localhost more efficiently.
+Novus is a CLI tool that enables local sites to use SSL and actual domain names, instead of `localhost`.
+
+[gif] (defining routes in config file, then switch to console, and run novus serve)
 
 ## Overview
-- show an animation gif (defining routes in config file, then switch to console, and run novus serve)
-- what it does, how it helps you
 
-- combines `mkcert`, `nginx` and `DNSMasq` to provide a simple way to work with your local web applications using regular HTTPS URLs instead of several `localhost` addresses with different ports.
+Novus streamlines managing of numerous `localhost` services by providing a simple way to define regular domain names instead. It comes with built-in HTTPS support so all domains are secure by default.
 
-## Install
-Installing Novus is as simple as running 
+In the background it’s just good old **Nginx** acting as a proxy and **DNSMasq** for defining custom domain resolvers. No more `/etc/hosts` manipulation. SSL certificates are automatically managed and renewed for you by **mkcert**.
+
+All you have to do is **map your [localhost](http://localhost) URLs to the DNS domains**. The rest is up to Novus and you can enjoy a seamless production-like experience on your machine 💯.
+
+## Installing
+
+Installing Novus is very simple and can be done in two steps.
+
 ```bash
+
 $ brew tap jozefcipa/novus
+
 $ brew install novus
+
 ```
 
-## How to use
-- `novus init`
-- then define your routes in the config
+You can verify Novus has been install by running
+
+```bash
+
+$ novus -v
+
+```
+
+## Usage
+
+To start using Novus, run `novus init`.
+
+It creates a `novus.yml` configuration file that you can open in your editor and define your domains mapping.
+
+**Example configuration:**
+
 ```yaml
 appName: my-app
 routes:
   - domain: my-frontend.test
     upstream: http://localhost:3000
   - domain: my-api.test
-    upstream: http://localhost:5000
+    upstream: http://localhost:4000
 ```
 
-- run `novus serve`
+Once you’re done, just call `novus serve` and you can start using nice HTTPs domains locally.
 
-It will ask for your password as it performs some `sudo` calls (for managing DNS resolvers)
-
+**Note:** It will ask for your password as it performs some `sudo` calls (for managing DNS resolvers).
 
 ## Commands
-Explain how to use your CLI tool, including command syntax and available options. Provide examples of common use cases to help users get started quickly.
 
-- novus init
-- novus serve
-- novus status
-- novus stop
-- novus pause [app]
-- novus resume [app]
-- novus remove [app]
+Here is the list of all available commands.<br/>
+You can run them by calling `novus [command]`
+
+| Command | Description |
+| --- | --- |
+| `init` | Initializes the Novus proxy. Install the necessary binaries and creates a configuration file (novus.yml) |
+| `serve` | Reads the configuration file, updates DNS, creates SSL certificates and registers routes. |
+| `status` | Shows Novus status and all registered apps. |
+| `stop` | Stops Novus routing. |
+| `pause [app]` | Pauses routing of a specific app. (Needed if there are multiple apps defined with the conflicting domains) |
+| `resume [app]` | Starts routing the paused app again. |
+| `remove [app]` | Removes app configuration from Novus and stops routing. |
 
 ## Notes
-Do not use top level domains (TLD) defined by [IANA](https://www.iana.org/domains/root/db)
-This will result in redirecting all URLs using the given TLD to localhost
-e.g. my.local.website.com -> all .com websites will stop working
 
-Instead, prefer `.test` or anything else that works for you
+💡 **Prefer** `.test` or any other postfix that is not a TLD domain
 
-`.local` doesn't work (on MacOS) - [Apple article](https://support.apple.com/en-us/101471)
-recommend using `.test`
+❌ **Do not use** top level domains (TLD) defined by [IANA](https://www.iana.org/domains/root/db) <br/>
+👉 This will result in redirecting all URLs using the given TLD to localhost
+    e.g. `my.local.website.com` -> all `*.com` websites will stop working (**!**)
 
-`.dev` - do not use either, this is now a valid TLD domain
+❌ MacOS doesn't work well with `.local` TLD  [Apple article](https://support.apple.com/en-us/101471)
 
-## License
-Novus is released under the MIT license ([LICENSE](./LICENSE)).
+❌  **Do not use** `.dev` domain either, this is now a valid TLD domain
+
+## **License**
+
+Novus is released under the MIT license. See ([LICENSE](./LICENSE)).
