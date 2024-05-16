@@ -19,19 +19,14 @@ All you have to do is **map your [localhost](http://localhost) URLs to the DNS d
 Installing Novus is very simple and can be done in two steps.
 
 ```bash
-
 $ brew tap jozefcipa/novus
-
 $ brew install novus
-
 ```
 
 You can verify Novus has been install by running
 
 ```bash
-
 $ novus -v
-
 ```
 
 ## Usage
@@ -61,14 +56,14 @@ Here is the list of all available commands.<br/>
 You can run them by calling `novus [command]`
 
 | Command | Description |
-| --- | --- |
-| `init` | Initializes the Novus proxy. Install the necessary binaries and creates a configuration file (novus.yml) |
-| `serve` | Reads the configuration file, updates DNS, creates SSL certificates and registers routes. |
-| `status` | Shows Novus status and all registered apps. |
-| `stop` | Stops Novus routing. |
-| `pause [app]` | Pauses routing of a specific app. (Needed if there are multiple apps defined with the conflicting domains) |
-| `resume [app]` | Starts routing the paused app again. |
-| `remove [app]` | Removes app configuration from Novus and stops routing. |
+| ------- | ----------- |
+| init | Initializes the Novus proxy. Install the necessary binaries and creates a configuration file (novus.yml) |
+| serve | Reads the configuration file, updates DNS, creates SSL certificates and registers routes. |
+| status | Shows Novus status and all registered apps. |
+| stop | Stops Novus routing. |
+| pause&nbsp;[app] | Pauses routing of a specific app. (Needed if there are multiple apps defined with the conflicting domains) |
+| resume&nbsp;[app] | Starts routing the paused app again. |
+| remove&nbsp;[app] | Removes app configuration from Novus and stops routing. |
 
 ## Notes
 
@@ -78,10 +73,10 @@ You can run them by calling `novus [command]`
 👉 This will result in redirecting all URLs using the given TLD to localhost
     e.g. `my.local.website.com` -> all `*.com` websites will stop working (**!**)
 
-❌ MacOS doesn't work well with `.local` TLD  [Apple article](https://support.apple.com/en-us/101471)
+❌ MacOS doesn't work well with `.local` TLDs. See [Apple article](https://support.apple.com/en-us/101471) for more.
 
 ❌  **Do not use** `.dev` domain either, this is now a valid TLD domain
 
 ## **License**
 
-Novus is released under the MIT license. See ([LICENSE](./LICENSE)).
+Novus is released under the MIT license. See [LICENSE](./LICENSE).
