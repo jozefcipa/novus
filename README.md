@@ -4,7 +4,9 @@
 
 Novus is a CLI tool that enables local sites to use SSL and actual domain names, instead of `localhost`.
 
-[gif] (defining routes in config file, then switch to console, and run novus serve)
+<p align="center">
+  <img src="./assets/novus.gif">
+</p>
 
 ## Overview
 
