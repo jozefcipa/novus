@@ -2,12 +2,6 @@
   <img src="./assets/banner.png">
 </p>
 
-Novus is a CLI tool that enables local sites to use SSL and actual domain names, instead of `localhost`.
-
-<p align="center">
-  <img src="./assets/novus.gif">
-</p>
-
 ## Overview
 
 Novus streamlines managing of numerous `localhost` services by providing a simple way to define regular domain names instead. It comes with built-in HTTPS support so all domains are secure by default.
@@ -15,6 +9,10 @@ Novus streamlines managing of numerous `localhost` services by providing a simpl
 In the background it’s just good old **Nginx** acting as a proxy and **DNSMasq** for defining custom domain resolvers. No more `/etc/hosts` manipulation. SSL certificates are automatically managed and renewed for you by **mkcert**.
 
 All you have to do is **map your [localhost](http://localhost) URLs to the DNS domains**. The rest is up to Novus and you can enjoy a seamless production-like experience on your machine 💯.
+
+<p align="center">
+  <img src="./assets/novus.gif">
+</p>
 
 ## Installing
 
