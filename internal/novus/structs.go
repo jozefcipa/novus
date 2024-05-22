@@ -16,7 +16,11 @@ const (
 )
 
 type AppState struct {
-	Directory       string                    `json:"directory" validate:"required,dirpath"`
+	// temporarily disabled as the GoValidator incorrectly evaluates the existence of a directory with "dirpath"
+	// If user deletes the directory Novus will complain about non-existing directory even though it should
+	// only validate the path format, no the existence (sigh)
+	// Directory       string                    `json:"directory" validate:"required,dirpath"`
+	Directory       string                    `json:"directory" validate:"required"`
 	Status          AppStatus                 `json:"appStatus" validate:"required"`
 	SSLCertificates shared.DomainCertificates `json:"sslCertificates"`
 	Routes          []shared.Route            `json:"routes" validate:"required,dive"`
