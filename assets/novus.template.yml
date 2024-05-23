@@ -3,4 +3,4 @@ routes:
   - domain: my-frontend.test
     upstream: http://localhost:3000
   - domain: my-api.test
-    upstream: http://localhost:5000
+    upstream: http://localhost:4000
