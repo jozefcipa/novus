@@ -59,21 +59,23 @@ func InstallBinaries() error {
 		return &BrewMissingError{}
 	}
 
-	// Install required binaries
+	// Install required binaries - brew installs always latest by default
+	// In case this causes problems in the future, we should consider pining to a specific version instead
+	// e.g. https://cmichel.medium.com/how-to-install-an-old-package-version-with-brew-cc1c567dd088
 	if exists := binExists("nginx"); !exists {
-		if err := brewInstall("nginx@1.25"); err != nil {
+		if err := brewInstall("nginx"); err != nil {
 			return err
 		}
 	}
 
 	if exists := binExists("dnsmasq"); !exists {
-		if err := brewInstall("dnsmasq@2.90"); err != nil {
+		if err := brewInstall("dnsmasq"); err != nil {
 			return err
 		}
 	}
 
 	if exists := binExists("mkcert"); !exists {
-		if err := brewInstall("mkcert@1.4"); err != nil {
+		if err := brewInstall("mkcert"); err != nil {
 			return err
 		}
 	}
