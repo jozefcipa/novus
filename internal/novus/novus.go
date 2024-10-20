@@ -11,10 +11,13 @@ import (
 )
 
 var NovusStateDir string
-
-var novusStateFilePath string
+var NovusStateFilePath string
 var state NovusState
 var stateLoaded bool
+
+const NovusInternalDomain = "internal.novus"
+const NovusIndexDomain = "index.novus"
+const NovusInternalAppName = "_novus"
 
 func init() {
 	stateLoaded = false
@@ -23,19 +26,20 @@ func init() {
 func ResolveDirs() {
 	// where we can store generated SSL certificates and application state
 	NovusStateDir = filepath.Join(fs.UserHomeDir, ".novus")
+	NovusStateFilePath = filepath.Join(NovusStateDir, "novus.json")
 }
 
-func initStateFile() {
+func initStateDir() {
 	// Create a directory ~/.novus
 	fs.MakeDirOrExit(NovusStateDir)
-	novusStateFilePath = filepath.Join(NovusStateDir, "novus.json")
 }
 
 func loadState() {
-	initStateFile()
+	initStateDir()
 
-	file, err := fs.ReadFile(novusStateFilePath)
-	logger.Debugf("Loading state file [%s]", novusStateFilePath)
+	file, err := fs.ReadFile(NovusStateFilePath)
+	logger.Debugf("Loading state file [%s]", NovusStateFilePath)
+
 	// If there's an error, probably we didn't find the state, so initialize a new one
 	if err != nil {
 		logger.Debugf("State file not found. Creating a new one...")
@@ -49,6 +53,19 @@ func loadState() {
 	if err := json.Unmarshal([]byte(file), &state); err != nil {
 		logger.Errorf("Corrupted state file.\n%v", err)
 		os.Exit(1)
+	}
+
+	// If the internal domain is not yet there, add it now
+	if _, found := state.Apps[NovusInternalAppName]; !found {
+		state.Apps[NovusInternalAppName] = &AppState{
+			Directory:       NovusStateDir,
+			Status:          APP_ACTIVE,
+			SSLCertificates: shared.DomainCertificates{},
+			Routes: []shared.Route{
+				{Domain: NovusInternalDomain, Upstream: "http://example.org"},
+				{Domain: NovusIndexDomain, Upstream: "http://example.org"},
+			},
+		}
 	}
 
 	state.validate()
@@ -103,6 +120,6 @@ func SaveState() {
 	}
 
 	// Save file
-	logger.Debugf("Saving novus state [%s]", novusStateFilePath)
-	fs.WriteFileOrExit(novusStateFilePath, string(jsonState))
+	logger.Debugf("Saving novus state [%s]", NovusStateFilePath)
+	fs.WriteFileOrExit(NovusStateFilePath, string(jsonState))
 }

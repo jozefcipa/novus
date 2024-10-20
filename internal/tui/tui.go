@@ -54,6 +54,11 @@ func PrintRoutingTable(novusState novus.NovusState) {
 	slices.SortFunc(sortedAppNames, func(a, b string) int { return cmp.Compare(a, b) })
 
 	for _, appName := range sortedAppNames {
+		// Only print out internal routes in debug mode
+		if appName == novus.NovusInternalAppName && !logger.DebugEnabled {
+			continue
+		}
+
 		appState := allApps[appName]
 		color := tablewriter.FgGreenColor
 		if appState.Status == novus.APP_PAUSED {

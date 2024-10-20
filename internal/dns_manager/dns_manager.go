@@ -42,6 +42,9 @@ func Configure(config config.NovusConfig, novusState *novus.NovusState) bool {
 
 	// Create configs for each TLD
 	tlds := GetTLDs(config.Routes)
+	// Include internal domains
+	tlds = append(tlds, GetTLDs(novusState.Apps[novus.NovusInternalAppName].Routes)...)
+
 	for _, tld := range tlds {
 		configCreated, configPath := dnsmasq.CreateTLDConfig(tld)
 

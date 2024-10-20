@@ -85,6 +85,10 @@ func validateConfigAppName(appName string, novusState novus.NovusState) error {
 		return fmt.Errorf("Invalid app name. Only alphanumeric characters are allowed.")
 	}
 
+	if appName == novus.NovusInternalAppName {
+		return fmt.Errorf("Reserved app name. This app is used internally by Novus.")
+	}
+
 	// Check in state file if appName is already being used
 	for appNameFromConfig, appConfig := range novusState.GetActiveApps() {
 		if appNameFromConfig == appName && appConfig.Directory != fs.CurrentDir {

@@ -42,11 +42,12 @@ var serveCmd = &cobra.Command{
 		// Load Novus state & validate config file
 		novusState := novus.GetState()
 		config_manager.ValidateConfig(conf, *novusState)
+		appName := config.AppName()
 
 		// Load application state
-		appState, appStateExists := novus.GetAppState(config.AppName())
+		appState, appStateExists := novus.GetAppState(appName)
 		if !appStateExists {
-			appState = novus.InitializeAppState(config.AppName())
+			appState = novus.InitializeAppState(appName)
 		}
 
 		// Compare state and current config to detect changes
@@ -54,7 +55,7 @@ var serveCmd = &cobra.Command{
 
 		// Remove domains that are no longer in config
 		if len(deletedRoutes) > 0 {
-			domain_cleanup_manager.RemoveDomains(deletedRoutes, config.AppName(), novusState)
+			domain_cleanup_manager.RemoveDomains(deletedRoutes, appName, novusState)
 		}
 
 		if len(addedRoutes) > 0 {
@@ -65,7 +66,7 @@ var serveCmd = &cobra.Command{
 
 		// Configure SSL
 		mkcert.Configure(conf)
-		domainCerts, hasNewCerts := ssl_manager.EnsureSSLCertificates(conf, appState)
+		domainCerts, hasNewCerts := ssl_manager.EnsureSSLCertificates(conf, novusState, appName)
 
 		// Configure Nginx
 		nginxConfigUpdated := nginx.Configure(conf, domainCerts, appState)

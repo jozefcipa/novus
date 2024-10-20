@@ -19,11 +19,32 @@ func ResolveDirs() {
 	certsDir = filepath.Join(novus.NovusStateDir, "certs")
 }
 
-func EnsureSSLCertificates(conf config.NovusConfig, appState *novus.AppState) (shared.DomainCertificates, bool) {
+func EnsureSSLCertificates(conf config.NovusConfig, novusState *novus.NovusState, appName string) (shared.DomainCertificates, bool) {
 	// Create a directory for the SSL certificates
 	certsDir = filepath.Join(novus.NovusStateDir, "certs")
 	fs.MakeDirOrExit(certsDir)
 
+	// First make sure we have certs for internal routes
+	internalAppState := novusState.Apps[novus.NovusInternalAppName]
+	internalConfig := config.NovusConfig{
+		AppName: novus.NovusInternalAppName,
+		Routes:  internalAppState.Routes,
+	}
+	internalDomainCerts, hasNewInternalCerts := createCertsForConfig(internalConfig, internalAppState)
+
+	// Now, create certs for the specific app
+	domainCerts, hasNewCerts := createCertsForConfig(conf, novusState.Apps[appName])
+
+	if hasNewCerts || hasNewInternalCerts {
+		logger.Checkf("SSL certificates updated")
+	} else {
+		logger.Checkf("SSL certificates are up to date")
+	}
+
+	return shared.MergeMaps[shared.Certificate, shared.DomainCertificates](domainCerts, internalDomainCerts), hasNewCerts || hasNewInternalCerts
+}
+
+func createCertsForConfig(conf config.NovusConfig, appState *novus.AppState) (shared.DomainCertificates, bool) {
 	domainCerts := make(shared.DomainCertificates, len(conf.Routes))
 	hasNewCerts := false
 
@@ -33,12 +54,6 @@ func EnsureSSLCertificates(conf config.NovusConfig, appState *novus.AppState) (s
 			hasNewCerts = true
 		}
 		domainCerts[route.Domain] = cert
-	}
-
-	if hasNewCerts {
-		logger.Checkf("SSL certificates updated")
-	} else {
-		logger.Checkf("SSL certificates are up to date")
 	}
 
 	return domainCerts, hasNewCerts

@@ -36,7 +36,7 @@ var resumeCmd = &cobra.Command{
 
 		// Configure SSL
 		mkcert.Configure(conf)
-		domainCerts, _ := ssl_manager.EnsureSSLCertificates(conf, appState)
+		domainCerts, _ := ssl_manager.EnsureSSLCertificates(conf, novusState, appName)
 
 		// Configure Nginx
 		nginx.Configure(conf, domainCerts, appState)
