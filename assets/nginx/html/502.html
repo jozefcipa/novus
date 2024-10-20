@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>502 Bad Gateway</title>
+    <link rel="shortcut icon" type="image/jpg" href="https://internal.novus/images/favicon-502.png"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Paaji+2:wght@400..500&display=swap" rel="stylesheet" />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Baloo Paaji 2", -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        padding: 0 2em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background-color: #f0f0f0;
+        color: #1b1c1e;
+      }
+
+      main {
+        display: flex;
+        align-items: center;
+        width: 1100px;
+      }
+
+      .image-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .image-container img {
+        position: relative;
+        z-index: 2;
+        width: 450px;
+        height: 450px;
+      }
+
+      .error-container {
+        margin-left: 5rem;
+      }
+
+      .error-container .title {
+        font-weight: 500;
+        margin-right: 1rem;
+        font-size: 1.6rem;
+        font-family: "Baloo Paaji 2", sans-serif;
+      }
+
+      .error-container .description {
+        font-size: 1.3em;
+        line-height: 1.4em;
+      }
+
+      .highlight {
+        color: #00a698;
+        font-weight: 500;
+      }
+
+      a,
+      a:active,
+      a:visited {
+        color: #00a698;
+      }
+
+      @media (max-width: 1000px) {
+        .image-container img {
+          width: 350px;
+          height: 350px;
+        }
+      }
+
+      @media (max-width: 720px) {
+        main {
+          flex-direction: column;
+        }
+
+        .error-container {
+          margin-left: 0;
+          margin-top: 2rem;
+        }
+
+        .title {
+          text-align: center;
+          margin-bottom: 1rem;
+        }
+      }
+
+      footer {
+        position: fixed;
+        bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        left: 20px;
+        right: 20px;
+      }
+
+      .version a {
+        text-decoration: none;
+        font-size: 0.8em;
+      }
+
+      .copyright a {
+        text-decoration: none;
+        color: #1b1c1e;
+        font-size: 0.6em;
+      }
+
+      .copyright a:hover,
+      .version a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="image-container">
+        <img src="https://internal.novus/images/error-502.png" alt="error 502" />
+      </div>
+      <div>
+        <div class="error-container">
+          <div class="title">502 Bad Gateway</div>
+          <div>
+            <p class="description">
+              The URL is registered in <code>novus.yml</code> but there seems to be an issue with the upstream connection.<br />
+              Please ensure that the web service is <span class="highlight">up and running</span>.
+            </p>
+          </div>
+        </div>
+      </div>
+      <footer>
+        <span class="version">
+          <a href="https://github.com/jozefcipa/novus/releases/tag/%RELEASE_VERSION%" target="_blank">novus %RELEASE_VERSION%</a>
+        </span>
+        <span class="copyright">
+          <a href="https://www.freepik.com/free-vector/set-funny-monsters-character_1937935.html" target="_blank">Image by freepik</a>
+        </span>
+      </footer>
+    </main>
+  </body>
+</html>
