@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Novus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Paaji+2:wght@400..500" rel="stylesheet" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Baloo Paaji 2", -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background-color: #f5f5f5;
+        color: #1b1c1e;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        height: 100vh;
+        padding: 5em 0;
+      }
+      .container {
+        width: 80%;
+        overflow: scroll;
+        max-height: 100%;
+        border-radius: 10px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        border-spacing: 0 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: relative;
+      }
+      thead {
+        background-color: #009688;
+        color: #fff;
+        position: sticky;
+        top: 0;
+      }
+      th {
+        padding: 14px;
+        text-align: left;
+        font-weight: bold;
+      }
+      tbody tr {
+        background-color: #fff;
+        transition: background-color 0.3s;
+      }
+      tbody tr:hover {
+        background-color: #f1f1f1;
+      }
+      td {
+        padding: 5px 15px;
+        border-bottom: 1px solid #eee;
+      }
+      table a {
+        color: #009688;
+        text-decoration: none;
+        font-weight: bold;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      .group-row {
+        background-color: #f9f9f9;
+        font-weight: bold;
+        font-size: 1.1em;
+        border-radius: 10px;
+      }
+      tbody tr.group-row:hover {
+        background-color: #f9f9f9;
+      }
+      .group-row td {
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+      .status-active {
+        color: #05b103;
+        font-weight: bold;
+      }
+      .status-inactive {
+        color: #d62f18;
+        font-weight: bold;
+        cursor: help;
+      }
+      .status-disabled {
+        color: #ccc;
+      }
+      .application {
+        font-size: 1em;
+      }
+      .directory {
+        color: #666;
+        font-size: 0.7em;
+        font-weight: 400;
+        margin-top: -8px;
+      }
+      footer {
+        position: fixed;
+        bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        left: 20px;
+        right: 20px;
+      }
+      .version a {
+        text-decoration: none;
+        font-size: 0.8em;
+        color: #009688;
+      }
+      .copyright a {
+        text-decoration: none;
+        color: #1b1c1e;
+        font-size: 0.6em;
+      }
+      .copyright a:hover,
+      .version a:hover {
+        text-decoration: underline;
+      }
+      .domain {
+        font-size: 1em;
+      }
+      .upstream {
+        font-size: 0.9em;
+      }
+      #loading-row {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 60%;">Domain</th>
+            <th style="width: 50%;">Upstream</th>
+          </tr>
+        </thead>
+        <tbody id="routes-table">
+          <tr id="loading-row">
+            <td colspan="2">Loading...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <footer>
+      <span class="version">
+        <a href="https://github.com/jozefcipa/novus/releases/tag/%RELEASE_VERSION%" target="_blank">novus %RELEASE_VERSION%</a>
+      </span>
+    </footer>
+    <script>
+      const table = document.getElementById('routes-table')
+      const loadingRow = document.getElementById('loading-row')
+
+      fetch('https://internal.novus/state.json')
+        .then(res => res.json())
+        .then(state => {
+          loadingRow.remove()
+
+          for (const [appName, app] of Object.entries(state.apps)) {
+            // don't show internal app in the table
+            if (appName === '_novus') {
+              continue
+            }
+
+            // Show header
+            const isActive = app.appStatus === 'active'
+            const headerRow = document.createElement('tr')
+            headerRow.classList = 'group-row'
+            headerRow.innerHTML = `
+              <td>
+                <div class="application">${appName}</span>
+                <div class="directory">(${app.directory})</span>
+              </td>
+              <td>
+                <span class="status-${app.appStatus}"> ${isActive ? '🟢 ACTIVE' : '🟥 INACTIVE'}</span>
+              </td>
+            `
+            table.appendChild(headerRow)
+
+            // Show routes
+            for (const route of app.routes) {
+              const routeRow = document.createElement('tr')
+              routeRow.innerHTML = `
+                <td class="${!isActive && 'status-disabled'}">
+                  ${isActive ? `<a href="https://${route.domain}" target="_blank">${route.domain}</a>` : route.domain}
+                </td>
+                <td class="${!isActive && 'status-disabled'}">${route.upstream}</td>
+              `
+              table.appendChild(routeRow)
+            }
+          }
+        })
+    </script>
+  </body>
+</html>

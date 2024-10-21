@@ -86,6 +86,8 @@ func PrintRoutingTable(novusState novus.NovusState) {
 
 	fmt.Println() // print empty line
 	table.Render()
+	fmt.Println()
+	logger.Hintf("You can also view your routes in browser at https://index.novus")
 }
 
 func ParseAppFromArgs(args []string, cmd string) (string, *novus.AppState) {

@@ -21,7 +21,7 @@ func Infof(format string, a ...interface{}) {
 }
 
 func Warnf(format string, a ...interface{}) {
-	fmt.Printf(YELLOW+"⚠️  "+format+RESET+"\n", a...)
+	fmt.Printf(ORANGE+"⚠️  "+format+RESET+"\n", a...)
 }
 
 func Checkf(format string, a ...interface{}) {
@@ -33,7 +33,7 @@ func Successf(format string, a ...interface{}) {
 }
 
 func Hintf(format string, a ...interface{}) {
-	fmt.Printf(ORANGE+"💡 "+format+RESET+"\n", a...)
+	fmt.Printf(YELLOW+"💡 "+format+RESET+"\n", a...)
 }
 
 func Errorf(format string, a ...interface{}) {
