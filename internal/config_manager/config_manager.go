@@ -73,6 +73,8 @@ func validateConfigSyntax(conf config.NovusConfig) error {
 
 	// Register custom `unique_routes` rule
 	shared.RegisterUniqueRoutesValidator(validate)
+	// Register custom `existing_tld` rule
+	shared.RegisterNonExistentTLDValidator(validate)
 
 	return validate.Struct(conf)
 }

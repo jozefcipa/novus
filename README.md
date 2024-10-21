@@ -69,10 +69,6 @@ You can run them by calling `novus [command]`
 
 💡 **Prefer** `.test` or any other postfix that is not a TLD domain
 
-❌ **Do not use** top level domains (TLD) defined by [IANA](https://www.iana.org/domains/root/db) <br/>
-👉 This will result in redirecting all URLs using the given TLD to localhost
-    e.g. `my.local.website.com` -> all `*.com` websites will stop working (**!**)
-
 ❌ MacOS doesn't work well with `.local` TLDs. See [Apple article](https://support.apple.com/en-us/101471) for more.
 
 ❌  **Do not use** `.dev` domain either, this is now a valid TLD domain

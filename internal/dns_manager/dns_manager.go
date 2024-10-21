@@ -2,12 +2,12 @@ package dns_manager
 
 import (
 	"path/filepath"
-	"strings"
 
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/dnsmasq"
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
+	"github.com/jozefcipa/novus/internal/net"
 	"github.com/jozefcipa/novus/internal/novus"
 	"github.com/jozefcipa/novus/internal/shared"
 )
@@ -21,8 +21,7 @@ func GetTLDs(routes []shared.Route) []string {
 	var tlds = make(map[string]bool)
 
 	for _, route := range routes {
-		urlParts := strings.Split(route.Domain, ".")
-		tld := urlParts[len(urlParts)-1]
+		tld := net.ExtractTLD(route.Domain)
 
 		if _, ok := tlds[tld]; !ok {
 			tlds[tld] = true
