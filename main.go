@@ -15,9 +15,13 @@ var (
 )
 
 func main() {
+	var buildDate time.Time
 	if date == "" {
-		date = time.Now().Format("2006-01-02")
+		buildDate = time.Now()
+	} else {
+		buildDate, _ = time.Parse(time.RFC3339, date)
 	}
-	versionString := fmt.Sprintf("Novus %s (%s) on %s/%s\n", version, date, runtime.GOOS, runtime.GOARCH)
+
+	versionString := fmt.Sprintf("Novus %s (%s) on %s/%s\n", version, buildDate.Format("2006-01-02"), runtime.GOOS, runtime.GOARCH)
 	cmd.Execute(versionString)
 }
