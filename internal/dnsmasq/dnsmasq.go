@@ -2,6 +2,7 @@ package dnsmasq
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -17,7 +18,18 @@ func init() {
 }
 
 func Restart() {
+	logger.Infof("🔄 DNSMasq restarting...")
+
 	brew.RestartServiceWithSudo("dnsmasq")
+
+	// Check if the restart was successful
+	isDNSMasqRunning := IsRunning()
+	if !isDNSMasqRunning {
+		logger.Errorf("Failed to restart DNSMasq.")
+		logger.Hintf("Try running \"sudo brew services info dnsmasq --json\" for more info.")
+		os.Exit(1)
+	}
+	logger.Checkf("DNSMasq restarted")
 }
 
 func Stop() {

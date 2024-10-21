@@ -46,9 +46,7 @@ var resumeCmd = &cobra.Command{
 
 		// Restart services
 		nginx.Restart()
-		logger.Checkf("Nginx restarted 🔄")
 		dnsmasq.Restart()
-		logger.Checkf("DNSMasq restarted 🔄")
 
 		// If app has been paused, make sure to set it to ACTIVE
 		appState.Status = novus.APP_ACTIVE

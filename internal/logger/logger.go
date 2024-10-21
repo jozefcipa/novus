@@ -17,7 +17,7 @@ const (
 )
 
 func Infof(format string, a ...interface{}) {
-	fmt.Printf(WHITE+format+RESET+"\n", a...)
+	fmt.Printf(GRAY+format+RESET+"\n", a...)
 }
 
 func Warnf(format string, a ...interface{}) {

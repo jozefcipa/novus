@@ -79,7 +79,6 @@ var serveCmd = &cobra.Command{
 		isNginxRunning := nginx.IsRunning()
 		if nginxConfigUpdated || hasNewCerts || !isNginxRunning {
 			nginx.Restart()
-			logger.Checkf("Nginx restarted 🔄")
 		} else {
 			logger.Checkf("Nginx running 🚀")
 		}
@@ -88,7 +87,6 @@ var serveCmd = &cobra.Command{
 		isDNSMasqRunning := dnsmasq.IsRunning()
 		if dnsUpdated || !isDNSMasqRunning {
 			dnsmasq.Restart()
-			logger.Checkf("DNSMasq restarted 🔄")
 		} else {
 			logger.Checkf("DNSMasq running 🚀")
 		}
