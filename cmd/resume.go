@@ -2,12 +2,14 @@ package cmd
 
 import (
 	"os"
+	"slices"
 
 	"github.com/jozefcipa/novus/internal/config_manager"
 	"github.com/jozefcipa/novus/internal/dns_manager"
 	"github.com/jozefcipa/novus/internal/dnsmasq"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/mkcert"
+	"github.com/jozefcipa/novus/internal/net"
 	"github.com/jozefcipa/novus/internal/nginx"
 	"github.com/jozefcipa/novus/internal/novus"
 	"github.com/jozefcipa/novus/internal/ssl_manager"
@@ -33,6 +35,11 @@ var resumeCmd = &cobra.Command{
 		// Load config from state
 		conf := config_manager.LoadConfigurationFromState(appName, *novusState)
 		config_manager.ValidateConfig(conf, *novusState)
+
+		// Check if ports are available
+		portsUsage := net.CheckPortsUsage(slices.Concat(nginx.Ports, []string{dnsmasq.Port})...)
+		nginx.EnsurePortsAvailable(portsUsage)
+		dnsmasq.EnsurePortAvailable(portsUsage)
 
 		// Configure SSL
 		mkcert.Configure(conf)

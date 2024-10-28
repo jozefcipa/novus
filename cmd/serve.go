@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"os"
+	"slices"
 
 	"github.com/jozefcipa/novus/internal/brew"
 	"github.com/jozefcipa/novus/internal/config"
@@ -12,6 +13,7 @@ import (
 	"github.com/jozefcipa/novus/internal/domain_cleanup_manager"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/mkcert"
+	"github.com/jozefcipa/novus/internal/net"
 	"github.com/jozefcipa/novus/internal/nginx"
 	"github.com/jozefcipa/novus/internal/novus"
 	"github.com/jozefcipa/novus/internal/ssl_manager"
@@ -63,6 +65,11 @@ var serveCmd = &cobra.Command{
 				logger.Successf("Found new domain [%s]", newRoute.Domain)
 			}
 		}
+
+		// Check if ports are available
+		portsUsage := net.CheckPortsUsage(slices.Concat(nginx.Ports, []string{dnsmasq.Port})...)
+		nginx.EnsurePortsAvailable(portsUsage)
+		dnsmasq.EnsurePortAvailable(portsUsage)
 
 		// Configure SSL
 		mkcert.Configure(conf)

@@ -9,9 +9,12 @@ import (
 	"github.com/jozefcipa/novus/internal/brew"
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
+	"github.com/jozefcipa/novus/internal/net"
 )
 
 var dnsmasqConfFile string
+
+const Port = "53"
 
 func init() {
 	dnsmasqConfFile = filepath.Join(brew.BrewPath, "/etc/dnsmasq.conf")
@@ -38,6 +41,13 @@ func Stop() {
 
 func IsRunning() bool {
 	return brew.IsSudoServiceRunning("dnsmasq")
+}
+
+func EnsurePortAvailable(portsUsage net.PortUsage) {
+	if portUsedBy, isUsed := portsUsage[Port]; isUsed && portUsedBy != "dnsmasq" {
+		logger.Errorf("Cannot start DNSMasq: Port %s is already used by '%s'", Port, portUsedBy)
+		os.Exit(1)
+	}
 }
 
 func Configure() bool {
