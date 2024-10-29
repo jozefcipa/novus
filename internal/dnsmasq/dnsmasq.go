@@ -14,7 +14,9 @@ import (
 
 var dnsmasqConfFile string
 
-const Port = "53"
+// On some systems, port 53 might be already used by another DNS or some other service (e.g. PaloAltos GlobalProtect VPN),
+// therefore let's use a different port to play it safe
+const Port = "5353"
 
 func init() {
 	dnsmasqConfFile = filepath.Join(brew.BrewPath, "/etc/dnsmasq.conf")
@@ -23,24 +25,24 @@ func init() {
 func Restart() {
 	logger.Infof("🔄 DNSMasq restarting...")
 
-	brew.RestartServiceWithSudo("dnsmasq")
+	brew.RestartService("dnsmasq")
 
 	// Check if the restart was successful
 	isDNSMasqRunning := IsRunning()
 	if !isDNSMasqRunning {
 		logger.Errorf("Failed to restart DNSMasq.")
-		logger.Hintf("Try running \"sudo brew services info dnsmasq --json\" for more info.")
+		logger.Hintf("Try running \"brew services info dnsmasq --json\" for more info.")
 		os.Exit(1)
 	}
 	logger.Checkf("DNSMasq restarted")
 }
 
 func Stop() {
-	brew.StopServiceWithSudo("dnsmasq")
+	brew.StopService("dnsmasq")
 }
 
 func IsRunning() bool {
-	return brew.IsSudoServiceRunning("dnsmasq")
+	return brew.IsServiceRunning("dnsmasq")
 }
 
 func EnsurePortAvailable(portsUsage net.PortUsage) {
@@ -53,15 +55,17 @@ func EnsurePortAvailable(portsUsage net.PortUsage) {
 func Configure() bool {
 	// Open DNSMasq configuration file
 	logger.Debugf("DNSMasq: Reading configuration file [%s]", dnsmasqConfFile)
-	confFile := fs.ReadFileOrExit(dnsmasqConfFile)
+	confFile := string(fs.ReadFileOrExit(dnsmasqConfFile))
 
 	// Enable reading DNSMasq configurations from /etc/dnsmasq.d/* directory
 	updatedConf := strings.Replace(
-		string(confFile),
+		confFile,
 		fmt.Sprintf("#conf-dir=%s/etc/dnsmasq.d/,*.conf", brew.BrewPath),
 		fmt.Sprintf("conf-dir=%s/etc/dnsmasq.d/,*.conf", brew.BrewPath),
 		1,
 	)
+	// Enable alternative listening port
+	updatedConf = strings.Replace(updatedConf, "#port=5353", "port=5353", 1)
 
 	// If the config differs (there was an actual change), write the changes
 	if confFile != updatedConf {

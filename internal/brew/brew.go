@@ -89,22 +89,8 @@ func RestartService(svc string) {
 	execBrewCommand(cmds)
 }
 
-func RestartServiceWithSudo(svc string) {
-	// Prepend with "sudo" and add "svc" at the end
-	cmds := append([]string{"sudo"}, append(svcStartCommands, svc)...)
-
-	execBrewCommand(cmds)
-}
-
 func StopService(svc string) {
 	cmds := append(svcStopCommands, svc)
-
-	execBrewCommand(cmds)
-}
-
-func StopServiceWithSudo(svc string) {
-	// Prepend with "sudo" and add "svc" at the end
-	cmds := append([]string{"sudo"}, append(svcStopCommands, svc)...)
 
 	execBrewCommand(cmds)
 }
@@ -122,12 +108,6 @@ func checkService(svc string, cmdOutput []byte) bool {
 
 func IsServiceRunning(svc string) bool {
 	cmds := append(svcStatusCommands, svc)
-	out := execBrewCommand(cmds)
-	return checkService(svc, out)
-}
-
-func IsSudoServiceRunning(svc string) bool {
-	cmds := append([]string{"sudo"}, append(svcStatusCommands, svc)...)
 	out := execBrewCommand(cmds)
 	return checkService(svc, out)
 }

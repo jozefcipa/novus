@@ -1,6 +1,7 @@
 package dns_manager
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/jozefcipa/novus/internal/config"
@@ -88,7 +89,7 @@ func registerTLDResolver(tld string) (bool, string) {
 	logger.Debugf("Creating DNS resolver [*.%s]", tld)
 
 	// Create a configuration file
-	configContent := "nameserver 127.0.0.1\n"
+	configContent := fmt.Sprintf("nameserver 127.0.0.1\nport %s\n", dnsmasq.Port)
 	fs.WriteFileWithSudoOrExit(configPath, configContent)
 	logger.Debugf("DNS resolver for *.%s saved [%s]", tld, configPath)
 
