@@ -68,12 +68,12 @@ You can run them by calling `novus [command]`
 
 ## Notes
 
-💡 **Prefer** `.test` or any other postfix that is not a TLD domain
+💡 **Prefer** `.test` or another postfix that is not a valid TLD domain.
 
-❌ MacOS doesn't work well with `.local` TLDs. See [Apple article](https://support.apple.com/en-us/101471) for more.
+❌  **Do not use** `.local` domain as it might be [used by MacOS](https://support.apple.com/en-us/101471).
 
-❌  **Do not use** `.dev` domain either, this is now a valid TLD domain
+❌  **Do not use** `.dev` domain either, this is now a valid TLD domain.
 
 ## **License**
 
-Novus is released under the MIT license. See [LICENSE](./LICENSE).
+Novus is released under the [MIT license](./LICENSE).

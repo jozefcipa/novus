@@ -19,7 +19,7 @@ import (
 
 var resumeCmd = &cobra.Command{
 	Use:   "resume [app-name]",
-	Short: "Resume paused app in Novus",
+	Short: "Resume routing for [app-name]",
 	Long:  "Resume paused app in Novus so the routing will start again. Similar to running `novus serve` but the app has to be registered already",
 	Run: func(cmd *cobra.Command, args []string) {
 		appName, appState := tui.ParseAppFromArgs(args, "resume")

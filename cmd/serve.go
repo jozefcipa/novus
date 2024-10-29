@@ -24,7 +24,7 @@ import (
 
 var serveCmd = &cobra.Command{
 	Use:   "serve",
-	Short: "Setup Novus to start serving URLs",
+	Short: "Configure URLs and start routing",
 	Long:  `Install Nginx, DNSMasq and mkcert and automatically expose HTTPs URLs for the endpoints defined in the config.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// If the binaries are missing, exit here, user needs to run `novus init` first

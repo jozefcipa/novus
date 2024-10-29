@@ -17,7 +17,7 @@ import (
 
 var startCmd = &cobra.Command{
 	Use:   "start",
-	Short: "Start routing",
+	Short: "Start Nginx and DNSMasq services",
 	Long:  `Start Nginx, DNSMasq and start routing URLs.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// If the binaries are missing, exit here, user needs to run `novus init` first

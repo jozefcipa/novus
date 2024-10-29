@@ -14,7 +14,7 @@ import (
 
 var pauseCmd = &cobra.Command{
 	Use:   "pause [app-name]",
-	Short: "Pause existing app in Novus",
+	Short: "Pause routing for [app-name]",
 	Long:  "Pause existing app in Novus so the routing will stop. Run `novus resume [app-name]` to start routing again.",
 	Run: func(cmd *cobra.Command, args []string) {
 		appName, appState := tui.ParseAppFromArgs(args, "pause")
