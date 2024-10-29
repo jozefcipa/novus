@@ -147,5 +147,16 @@
         </span>
       </footer>
     </main>
+    <script>
+      // Periodically check whether the upstream became available
+      // and reload the website to get rid of the 502 message automatically
+      setInterval(() => {
+        fetch(location.href).then(data => {
+          if (data.status !== 502) {
+            location.reload()
+          }
+        })
+      }, 5000) // 5s
+    </script>
   </body>
 </html>
