@@ -32,7 +32,7 @@ and print a list of all URLs that are registered by Novus.`,
 		}
 
 		if !isNginxRunning || !isDNSMasqRunning {
-			logger.Hintf("Run \"novus serve\" to initialize the services")
+			logger.Hintf("Run \"novus start\" to start routing.")
 		} else {
 			// All good, show the routing info
 			novusState := novus.GetState()

@@ -38,7 +38,7 @@ func PrintRoutingTable(novusState novus.NovusState) {
 	allApps := novusState.GetAllApps()
 	if len(allApps) == 0 {
 		logger.Warnf("You don't have any apps configured.")
-		logger.Hintf("Run \"novus init\" or \"novus serve\" to start routing.")
+		logger.Hintf("Run \"novus init\" to configure routing.")
 		return
 	}
 

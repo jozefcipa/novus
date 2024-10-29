@@ -61,6 +61,7 @@ You can run them by calling `novus [command]`
 | serve | Reads the configuration file, updates DNS, creates SSL certificates and registers routes. |
 | status | Shows Novus status and all registered apps. |
 | stop | Stops Novus routing. |
+| start | Starts Novus routing. |
 | pause&nbsp;[app] | Pauses routing of a specific app. (Needed if there are multiple apps defined with the conflicting domains) |
 | resume&nbsp;[app] | Starts routing the paused app again. |
 | remove&nbsp;[app] | Removes app configuration from Novus and stops routing. |
