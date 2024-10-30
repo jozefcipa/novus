@@ -45,7 +45,8 @@ func Restart() {
 	isNginxRunning := IsRunning()
 	if !isNginxRunning {
 		logger.Errorf("Failed to restart Nginx.")
-		logger.Hintf("Try running one of the following commands for more info:\n- brew services info nginx --json\n- nginx -t")
+		logger.Hintf("Try running one of the following commands for more info:")
+		logger.Infof("   - brew services info nginx --json\n   - nginx -t")
 		os.Exit(1)
 	}
 	logger.Checkf("Nginx restarted")

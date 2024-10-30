@@ -132,7 +132,21 @@ func brewInstall(bin string) error {
 		return fmt.Errorf("An error occurred while installing \"%s\".\n\n%+v", bin, err)
 	}
 	fmt.Println() // print empty line
+
+	// Check whether the binary is discoverable (in $PATH)
+	binaryCheckCmd := exec.Command("which", bin)
+	out, _ := binaryCheckCmd.Output()
+	if string(out) == "" {
+		logger.Errorf("%s has been installed but cannot be executed.", bin)
+		logger.Hintf("The binary is probably not registered in the $PATH variable.")
+		logger.Infof("   Run \"brew doctor\" or view https://github.com/jozefcipa/novus/issues/3 for more information.")
+		os.Exit(1)
+	} else {
+		logger.Debugf("Binary '%s' available in %s", bin, out)
+	}
+
 	logger.Successf("%s installed", bin)
+
 	return nil
 }
 
