@@ -16,7 +16,7 @@ var dnsmasqConfFile string
 
 // On some systems, port 53 might be already used by another DNS or some other service (e.g. PaloAltos GlobalProtect VPN),
 // therefore let's use a different port to play it safe
-const Port = "5353"
+const Port = "5053"
 
 func init() {
 	dnsmasqConfFile = filepath.Join(brew.BrewPath, "/etc/dnsmasq.conf")

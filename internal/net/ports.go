@@ -26,8 +26,10 @@ func lsof(ports []string) []string {
 		os.Exit(1)
 	}
 
-	// first line is header, so we skip it
-	return strings.Split(result, "\n")[1:]
+	return strings.Split(
+		strings.TrimRight(result, "\n"), // remove \n from the end of the string so we don't create an empty record in the array
+		"\n",
+	)[1:] // first line is header, so we skip it
 }
 
 // Example record format: "dnsmasq   31695    nobody    5u  IPv4 0x51fe684ad72f7a85      0t0  TCP 192.168.64.1:53 (LISTEN)"
@@ -39,11 +41,6 @@ func parseLsof(lsofRecords []string) map[string]string {
 		// [8] - listen address
 		// [9] - connection status (OPTIONAL)
 		recordParts := strings.Fields(record)
-
-		// filter out results that do not have status = (LISTEN)
-		if len(recordParts) != 10 || recordParts[9] != "(LISTEN)" {
-			continue
-		}
 
 		binary := recordParts[0]
 		_, port, _ := go_net.SplitHostPort(recordParts[8])
