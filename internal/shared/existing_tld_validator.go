@@ -12,15 +12,13 @@ import (
 // Make sure the config route doesn't use existing TLD domain
 // We don't allow those as it would redirect the all URls with that TLD to our local DNS resolver
 func nonExitentTLDValidator(fl validator.FieldLevel) bool {
-	value := fl.Field().Interface().([]Route)
+	domain := fl.Field().Interface().(string)
 
-	for _, route := range value {
-		tld := strings.ToLower(net.ExtractTLD(route.Domain))
+	tld := strings.ToLower(net.ExtractTLD(domain))
 
-		// check if tld exists
-		if net.IsExistingTLD(tld) {
-			return false
-		}
+	// check if tld exists
+	if net.IsExistingTLD(tld) {
+		return false
 	}
 
 	return true

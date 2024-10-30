@@ -1,6 +1,10 @@
 package shared
 
-import "strings"
+import (
+	"strings"
+	"unicode"
+	"unicode/utf8"
+)
 
 func ToKebabCase(input string) string {
 	return strings.ReplaceAll(
@@ -32,4 +36,18 @@ func MergeMaps[V any, M ~map[string]V](m1 M, m2 M) M {
 		merged[k] = v
 	}
 	return merged
+}
+
+func LowerFirst(s string) string {
+	r, size := utf8.DecodeRuneInString(s)
+	if r == utf8.RuneError && size <= 1 {
+		return s
+	}
+
+	lc := unicode.ToLower(r)
+	if r == lc {
+		return s
+	}
+
+	return string(lc) + s[size:]
 }

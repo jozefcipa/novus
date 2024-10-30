@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/jozefcipa/novus/internal/config"
@@ -13,6 +14,14 @@ import (
 	"github.com/jozefcipa/novus/internal/novus"
 	"github.com/jozefcipa/novus/internal/shared"
 )
+
+var validationMessages = map[string]string{
+	"required":      "Field '%s' is required",
+	"url":           "Field '%s' is not a valid URL",
+	"fqdn":          "Field '%s' is not a valid FQDN",
+	"existing_tld":  "Field '%s' contains an existing TLD domain.",
+	"unique_routes": "Field '%s' contains duplicate route definitions.",
+}
 
 func LoadConfiguration() (config.NovusConfig, bool) {
 	conf, exists := config.LoadFile()
@@ -26,10 +35,38 @@ func LoadConfigurationFromState(appName string, novusState novus.NovusState) con
 	}
 }
 
+func getConfigFieldPath(structNamespace string) string {
+	pathKeys := strings.Split(structNamespace, ".")[1:] // remove first item as it is the name of the config struct (NovusConfig)
+
+	for i, key := range pathKeys {
+		pathKeys[i] = shared.LowerFirst(key)
+	}
+
+	return strings.Join(pathKeys, ".")
+}
+
 func ValidateConfig(conf config.NovusConfig, novusState novus.NovusState) {
 	// Validate configuration
 	if err := validateConfigSyntax(conf); err != nil {
-		logger.Errorf("Configuration file contains errors.\n\n%s", err.(validator.ValidationErrors))
+
+		errors := []string{}
+		for _, err := range err.(validator.ValidationErrors) {
+			validationRule := err.Tag()
+			path := getConfigFieldPath(err.StructNamespace())
+
+			// Default error message
+			errorMessage := err.Error()
+
+			// Check if we have custom error message defined
+			if customErrorMesssage, ok := validationMessages[validationRule]; ok {
+				errorMessage = fmt.Sprintf(customErrorMesssage, path)
+			}
+
+			errors = append(errors, errorMessage)
+		}
+
+		logger.Errorf("Configuration file contains errors:\n   %s", strings.Join(errors, "\n   "))
+
 		os.Exit(1)
 	}
 

@@ -45,6 +45,9 @@ func (state *NovusState) validate() {
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
 
+	// Register custom `existing_tld` rule
+	shared.RegisterNonExistentTLDValidator(validate)
+
 	for _, appState := range state.Apps {
 		err := validate.Struct(appState)
 		if err != nil {

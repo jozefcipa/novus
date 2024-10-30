@@ -3,7 +3,7 @@ package shared
 import "time"
 
 type Route struct {
-	Domain   string `yaml:"domain" json:"domain" validate:"required,fqdn"`
+	Domain   string `yaml:"domain" json:"domain" validate:"required,fqdn,existing_tld"`
 	Upstream string `yaml:"upstream" json:"upstream" validate:"required,url,startswith=http://"`
 }
 
