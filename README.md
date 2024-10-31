@@ -74,6 +74,22 @@ You can run them by calling `novus [command]`
 
 ❌  **Do not use** `.dev` domain either, this is now a valid TLD domain.
 
+## Updates
+There is currently **no stable** version of Novus, so whenever a new version is publised, there might be BREAKING CHANGES!
+
+Therefore, please remove the old Novus binary before installing a new version.
+
+```bash
+# Uninstall the old version
+$ novus remove [app] # Run for all your apps
+$ brew uninstall novus
+$ brew untap jozefcipa/novus
+
+# Install a new version
+$ brew tap jozefcipa/novus
+$ brew install novus
+```
+
 ## **License**
 
 Novus is released under the [MIT license](./LICENSE).

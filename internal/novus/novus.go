@@ -47,12 +47,12 @@ func loadState() {
 			DnsFiles: map[string]*DnsFiles{},
 			Apps:     map[string]*AppState{},
 		}
-		return
-	}
-
-	if err := json.Unmarshal([]byte(file), &state); err != nil {
-		logger.Errorf("Corrupted state file.\n%v", err)
-		os.Exit(1)
+	} else {
+		// Otherwise parse the state file
+		if err := json.Unmarshal([]byte(file), &state); err != nil {
+			logger.Errorf("Corrupted state file.\n%v", err)
+			os.Exit(1)
+		}
 	}
 
 	// If the internal domain is not yet there, add it now

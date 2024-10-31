@@ -36,9 +36,7 @@ var pauseCmd = &cobra.Command{
 
 		// Restart services
 		nginx.Restart()
-		logger.Checkf("Nginx restarted 🔄")
 		dnsmasq.Restart()
-		logger.Checkf("DNSMasq restarted 🔄")
 
 		tui.PrintRoutingTable(*novus.GetState())
 

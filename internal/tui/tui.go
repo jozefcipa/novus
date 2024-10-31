@@ -35,10 +35,16 @@ func Confirm(question string) bool {
 }
 
 func PrintRoutingTable(novusState novus.NovusState) {
-	allApps := novusState.GetAllApps()
-	if len(allApps) == 0 {
+	allApps := novusState.Apps
+	appsCount := 0
+	for appName, _ := range allApps {
+		if appName != novus.NovusInternalAppName {
+			appsCount += 1
+		}
+	}
+	if appsCount == 0 {
 		logger.Warnf("You don't have any apps configured.")
-		logger.Hintf("Run \"novus init\" to configure routing.")
+		logger.Hintf(" Run \"novus init\" to configure routing.")
 		return
 	}
 

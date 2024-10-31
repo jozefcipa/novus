@@ -128,7 +128,8 @@
       .upstream {
         font-size: 0.9em;
       }
-      #loading-row {
+      #loading-row,
+      #noresults-row {
         text-align: center;
       }
     </style>
@@ -146,6 +147,9 @@
           <tr id="loading-row">
             <td colspan="2">Loading...</td>
           </tr>
+          <tr id="noresults-row" style="display: none;">
+            <td colspan="2">No apps configured</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -157,18 +161,24 @@
     <script>
       const table = document.getElementById('routes-table')
       const loadingRow = document.getElementById('loading-row')
+      const noResultsRow = document.getElementById('noresults-row')
 
       fetch('https://internal.novus/state.json')
         .then(res => res.json())
         .then(state => {
           loadingRow.remove()
 
-          for (const [appName, app] of Object.entries(state.apps)) {
-            // don't show internal app in the table
-            if (appName === '_novus') {
-              continue
-            }
+          const appsToDisplay = Object
+            .entries(state.apps)
+            .filter(([appName]) => appName !== '_novus') // don't show internal app in the table
 
+          // Show no results row if no apps are configured
+          if (appsToDisplay.length === 0) {
+            noResultsRow.style.display = ''
+            return
+          }
+
+          for (const [appName, app] of appsToDisplay) {
             // Show header
             const isActive = app.appStatus === 'active'
             const headerRow = document.createElement('tr')

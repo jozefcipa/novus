@@ -65,10 +65,6 @@ func (state *NovusState) validate() {
 	}
 }
 
-func (state *NovusState) GetAllApps() map[string]*AppState {
-	return state.Apps
-}
-
 func (state *NovusState) GetActiveApps() map[string]*AppState {
 	activeApps := map[string]*AppState{}
 
