@@ -65,7 +65,12 @@ func Configure() bool {
 		1,
 	)
 	// Enable alternative listening port
-	updatedConf = strings.Replace(updatedConf, "#port=5353", "port=5353", 1)
+	updatedConf = strings.Replace(
+		confFile,
+		"#port=5353",
+		fmt.Sprintf("port=%s", Port),
+		1,
+	)
 
 	// If the config differs (there was an actual change), write the changes
 	if confFile != updatedConf {
