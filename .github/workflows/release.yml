@@ -28,7 +28,8 @@ jobs:
         with:
           distribution: goreleaser
           version: '~> v1'
-          args: release --clean
+          # Skip validation step as we modify HTML files in CI
+          args: release --clean --skip validate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_PRIVATE_KEY: ${{ secrets.GH_PRIVATE_KEY }}
