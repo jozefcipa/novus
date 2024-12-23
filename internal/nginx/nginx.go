@@ -123,7 +123,9 @@ func RemoveConfiguration(appName string) {
 
 	logger.Debugf("Removing application server Nginx config for app %s [%s]", appName, configFilePath)
 
-	fs.DeleteFile(configFilePath)
+	if fs.FileExists(configFilePath) {
+		fs.DeleteFile(configFilePath)
+	}
 }
 
 func readServerConfig(fileName string) string {
