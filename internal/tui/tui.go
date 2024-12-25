@@ -111,6 +111,11 @@ func ParseAppFromArgs(args []string, cmd string) (string, *novus.AppState) {
 	}
 	appName := args[0]
 
+	if appName == novus.NovusInternalAppName || appName == novus.GlobalAppName {
+		logger.Errorf("App \"%s\" is used by Novus and cannot be %sd", appName, cmd)
+		os.Exit(1)
+	}
+
 	// Load app state for the given app name if it exists, or throw an error
 	appState, exists := novus.GetAppState(appName)
 	if !exists {
