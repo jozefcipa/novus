@@ -6,6 +6,7 @@ import (
 
 	"github.com/jozefcipa/novus/internal/dnsmasq"
 	"github.com/jozefcipa/novus/internal/domain_cleanup_manager"
+	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/nginx"
 	"github.com/jozefcipa/novus/internal/novus"
 	"github.com/jozefcipa/novus/internal/tui"
@@ -31,6 +32,8 @@ var removeCmd = &cobra.Command{
 
 		// Remove app from Novus state
 		novus.RemoveAppState(appName)
+
+		logger.Checkf("App \"%s\" has been removed", appName)
 
 		// Restart services
 		nginx.Restart()

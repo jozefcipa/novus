@@ -37,23 +37,24 @@ func init() {
 }
 
 func Restart() {
-	logger.Infof("🔄 Nginx restarting...")
-
+	nginxLoader := logger.Loadingf("Restarting Nginx")
 	brew.RestartService("nginx")
 
 	// Check if the restart was successful
 	isNginxRunning := IsRunning()
 	if !isNginxRunning {
-		logger.Errorf("Failed to restart Nginx.")
+		nginxLoader.Errorf("Failed to restart Nginx.")
 		logger.Hintf("Try running one of the following commands for more info:")
 		logger.Infof("   - brew services info nginx --json\n   - nginx -t")
 		os.Exit(1)
 	}
-	logger.Checkf("Nginx restarted")
+	nginxLoader.Checkf("Nginx restarted")
 }
 
 func Stop() {
+	nginxLoader := logger.Loadingf("Stopping Nginx")
 	brew.StopService("nginx")
+	nginxLoader.Infof("🚫 Nginx stopped")
 }
 
 func IsRunning() bool {

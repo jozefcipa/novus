@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/dnsmasq"
-	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/nginx"
 
 	"github.com/spf13/cobra"
@@ -18,10 +17,7 @@ defined in the ` + config.ConfigFileName + ` configuration file.
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		nginx.Stop()
-		logger.Infof("🚫 Nginx stopped.")
-
 		dnsmasq.Stop()
-		logger.Infof("🚫 DNSMasq stopped.")
 	},
 }
 

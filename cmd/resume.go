@@ -25,7 +25,7 @@ var resumeCmd = &cobra.Command{
 		appName, appState := tui.ParseAppFromArgs(args, "resume")
 
 		if appState.Status == novus.APP_ACTIVE {
-			logger.Checkf("\"%s\" is already active.", appName)
+			logger.Checkf("App \"%s\" is already active.", appName)
 			tui.PrintRoutingTable(*novus.GetState())
 			os.Exit(0)
 		}

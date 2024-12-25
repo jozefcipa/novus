@@ -35,19 +35,23 @@ var startCmd = &cobra.Command{
 
 		// Restart services
 		// Nginx
+		nginxLoader := logger.Loadingf("Checking Nginx status")
 		isNginxRunning := nginx.IsRunning()
 		if !isNginxRunning {
+			nginxLoader.Done()
 			nginx.Restart()
 		} else {
-			logger.Checkf("Nginx running 🚀")
+			nginxLoader.Checkf("Nginx running")
 		}
 
 		// DNSMasq
+		dnsmasqLoader := logger.Loadingf("Checking DNSMasq status")
 		isDNSMasqRunning := dnsmasq.IsRunning()
 		if !isDNSMasqRunning {
+			dnsmasqLoader.Done()
 			dnsmasq.Restart()
 		} else {
-			logger.Checkf("DNSMasq running 🚀")
+			dnsmasqLoader.Checkf("DNSMasq running")
 		}
 
 		// Everything's set, start routing

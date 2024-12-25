@@ -93,7 +93,7 @@ func PrintRoutingTable(novusState novus.NovusState) {
 	fmt.Println() // print empty line
 	table.Render()
 	fmt.Println()
-	logger.Hintf("You can also view your routes in browser at https://index.novus")
+	logger.Hintf("You can also view these routes in your browser at %shttps://index.novus%s", logger.UNDERLINE, logger.RESET)
 }
 
 func ParseAppFromArgs(args []string, cmd string) (string, *novus.AppState) {
@@ -107,7 +107,7 @@ func ParseAppFromArgs(args []string, cmd string) (string, *novus.AppState) {
 	// Load app state for the given app name if it exists, or throw an error
 	appState, exists := novus.GetAppState(appName)
 	if !exists {
-		logger.Errorf("App name \"%s\" is not registered in Novus", appName)
+		logger.Errorf("App \"%s\" does not exist", appName)
 		os.Exit(1)
 	}
 

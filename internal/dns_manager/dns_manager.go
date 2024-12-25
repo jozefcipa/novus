@@ -36,6 +36,7 @@ func Configure(config config.NovusConfig, novusState *novus.NovusState) bool {
 	// Update main DNSMasq configuration
 	updated := dnsmasq.Configure()
 
+	logger.Infof("Creating DNS resolvers")
 	// Create the DNS resolver directory if not exists
 	// https://www.manpagez.com/man/5/resolver/
 	fs.MakeDirWithSudoOrExit(dnsResolverDir)
@@ -103,7 +104,8 @@ func UnregisterTLD(tld string, novusState *novus.NovusState) {
 	}
 
 	if novusState.DnsFiles[tld].DnsResolver != "" {
-		logger.Debugf("Deleting DNS resolver for *.%s [%s]", tld, novusState.DnsFiles[tld].DnsResolver)
+		logger.Infof("Deleting DNS resolver for *.%s", tld)
+		logger.Debugf("*.%s resolver saved in %s", tld, novusState.DnsFiles[tld].DnsResolver)
 		fs.DeleteFileWithSudo(novusState.DnsFiles[tld].DnsResolver)
 	}
 

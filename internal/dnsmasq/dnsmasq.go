@@ -23,22 +23,24 @@ func init() {
 }
 
 func Restart() {
-	logger.Infof("🔄 DNSMasq restarting...")
-
+	dnsMasqLoader := logger.Loadingf("DNSMasq restarting")
 	brew.RestartService("dnsmasq")
 
 	// Check if the restart was successful
 	isDNSMasqRunning := IsRunning()
 	if !isDNSMasqRunning {
-		logger.Errorf("Failed to restart DNSMasq.")
+		dnsMasqLoader.Errorf("Failed to restart DNSMasq.")
 		logger.Hintf("Try running \"brew services info dnsmasq --json\" for more info.")
 		os.Exit(1)
 	}
-	logger.Checkf("DNSMasq restarted")
+
+	dnsMasqLoader.Checkf("DNSMasq restarted")
 }
 
 func Stop() {
+	nginxLoader := logger.Loadingf("Stopping DNSMasq")
 	brew.StopService("dnsmasq")
+	nginxLoader.Infof("🚫 DNSMasq stopped")
 }
 
 func IsRunning() bool {

@@ -15,20 +15,21 @@ var statusCmd = &cobra.Command{
 	Long: `Show whether Nginx and DNSMasq services are running,
 and print a list of all URLs that are registered by Novus.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		nginxLoader := logger.Loadingf("Checking Nginx status")
 		isNginxRunning := nginx.IsRunning()
-		isDNSMasqRunning := dnsmasq.IsRunning()
-
 		if isNginxRunning {
-			logger.Successf("Nginx running 🚀")
+			nginxLoader.Checkf("Nginx running")
 			logger.Debugf("Nginx configuration loaded from %s", nginx.NginxServersDir)
 		} else {
-			logger.Errorf("Nginx not running")
+			nginxLoader.Errorf("Nginx not running")
 		}
 
+		dnsmasqLoader := logger.Loadingf("Checking DNSMasq status")
+		isDNSMasqRunning := dnsmasq.IsRunning()
 		if isDNSMasqRunning {
-			logger.Successf("DNSMasq running 🚀")
+			dnsmasqLoader.Checkf("DNSMasq running")
 		} else {
-			logger.Errorf("DNSMasq not running")
+			dnsmasqLoader.Errorf("DNSMasq not running")
 		}
 
 		if !isNginxRunning || !isDNSMasqRunning {

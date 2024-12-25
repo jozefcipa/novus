@@ -20,7 +20,7 @@ var pauseCmd = &cobra.Command{
 		appName, appState := tui.ParseAppFromArgs(args, "pause")
 
 		if appState.Status == novus.APP_PAUSED {
-			logger.Checkf("\"%s\" is already paused.", appName)
+			logger.Checkf("App \"%s\" is already paused.", appName)
 			tui.PrintRoutingTable(*novus.GetState())
 			os.Exit(0)
 		}

@@ -4,6 +4,7 @@ go 1.23.2
 
 require (
 	github.com/arsham/figurine v1.3.0
+	github.com/briandowns/spinner v1.23.1
 	github.com/fatih/color v1.13.0
 	github.com/go-playground/validator/v10 v10.18.0
 	github.com/ivanpirog/coloredcobra v1.0.1
@@ -30,5 +31,6 @@ require (
 	golang.org/x/crypto v0.31.0 // indirect
 	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/term v0.27.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 )
