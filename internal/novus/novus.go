@@ -17,7 +17,12 @@ var stateLoaded bool
 
 const NovusInternalDomain = "internal.novus"
 const NovusIndexDomain = "index.novus"
+
+// This is used to store internal routes used by Novus itself
 const NovusInternalAppName = "_novus"
+
+// This is used to store all domains created via `novus serve xyz.test`) instead of using a regular novus.yml config file
+const GlobalAppName = "_novus_global"
 
 func init() {
 	stateLoaded = false
@@ -86,14 +91,14 @@ func GetAppState(appName string) (*AppState, bool) {
 	return appState, exists
 }
 
-func InitializeAppState(appName string) *AppState {
+func InitializeAppState(appName string, appDir string) *AppState {
 	appState, exists := GetAppState(appName)
 
 	if !exists {
 		// Init empty state
 		state.Apps[appName] = &AppState{
 			Status:          APP_ACTIVE,
-			Directory:       fs.CurrentDir,
+			Directory:       appDir,
 			SSLCertificates: shared.DomainCertificates{},
 			Routes:          []shared.Route{},
 		}

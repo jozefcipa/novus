@@ -15,7 +15,7 @@ import (
 )
 
 func AskUser(prompt string) string {
-	fmt.Print(prompt)
+	fmt.Printf("%s%s%s", logger.GRAY, prompt, logger.RESET)
 
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
@@ -72,13 +72,20 @@ func PrintRoutingTable(novusState novus.NovusState) {
 		}
 
 		for _, route := range appState.Routes {
+			displayAppName := appName
+			displayDir := appState.Directory
+			if appName == novus.GlobalAppName {
+				displayAppName = "Global Routes"
+				displayDir = ""
+			}
+
 			table.Rich(
 				[]string{
-					appName,
+					displayAppName,
 					route.Upstream,
 					fmt.Sprintf("https://%s", route.Domain),
 					strings.ToUpper(string(appState.Status)),
-					appState.Directory,
+					displayDir,
 				},
 				[]tablewriter.Colors{
 					{tablewriter.FgCyanColor},

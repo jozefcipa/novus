@@ -21,14 +21,54 @@ var validationMessages = map[string]string{
 	"fqdn":          "Field '%s' is not a valid FQDN",
 	"existing_tld":  "Field '%s' contains an existing TLD domain.",
 	"unique_routes": "Field '%s' contains duplicate route definitions.",
+	// TODO: if we use `startswith` field in multiple different situations,
+	// we'll need to update this message and the validation logic
+	// to pick up the correct value from that rule dynamically
+	"startswith": "Field '%s' must start with http://",
 }
 
-func LoadConfiguration() (config.NovusConfig, bool) {
+func LoadConfigurationFromFile(novusState novus.NovusState) (config.NovusConfig, bool) {
 	conf, exists := config.LoadFile()
+
+	// If the config file exists, validate its syntax
+	if exists {
+		if err := validateConfigSyntax(conf); err != nil {
+
+			errors := []string{}
+			for _, err := range err.(validator.ValidationErrors) {
+				validationRule := err.Tag()
+				path := getConfigFieldPath(err.StructNamespace())
+
+				// Default error message
+				errorMessage := err.Error()
+
+				// Check if we have custom error message defined
+				if customErrorMesssage, ok := validationMessages[validationRule]; ok {
+					errorMessage = fmt.Sprintf(customErrorMesssage, path)
+				}
+
+				errors = append(errors, errorMessage)
+			}
+
+			logger.Errorf("Configuration file contains errors:\n   %s", strings.Join(errors, "\n   "))
+			os.Exit(1)
+		}
+
+		// Validate app name syntax and whether it is unique across apps
+		if err := validateConfigAppName(conf.AppName, novusState); err != nil {
+			logger.Errorf(err.Error())
+			os.Exit(1)
+		}
+	}
+
+	config.SetAppName(conf.AppName)
+
 	return conf, exists
 }
 
 func LoadConfigurationFromState(appName string, novusState novus.NovusState) config.NovusConfig {
+	config.SetAppName(appName)
+
 	return config.NovusConfig{
 		AppName: appName,
 		Routes:  novusState.Apps[appName].Routes,
@@ -45,46 +85,22 @@ func getConfigFieldPath(structNamespace string) string {
 	return strings.Join(pathKeys, ".")
 }
 
-func ValidateConfig(conf config.NovusConfig, novusState novus.NovusState) {
-	// Validate configuration
-	if err := validateConfigSyntax(conf); err != nil {
-
-		errors := []string{}
-		for _, err := range err.(validator.ValidationErrors) {
-			validationRule := err.Tag()
-			path := getConfigFieldPath(err.StructNamespace())
-
-			// Default error message
-			errorMessage := err.Error()
-
-			// Check if we have custom error message defined
-			if customErrorMesssage, ok := validationMessages[validationRule]; ok {
-				errorMessage = fmt.Sprintf(customErrorMesssage, path)
-			}
-
-			errors = append(errors, errorMessage)
-		}
-
-		logger.Errorf("Configuration file contains errors:\n   %s", strings.Join(errors, "\n   "))
-
-		os.Exit(1)
-	}
-
-	// Validate app name syntax and whether it is unique across apps
-	if err := validateConfigAppName(conf.AppName, novusState); err != nil {
-		logger.Errorf(err.Error())
-		os.Exit(1)
-	}
-	config.SetAppName(conf.AppName)
-
+func ValidateConfigDomainsUniqueness(conf config.NovusConfig, novusState novus.NovusState) {
 	// Check if the config contains domains that are already registered in another app
 	if err := checkForDuplicateDomains(conf, novusState); err != nil {
 		logger.Errorf(err.Error())
 		if err, ok := err.(*diff_manager.DuplicateDomainError); ok {
-			logger.Hintf(
-				"Use a different domain name or temporarily stop %[1]s by running \"novus pause %[1]s\"",
-				err.OriginalAppWithDomain,
-			)
+			if err.OriginalAppWithDomain == novus.GlobalAppName {
+				logger.Hintf(
+					"Use a different domain name or run \"novus remove %s\" to remove it from the global scope first.",
+					err.DuplicateDomain,
+				)
+			} else {
+				logger.Hintf(
+					"Use a different domain name or pause \"%[1]s\" by running \"novus pause %[1]s\"",
+					err.OriginalAppWithDomain,
+				)
+			}
 		}
 		os.Exit(1)
 	}
@@ -125,11 +141,21 @@ func validateConfigAppName(appName string, novusState novus.NovusState) error {
 	}
 
 	if appName == novus.NovusInternalAppName {
-		return fmt.Errorf("Reserved app name. This app is used internally by Novus.")
+		return fmt.Errorf(
+			"Reserved app name. App \"%s\" is used internally by Novus and cannot be used in the config.",
+			novus.NovusInternalAppName,
+		)
 	}
 
-	// Check in state file if appName is already being used
-	for appNameFromConfig, appConfig := range novusState.GetActiveApps() {
+	if appName == novus.GlobalAppName {
+		return fmt.Errorf(
+			"Reserved app name. App \"%s\" is used internally by Novus and cannot be used in the config.",
+			novus.GlobalAppName,
+		)
+	}
+
+	// Check in state file if appName is already being used elsewhere
+	for appNameFromConfig, appConfig := range novusState.Apps {
 		if appNameFromConfig == appName && appConfig.Directory != fs.CurrentDir {
 			return fmt.Errorf("App \"%s\" is already defined in a different directory (%s)", appName, appConfig.Directory)
 		}

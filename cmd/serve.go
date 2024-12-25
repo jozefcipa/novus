@@ -11,11 +11,13 @@ import (
 	"github.com/jozefcipa/novus/internal/dns_manager"
 	"github.com/jozefcipa/novus/internal/dnsmasq"
 	"github.com/jozefcipa/novus/internal/domain_cleanup_manager"
+	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/mkcert"
 	"github.com/jozefcipa/novus/internal/net"
 	"github.com/jozefcipa/novus/internal/nginx"
 	"github.com/jozefcipa/novus/internal/novus"
+	"github.com/jozefcipa/novus/internal/shared"
 	"github.com/jozefcipa/novus/internal/ssl_manager"
 	"github.com/jozefcipa/novus/internal/tui"
 
@@ -23,7 +25,7 @@ import (
 )
 
 var serveCmd = &cobra.Command{
-	Use:   "serve",
+	Use:   "serve [domain?]",
 	Short: "Configure URLs and start routing",
 	Long:  `Install Nginx, DNSMasq and mkcert and automatically expose HTTPs URLs for the endpoints defined in the config.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -33,23 +35,41 @@ var serveCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		// Load configuration file
-		conf, exists := config_manager.LoadConfiguration()
-		if !exists {
-			logger.Warnf("Novus is not initialized in this directory (" + config.ConfigFileName + " file does not exist).")
-			logger.Hintf("Run \"novus init\" to create a configuration file.")
-			os.Exit(1)
+		var conf config.NovusConfig
+		novusState := novus.GetState()
+
+		// If inline domain is provided, prioritise that
+		if len(args) > 0 {
+			upstream := tui.AskUser("Enter an upstream address (e.g. http://localhost:3000): ")
+
+			// Ensure novus state for the global app exists
+			if _, appStateExists := novus.GetAppState(novus.GlobalAppName); !appStateExists {
+				novus.InitializeAppState(novus.GlobalAppName, novus.NovusStateDir)
+			}
+
+			// Load Novus config for the global app
+			conf = config_manager.LoadConfigurationFromState(novus.GlobalAppName, *novusState)
+
+			// Append the new route to the config
+			conf.Routes = append(conf.Routes, shared.Route{Domain: args[0], Upstream: upstream})
+		} else {
+			// Otherwise, load configuration file
+			var exists bool
+			conf, exists = config_manager.LoadConfigurationFromFile(*novusState)
+			if !exists {
+				logger.Warnf("Novus is not initialized in this directory (%s file does not exist).", config.ConfigFileName)
+				logger.Hintf("Run \"novus init\" to create a configuration file.")
+				os.Exit(1)
+			}
 		}
 
-		// Load Novus state & validate config file
-		novusState := novus.GetState()
-		config_manager.ValidateConfig(conf, *novusState)
+		config_manager.ValidateConfigDomainsUniqueness(conf, *novusState)
 		appName := config.AppName()
 
 		// Load application state
 		appState, appStateExists := novus.GetAppState(appName)
 		if !appStateExists {
-			appState = novus.InitializeAppState(appName)
+			appState = novus.InitializeAppState(appName, fs.CurrentDir)
 		}
 
 		// Compare state and current config to detect changes

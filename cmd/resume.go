@@ -34,7 +34,7 @@ var resumeCmd = &cobra.Command{
 
 		// Load config from state
 		conf := config_manager.LoadConfigurationFromState(appName, *novusState)
-		config_manager.ValidateConfig(conf, *novusState)
+		config_manager.ValidateConfigDomainsUniqueness(conf, *novusState)
 
 		// Check if ports are available
 		portsUsage := net.CheckPortsUsage(slices.Concat(nginx.Ports, []string{dnsmasq.Port})...)

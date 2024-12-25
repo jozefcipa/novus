@@ -179,14 +179,15 @@
           }
 
           for (const [appName, app] of appsToDisplay) {
+            const isGlobalApp = appName === '_novus_global'
             // Show header
             const isActive = app.appStatus === 'active'
             const headerRow = document.createElement('tr')
             headerRow.classList = 'group-row'
             headerRow.innerHTML = `
               <td>
-                <div class="application">${appName}</span>
-                <div class="directory">(${app.directory})</span>
+                <div class="application">${isGlobalApp ? 'Global Routes' : appName}</span>
+                <div class="directory">${isGlobalApp ? '' : `(${app.directory})`}</span>
               </td>
               <td>
                 <span class="status-${app.appStatus}"> ${isActive ? '🟢 ACTIVE' : '🟥 INACTIVE'}</span>
