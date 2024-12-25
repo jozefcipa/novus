@@ -61,8 +61,13 @@ var serveCmd = &cobra.Command{
 		}
 
 		if len(addedRoutes) > 0 {
-			for _, newRoute := range addedRoutes {
-				logger.Successf("Found new domain [%s]", newRoute.Domain)
+			if len(addedRoutes) == 1 {
+				logger.Successf("Found a new domain [%s]", addedRoutes[0].Domain)
+			} else {
+				logger.Successf("Found %d new domains:", len(addedRoutes))
+				for _, newRoute := range addedRoutes {
+					logger.Infof("   - %s", newRoute.Domain)
+				}
 			}
 		}
 
