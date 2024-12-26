@@ -36,13 +36,14 @@ func Confirm(question string) bool {
 
 func PrintRoutingTable(novusState novus.NovusState) {
 	allApps := novusState.Apps
-	appsCount := 0
-	for appName, _ := range allApps {
-		if appName != novus.NovusInternalAppName {
-			appsCount += 1
+	hasSomeRoutes := false
+	for appName, appState := range allApps {
+		if appName != novus.NovusInternalAppName && len(appState.Routes) > 0 {
+			hasSomeRoutes = true
+			break
 		}
 	}
-	if appsCount == 0 {
+	if !hasSomeRoutes {
 		logger.Warnf("You don't have any apps configured.")
 		logger.Hintf(" Run \"novus init\" to configure routing.")
 		return
@@ -119,8 +120,7 @@ func ParseAppFromArgs(args []string, cmd string) (string, *novus.AppState) {
 	// Load app state for the given app name if it exists, or throw an error
 	appState, exists := novus.GetAppState(appName)
 	if !exists {
-		logger.Errorf("App \"%s\" does not exist", appName)
-		os.Exit(1)
+		return appName, nil
 	}
 
 	return appName, appState

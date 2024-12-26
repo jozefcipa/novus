@@ -18,6 +18,10 @@ var pauseCmd = &cobra.Command{
 	Long:  "Pause existing app in Novus so the routing will stop. Run `novus resume [app-name]` to start routing again.",
 	Run: func(cmd *cobra.Command, args []string) {
 		appName, appState := tui.ParseAppFromArgs(args, "pause")
+		if appState == nil {
+			logger.Errorf("App \"%s\" does not exist", appName)
+			os.Exit(1)
+		}
 
 		if appState.Status == novus.APP_PAUSED {
 			logger.Checkf("App \"%s\" is already paused.", appName)

@@ -170,7 +170,7 @@
 
           const appsToDisplay = Object
             .entries(state.apps)
-            .filter(([appName]) => appName !== '_novus') // don't show internal app in the table
+            .filter(([appName, appState]) => appName !== '_novus' && appState.routes.length > 0) // don't show internal app in the table
 
           // Show no results row if no apps are configured
           if (appsToDisplay.length === 0) {

@@ -23,6 +23,10 @@ var resumeCmd = &cobra.Command{
 	Long:  "Resume paused app in Novus so the routing will start again. Similar to running `novus serve` but the app has to be registered already",
 	Run: func(cmd *cobra.Command, args []string) {
 		appName, appState := tui.ParseAppFromArgs(args, "resume")
+		if appState == nil {
+			logger.Errorf("App \"%s\" does not exist", appName)
+			os.Exit(1)
+		}
 
 		if appState.Status == novus.APP_ACTIVE {
 			logger.Checkf("App \"%s\" is already active.", appName)

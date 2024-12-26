@@ -15,7 +15,10 @@ import (
 	"github.com/jozefcipa/novus/internal/shared"
 )
 
-var validationMessages = map[string]string{
+type ValidationErrors map[string]string
+
+// This is used for validating the config file
+var ValidationErrorsConfigFile = ValidationErrors{
 	"required":      "Field '%s' is required",
 	"url":           "Field '%s' is not a valid URL",
 	"fqdn":          "Field '%s' is not a valid FQDN",
@@ -27,29 +30,48 @@ var validationMessages = map[string]string{
 	"startswith": "Field '%s' must start with http://",
 }
 
+var ValidationErrorsGlobalAppInput = ValidationErrors{
+	"required":      "Upstream cannot be empty",
+	"url":           "Upstream is not a valid URL",
+	"fqdn":          "Domain is not a valid FQDN",
+	"existing_tld":  "Domain contains an existing TLD domain.",
+	"unique_routes": "Domain is already defined in the global scope",
+}
+
+func ValidateConfig(conf config.NovusConfig, validationErrors ValidationErrors) []string {
+	if err := validateConfigSyntax(conf); err != nil {
+		errors := []string{}
+		for _, err := range err.(validator.ValidationErrors) {
+			validationRule := err.Tag()
+			path := getConfigFieldPath(err.StructNamespace())
+
+			// Default error message
+			errorMessage := err.Error()
+
+			// Check if we have custom error message defined
+			if customErrorMesssage, ok := validationErrors[validationRule]; ok {
+				if strings.Contains(customErrorMesssage, "%s") {
+					errorMessage = fmt.Sprintf(customErrorMesssage, path)
+				} else {
+					errorMessage = customErrorMesssage
+				}
+			}
+
+			errors = append(errors, errorMessage)
+		}
+
+		return errors
+	}
+
+	return []string{}
+}
+
 func LoadConfigurationFromFile(novusState novus.NovusState) (config.NovusConfig, bool) {
 	conf, exists := config.LoadFile()
 
 	// If the config file exists, validate its syntax
 	if exists {
-		if err := validateConfigSyntax(conf); err != nil {
-
-			errors := []string{}
-			for _, err := range err.(validator.ValidationErrors) {
-				validationRule := err.Tag()
-				path := getConfigFieldPath(err.StructNamespace())
-
-				// Default error message
-				errorMessage := err.Error()
-
-				// Check if we have custom error message defined
-				if customErrorMesssage, ok := validationMessages[validationRule]; ok {
-					errorMessage = fmt.Sprintf(customErrorMesssage, path)
-				}
-
-				errors = append(errors, errorMessage)
-			}
-
+		if errors := ValidateConfig(conf, ValidationErrorsConfigFile); len(errors) > 0 {
 			logger.Errorf("Configuration file contains errors:\n   %s", strings.Join(errors, "\n   "))
 			os.Exit(1)
 		}

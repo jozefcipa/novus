@@ -12,9 +12,15 @@ import (
 func RemoveDomains(routes []shared.Route, appName string, novusState *novus.NovusState) {
 	appState, _ := novus.GetAppState(appName)
 
-	for _, deletedRoute := range routes {
-		logger.Debugf("Removing domain [%s]", deletedRoute.Domain)
-		ssl_manager.DeleteCert(deletedRoute.Domain, appState)
+	if len(routes) == 1 {
+		ssl_manager.DeleteCert(routes[0].Domain, appState)
+		logger.Checkf("Removed domain [%s]", routes[0].Domain)
+	} else {
+		logger.Checkf("Removed %d domains:", len(routes))
+		for _, deletedRoute := range routes {
+			logger.Infof("   - %s", deletedRoute.Domain)
+			ssl_manager.DeleteCert(deletedRoute.Domain, appState)
+		}
 	}
 
 	// Remove DNS records for unused TLDs
