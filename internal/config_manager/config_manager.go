@@ -36,6 +36,7 @@ var ValidationErrorsGlobalAppInput = ValidationErrors{
 	"fqdn":          "Domain is not a valid FQDN",
 	"existing_tld":  "Domain contains an existing TLD domain.",
 	"unique_routes": "Domain is already defined in the global scope",
+	"startswith":    "Upstream must start with http://",
 }
 
 func ValidateConfig(conf config.NovusConfig, validationErrors ValidationErrors) []string {
