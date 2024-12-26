@@ -3,6 +3,7 @@ package cmd
 import (
 	"os"
 	"slices"
+	"strings"
 
 	"github.com/jozefcipa/novus/internal/brew"
 	"github.com/jozefcipa/novus/internal/config"
@@ -25,7 +26,7 @@ import (
 )
 
 var serveCmd = &cobra.Command{
-	Use:   "serve [domain?]",
+	Use:   "serve [domain?] [upstream?]",
 	Short: "Configure URLs and start routing",
 	Long:  `Install Nginx, DNSMasq and mkcert and automatically expose HTTPs URLs for the endpoints defined in the config.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -40,7 +41,12 @@ var serveCmd = &cobra.Command{
 
 		// If inline domain is provided, prioritise that
 		if len(args) > 0 {
-			upstream := tui.AskUser("Enter an upstream address (e.g. http://localhost:3000): ")
+			var upstream string
+			if len(args) == 2 {
+				upstream = args[1]
+			} else {
+				upstream = tui.AskUser("Enter an upstream address (e.g. http://localhost:3000): ")
+			}
 
 			// Ensure novus state for the global app exists
 			if _, appStateExists := novus.GetAppState(novus.GlobalAppName); !appStateExists {
@@ -52,6 +58,12 @@ var serveCmd = &cobra.Command{
 
 			// Append the new route to the config
 			conf.Routes = append(conf.Routes, shared.Route{Domain: args[0], Upstream: upstream})
+
+			// Validate input
+			if errors := config_manager.ValidateConfig(conf, config_manager.ValidationErrorsGlobalAppInput); len(errors) > 0 {
+				logger.Errorf("Invalid configuration:\n   %s", strings.Join(errors, "\n   "))
+				os.Exit(1)
+			}
 		} else {
 			// Otherwise, load configuration file
 			var exists bool
