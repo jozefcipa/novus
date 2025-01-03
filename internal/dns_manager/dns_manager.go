@@ -8,6 +8,7 @@ import (
 	"github.com/jozefcipa/novus/internal/dnsmasq"
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
+	"github.com/jozefcipa/novus/internal/maputils"
 	"github.com/jozefcipa/novus/internal/net"
 	"github.com/jozefcipa/novus/internal/novus"
 	"github.com/jozefcipa/novus/internal/shared"
@@ -29,7 +30,7 @@ func GetTLDs(routes []shared.Route) []string {
 		}
 	}
 
-	return shared.MapKeys(tlds)
+	return maputils.MapKeys(tlds)
 }
 
 func Configure(config config.NovusConfig, novusState *novus.NovusState) bool {

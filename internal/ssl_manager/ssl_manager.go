@@ -7,6 +7,7 @@ import (
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
+	"github.com/jozefcipa/novus/internal/maputils"
 	"github.com/jozefcipa/novus/internal/mkcert"
 	"github.com/jozefcipa/novus/internal/novus"
 	"github.com/jozefcipa/novus/internal/shared"
@@ -41,7 +42,7 @@ func EnsureSSLCertificates(conf config.NovusConfig, novusState *novus.NovusState
 		logger.Checkf("SSL certificates are up to date")
 	}
 
-	return shared.MergeMaps[shared.Certificate, shared.DomainCertificates](domainCerts, internalDomainCerts), hasNewCerts || hasNewInternalCerts
+	return maputils.MergeMaps[shared.Certificate, shared.DomainCertificates](domainCerts, internalDomainCerts), hasNewCerts || hasNewInternalCerts
 }
 
 func createCertsForConfig(conf config.NovusConfig, appState *novus.AppState) (shared.DomainCertificates, bool) {

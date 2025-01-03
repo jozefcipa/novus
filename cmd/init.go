@@ -8,7 +8,7 @@ import (
 	"github.com/jozefcipa/novus/internal/config_manager"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/novus"
-	"github.com/jozefcipa/novus/internal/shared"
+	"github.com/jozefcipa/novus/internal/stringutils"
 	"github.com/jozefcipa/novus/internal/tui"
 	"github.com/spf13/cobra"
 )
@@ -33,7 +33,7 @@ var initCmd = &cobra.Command{
 		if !exists {
 			// If config doesn't exist, create a new one
 			input := tui.AskUser("Enter a new app name: ")
-			appName := shared.ToKebabCase(input)
+			appName := stringutils.ToKebabCase(input)
 
 			err := config_manager.CreateNewConfiguration(appName, *novus.GetState())
 			if err != nil {

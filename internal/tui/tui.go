@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/jozefcipa/novus/internal/logger"
+	"github.com/jozefcipa/novus/internal/maputils"
 	"github.com/jozefcipa/novus/internal/novus"
-	"github.com/jozefcipa/novus/internal/shared"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -57,7 +57,7 @@ func PrintRoutingTable(novusState novus.NovusState) {
 	table.SetRowLine(true)
 
 	// Sort apps
-	sortedAppNames := shared.MapKeys(allApps)
+	sortedAppNames := maputils.MapKeys(allApps)
 	slices.SortFunc(sortedAppNames, func(a, b string) int { return cmp.Compare(a, b) })
 
 	for _, appName := range sortedAppNames {

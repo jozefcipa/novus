@@ -12,7 +12,7 @@ import (
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/novus"
-	"github.com/jozefcipa/novus/internal/shared"
+	"github.com/jozefcipa/novus/internal/stringutils"
 	"github.com/jozefcipa/novus/internal/validation"
 )
 
@@ -103,7 +103,7 @@ func getConfigFieldPath(structNamespace string) string {
 	pathKeys := strings.Split(structNamespace, ".")[1:] // remove first item as it is the name of the config struct (NovusConfig)
 
 	for i, key := range pathKeys {
-		pathKeys[i] = shared.LowerFirst(key)
+		pathKeys[i] = stringutils.LowerFirst(key)
 	}
 
 	return strings.Join(pathKeys, ".")
