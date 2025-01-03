@@ -1,30 +1,15 @@
-package net
+package ports
 
 import (
-	"fmt"
-	go_net "net"
-	"os"
-	"os/exec"
+	"net"
 	"strings"
 
 	"github.com/jozefcipa/novus/internal/logger"
+	"github.com/jozefcipa/novus/internal/sudo"
 )
 
 func lsof(ports []string) []string {
-	commandString := fmt.Sprintf("sudo lsof -nP -i4:%s", strings.Join(ports, ","))
-	logger.Debugf("Running \"%s\"", commandString)
-
-	cmd := exec.Command("sudo", "lsof", "-nP", fmt.Sprintf("-i4:%s", strings.Join(ports, ",")))
-	out, err := cmd.CombinedOutput()
-	result := string(out)
-
-	// `lsof` command returns exit code 1 even if there is no script error but no information was found
-	// therefore, let's only return error if the exit code is 1 and there is some actual output
-	// https://stackoverflow.com/a/29843137/4480179
-	if err != nil && result != "" {
-		logger.Errorf("Failed to run \"%s\": %v\n%s", commandString, err, result)
-		os.Exit(1)
-	}
+	result := sudo.CheckPortsOrExit(ports)
 
 	return strings.Split(
 		strings.TrimRight(result, "\n"), // remove \n from the end of the string so we don't create an empty record in the array
@@ -43,7 +28,7 @@ func parseLsof(lsofRecords []string) map[string]string {
 		recordParts := strings.Fields(record)
 
 		binary := recordParts[0]
-		_, port, _ := go_net.SplitHostPort(recordParts[8])
+		_, port, _ := net.SplitHostPort(recordParts[8])
 
 		portUsage[port] = binary
 	}
@@ -55,7 +40,7 @@ func parseLsof(lsofRecords []string) map[string]string {
 
 type PortUsage = map[string]string
 
-func CheckPortsUsage(ports ...string) PortUsage {
+func CheckIfAvailable(ports ...string) PortUsage {
 	logger.Infof("Checking ports availability")
 	lsof := lsof(ports)
 	logger.Debugf("lsof result:\n%s", strings.Join(lsof, "\n"))

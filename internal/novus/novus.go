@@ -7,7 +7,7 @@ import (
 
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
-	"github.com/jozefcipa/novus/internal/shared"
+	"github.com/jozefcipa/novus/internal/sharedtypes"
 )
 
 var NovusStateDir string
@@ -65,8 +65,8 @@ func loadState() {
 		state.Apps[NovusInternalAppName] = &AppState{
 			Directory:       NovusStateDir,
 			Status:          APP_ACTIVE,
-			SSLCertificates: shared.DomainCertificates{},
-			Routes: []shared.Route{
+			SSLCertificates: sharedtypes.DomainCertificates{},
+			Routes: []sharedtypes.Route{
 				{Domain: NovusInternalDomain, Upstream: "http://example.org"},
 				{Domain: NovusIndexDomain, Upstream: "http://example.org"},
 			},
@@ -99,8 +99,8 @@ func InitializeAppState(appName string, appDir string) *AppState {
 		state.Apps[appName] = &AppState{
 			Status:          APP_ACTIVE,
 			Directory:       appDir,
-			SSLCertificates: shared.DomainCertificates{},
-			Routes:          []shared.Route{},
+			SSLCertificates: sharedtypes.DomainCertificates{},
+			Routes:          []sharedtypes.Route{},
 		}
 		appState = state.Apps[appName]
 	}

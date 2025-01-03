@@ -9,7 +9,7 @@ import (
 
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/logger"
-	"github.com/jozefcipa/novus/internal/shared"
+	"github.com/jozefcipa/novus/internal/sharedtypes"
 )
 
 func Configure(conf config.NovusConfig) {
@@ -22,7 +22,7 @@ func Configure(conf config.NovusConfig) {
 	}
 }
 
-func GenerateSSLCert(domain string, dirPath string) shared.Certificate {
+func GenerateSSLCert(domain string, dirPath string) sharedtypes.Certificate {
 	certFilePath := filepath.Join(dirPath, "cert.pem")
 	keyFilePath := filepath.Join(dirPath, "key.pem")
 
@@ -40,7 +40,7 @@ func GenerateSSLCert(domain string, dirPath string) shared.Certificate {
 		os.Exit(1)
 	}
 
-	return shared.Certificate{
+	return sharedtypes.Certificate{
 		CertFilePath: certFilePath,
 		KeyFilePath:  keyFilePath,
 

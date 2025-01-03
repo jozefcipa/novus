@@ -9,9 +9,9 @@ import (
 	"github.com/jozefcipa/novus/internal/dnsmasq"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/mkcert"
-	"github.com/jozefcipa/novus/internal/net"
 	"github.com/jozefcipa/novus/internal/nginx"
 	"github.com/jozefcipa/novus/internal/novus"
+	"github.com/jozefcipa/novus/internal/ports"
 	"github.com/jozefcipa/novus/internal/ssl_manager"
 	"github.com/jozefcipa/novus/internal/tui"
 	"github.com/spf13/cobra"
@@ -41,7 +41,7 @@ var resumeCmd = &cobra.Command{
 		config_manager.ValidateConfigDomainsUniqueness(conf, *novusState)
 
 		// Check if ports are available
-		portsUsage := net.CheckPortsUsage(slices.Concat(nginx.Ports, []string{dnsmasq.Port})...)
+		portsUsage := ports.CheckIfAvailable(slices.Concat(nginx.Ports, []string{dnsmasq.Port})...)
 		nginx.EnsurePortsAvailable(portsUsage)
 		dnsmasq.EnsurePortAvailable(portsUsage)
 

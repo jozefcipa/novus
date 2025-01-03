@@ -6,10 +6,10 @@ import (
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/dns_manager"
 	"github.com/jozefcipa/novus/internal/novus"
-	"github.com/jozefcipa/novus/internal/shared"
+	"github.com/jozefcipa/novus/internal/sharedtypes"
 )
 
-func routeExists(domain string, routes []shared.Route) bool {
+func routeExists(domain string, routes []sharedtypes.Route) bool {
 	for _, route := range routes {
 		if route.Domain == domain {
 			return true
@@ -19,7 +19,7 @@ func routeExists(domain string, routes []shared.Route) bool {
 	return false
 }
 
-func DetectConfigDiff(conf config.NovusConfig, state novus.AppState) (added []shared.Route, deleted []shared.Route) {
+func DetectConfigDiff(conf config.NovusConfig, state novus.AppState) (added []sharedtypes.Route, deleted []sharedtypes.Route) {
 	// Detect routes that are stored in state but have been removed from the configuration file
 	for _, route := range state.Routes {
 		if !routeExists(route.Domain, conf.Routes) {
@@ -37,7 +37,7 @@ func DetectConfigDiff(conf config.NovusConfig, state novus.AppState) (added []sh
 	return added, deleted
 }
 
-func DetectUnusedTLDs(deletedRoutes []shared.Route, stateRoutes []shared.Route) []string {
+func DetectUnusedTLDs(deletedRoutes []sharedtypes.Route, stateRoutes []sharedtypes.Route) []string {
 	deletedRoutesTLDs := dns_manager.GetTLDs(deletedRoutes)
 	stateTLDs := dns_manager.GetTLDs(stateRoutes)
 	unusedTLDs := []string{}
@@ -59,7 +59,7 @@ type appDomain struct {
 	Domain string
 }
 
-func DetectDuplicateDomains(existingApps map[string]novus.AppState, addedRoutes []shared.Route) error {
+func DetectDuplicateDomains(existingApps map[string]novus.AppState, addedRoutes []sharedtypes.Route) error {
 	allDomains := []appDomain{}
 
 	// Collect all existing domains across apps

@@ -10,9 +10,9 @@ import (
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/homebrew"
 	"github.com/jozefcipa/novus/internal/logger"
-	"github.com/jozefcipa/novus/internal/net"
 	"github.com/jozefcipa/novus/internal/novus"
-	"github.com/jozefcipa/novus/internal/shared"
+	"github.com/jozefcipa/novus/internal/ports"
+	"github.com/jozefcipa/novus/internal/sharedtypes"
 )
 
 var NginxServersDir string
@@ -61,7 +61,7 @@ func IsRunning() bool {
 	return homebrew.IsServiceRunning("nginx")
 }
 
-func EnsurePortsAvailable(portsUsage net.PortUsage) {
+func EnsurePortsAvailable(portsUsage ports.PortUsage) {
 	for _, port := range Ports {
 		if portUsedBy, isUsed := portsUsage[port]; isUsed && portUsedBy != "nginx" {
 			logger.Errorf("Cannot start Nginx: Port %s is already used by '%s'", port, portUsedBy)
@@ -70,7 +70,7 @@ func EnsurePortsAvailable(portsUsage net.PortUsage) {
 	}
 }
 
-func Configure(novusConf config.NovusConfig, sslCerts shared.DomainCertificates, appState *novus.AppState) bool {
+func Configure(novusConf config.NovusConfig, sslCerts sharedtypes.DomainCertificates, appState *novus.AppState) bool {
 	// Create default server config if it doesn't exist
 	nginxDefaultConf := readServerConfig(getDefaultConfigName())
 
@@ -146,7 +146,7 @@ func writeServerConfig(fileName string, serverConfig string) {
 	fs.WriteFileOrExit(path, serverConfig)
 }
 
-func buildServerConfig(appConfig config.NovusConfig, sslCerts shared.DomainCertificates, appState *novus.AppState) string {
+func buildServerConfig(appConfig config.NovusConfig, sslCerts sharedtypes.DomainCertificates, appState *novus.AppState) string {
 	// Read template file
 	serverConfigTemplate := fs.ReadFileOrExit(filepath.Join(fs.AssetsDir, "nginx/server.template.conf"))
 

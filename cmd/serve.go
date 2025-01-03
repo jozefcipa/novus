@@ -15,10 +15,10 @@ import (
 	"github.com/jozefcipa/novus/internal/homebrew"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/mkcert"
-	"github.com/jozefcipa/novus/internal/net"
 	"github.com/jozefcipa/novus/internal/nginx"
 	"github.com/jozefcipa/novus/internal/novus"
-	"github.com/jozefcipa/novus/internal/shared"
+	"github.com/jozefcipa/novus/internal/ports"
+	"github.com/jozefcipa/novus/internal/sharedtypes"
 	"github.com/jozefcipa/novus/internal/ssl_manager"
 	"github.com/jozefcipa/novus/internal/tui"
 
@@ -57,7 +57,7 @@ var serveCmd = &cobra.Command{
 			conf = config_manager.LoadConfigurationFromState(novus.GlobalAppName, *novusState)
 
 			// Append the new route to the config
-			conf.Routes = append(conf.Routes, shared.Route{Domain: args[0], Upstream: upstream})
+			conf.Routes = append(conf.Routes, sharedtypes.Route{Domain: args[0], Upstream: upstream})
 
 			// Validate input
 			if errors := config_manager.ValidateConfig(conf, config_manager.ValidationErrorsGlobalAppInput); len(errors) > 0 {
@@ -104,7 +104,7 @@ var serveCmd = &cobra.Command{
 		}
 
 		// Check if ports are available
-		portsUsage := net.CheckPortsUsage(slices.Concat(nginx.Ports, []string{dnsmasq.Port})...)
+		portsUsage := ports.CheckIfAvailable(slices.Concat(nginx.Ports, []string{dnsmasq.Port})...)
 		nginx.EnsurePortsAvailable(portsUsage)
 		dnsmasq.EnsurePortAvailable(portsUsage)
 

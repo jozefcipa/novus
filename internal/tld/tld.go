@@ -1,4 +1,4 @@
-package net
+package tld
 
 import (
 	"path/filepath"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
+	"github.com/jozefcipa/novus/internal/paths"
 )
 
 var existingTLDs []string
@@ -15,13 +16,13 @@ func init() {
 	existingTLDs = []string{}
 }
 
-func ExtractTLD(domain string) string {
+func ExtractFromDomain(domain string) string {
 	urlParts := strings.Split(domain, ".")
 	return urlParts[len(urlParts)-1]
 }
 
 func LoadExistingTLDsFile() []string {
-	content, err := fs.ReadFile(filepath.Join(fs.AssetsDir, "iana-tlds-list.txt"))
+	content, err := fs.ReadFile(filepath.Join(paths.AssetsDir, "iana-tlds-list.txt"))
 	if err != nil {
 		logger.Warnf("Failed to read TLDs file: %v", err)
 		return []string{}
@@ -40,6 +41,6 @@ func LoadExistingTLDsFile() []string {
 	return existingTLDs
 }
 
-func IsExistingTLD(tld string) bool {
+func Exists(tld string) bool {
 	return slices.Contains[[]string](existingTLDs, tld)
 }

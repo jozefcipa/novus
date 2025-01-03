@@ -10,9 +10,9 @@ import (
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
-	"github.com/jozefcipa/novus/internal/net"
 	"github.com/jozefcipa/novus/internal/novus"
 	"github.com/jozefcipa/novus/internal/ssl_manager"
+	"github.com/jozefcipa/novus/internal/tld"
 	"github.com/spf13/cobra"
 )
 
@@ -25,7 +25,8 @@ var rootCmd = &cobra.Command{
 		fs.ResolveDirs()
 		novus.ResolveDirs()
 		ssl_manager.ResolveDirs()
-		net.LoadExistingTLDsFile()
+
+		tld.LoadExistingTLDsFile()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		figurine.Write(os.Stdout, "Novus", "ANSI Regular.flf")

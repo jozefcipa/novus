@@ -11,7 +11,7 @@ import (
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/nginx"
 	"github.com/jozefcipa/novus/internal/novus"
-	"github.com/jozefcipa/novus/internal/shared"
+	"github.com/jozefcipa/novus/internal/sharedtypes"
 	"github.com/jozefcipa/novus/internal/ssl_manager"
 	"github.com/jozefcipa/novus/internal/tui"
 	"github.com/spf13/cobra"
@@ -32,7 +32,7 @@ var removeCmd = &cobra.Command{
 			conf := config_manager.LoadConfigurationFromState(novus.GlobalAppName, *novusState)
 
 			// Check if the domain exists
-			idx := slices.IndexFunc(conf.Routes, func(route shared.Route) bool { return route.Domain == domain })
+			idx := slices.IndexFunc(conf.Routes, func(route sharedtypes.Route) bool { return route.Domain == domain })
 			if idx == -1 {
 				logger.Errorf("Domain or app \"%s\" does not exist", domain)
 				os.Exit(1)
@@ -47,7 +47,7 @@ var removeCmd = &cobra.Command{
 			conf.Routes = append(conf.Routes[:idx], conf.Routes[idx+1:]...)
 
 			// Delete route
-			domain_cleanup_manager.RemoveDomains([]shared.Route{{Domain: domain}}, novus.GlobalAppName, novusState)
+			domain_cleanup_manager.RemoveDomains([]sharedtypes.Route{{Domain: domain}}, novus.GlobalAppName, novusState)
 
 			// Configure SSL
 			domainCerts, _ := ssl_manager.EnsureSSLCertificates(conf, novusState, novus.GlobalAppName)

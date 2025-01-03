@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/jozefcipa/novus/internal/logger"
-	"github.com/jozefcipa/novus/internal/shared"
+	"github.com/jozefcipa/novus/internal/sharedtypes"
 	"github.com/jozefcipa/novus/internal/validation"
 )
 
@@ -21,10 +21,10 @@ type AppState struct {
 	// If user deletes the directory Novus will complain about non-existing directory even though it should
 	// only validate the path format, no the existence (sigh)
 	// Directory       string                    `json:"directory" validate:"required,dirpath"`
-	Directory       string                    `json:"directory" validate:"required"`
-	Status          AppStatus                 `json:"appStatus" validate:"required"`
-	SSLCertificates shared.DomainCertificates `json:"sslCertificates"`
-	Routes          []shared.Route            `json:"routes" validate:"required,dive"`
+	Directory       string                         `json:"directory" validate:"required"`
+	Status          AppStatus                      `json:"appStatus" validate:"required"`
+	SSLCertificates sharedtypes.DomainCertificates `json:"sslCertificates"`
+	Routes          []sharedtypes.Route            `json:"routes" validate:"required,dive"`
 }
 
 type DnsFiles struct {

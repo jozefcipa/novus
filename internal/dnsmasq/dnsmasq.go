@@ -9,7 +9,7 @@ import (
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/homebrew"
 	"github.com/jozefcipa/novus/internal/logger"
-	"github.com/jozefcipa/novus/internal/net"
+	"github.com/jozefcipa/novus/internal/ports"
 )
 
 var dnsmasqConfFile string
@@ -47,7 +47,7 @@ func IsRunning() bool {
 	return homebrew.IsServiceRunning("dnsmasq")
 }
 
-func EnsurePortAvailable(portsUsage net.PortUsage) {
+func EnsurePortAvailable(portsUsage ports.PortUsage) {
 	if portUsedBy, isUsed := portsUsage[Port]; isUsed && portUsedBy != "dnsmasq" {
 		logger.Errorf("Cannot start DNSMasq: Port %s is already used by '%s'", Port, portUsedBy)
 		os.Exit(1)

@@ -5,11 +5,11 @@ import (
 	"github.com/jozefcipa/novus/internal/dns_manager"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/novus"
-	"github.com/jozefcipa/novus/internal/shared"
+	"github.com/jozefcipa/novus/internal/sharedtypes"
 	"github.com/jozefcipa/novus/internal/ssl_manager"
 )
 
-func RemoveDomains(routes []shared.Route, appName string, novusState *novus.NovusState) {
+func RemoveDomains(routes []sharedtypes.Route, appName string, novusState *novus.NovusState) {
 	appState, _ := novus.GetAppState(appName)
 
 	if len(routes) == 1 {
@@ -24,7 +24,7 @@ func RemoveDomains(routes []shared.Route, appName string, novusState *novus.Novu
 	}
 
 	// Remove DNS records for unused TLDs
-	otherAppsRoutes := []shared.Route{}
+	otherAppsRoutes := []sharedtypes.Route{}
 	for novusAppName, novusAppState := range novusState.GetActiveApps() {
 		// We want to find usage only in other apps,
 		// current app's state has not yet been updated so it contains routes that we're deleting,

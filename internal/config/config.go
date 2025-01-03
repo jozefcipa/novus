@@ -7,7 +7,7 @@ import (
 
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
-	"github.com/jozefcipa/novus/internal/shared"
+	"github.com/jozefcipa/novus/internal/sharedtypes"
 	"gopkg.in/yaml.v3"
 )
 
@@ -16,8 +16,8 @@ const ConfigFileName = "novus.yml"
 var appName = ""
 
 type NovusConfig struct {
-	AppName string         `yaml:"appName" validate:"required"`
-	Routes  []shared.Route `yaml:"routes" validate:"required,unique_routes,dive"`
+	AppName string              `yaml:"appName" validate:"required"`
+	Routes  []sharedtypes.Route `yaml:"routes" validate:"required,unique_routes,dive"`
 }
 
 func SetAppName(name string) {

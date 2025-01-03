@@ -9,9 +9,9 @@ import (
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/maputils"
-	"github.com/jozefcipa/novus/internal/net"
 	"github.com/jozefcipa/novus/internal/novus"
-	"github.com/jozefcipa/novus/internal/shared"
+	"github.com/jozefcipa/novus/internal/sharedtypes"
+	"github.com/jozefcipa/novus/internal/tld"
 )
 
 // DNSMasq & DNS resolver setup
@@ -19,11 +19,11 @@ import (
 
 const dnsResolverDir = "/etc/resolver"
 
-func GetTLDs(routes []shared.Route) []string {
+func GetTLDs(routes []sharedtypes.Route) []string {
 	var tlds = make(map[string]bool)
 
 	for _, route := range routes {
-		tld := net.ExtractTLD(route.Domain)
+		tld := tld.ExtractFromDomain(route.Domain)
 
 		if _, ok := tlds[tld]; !ok {
 			tlds[tld] = true

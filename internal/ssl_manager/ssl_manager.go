@@ -10,7 +10,7 @@ import (
 	"github.com/jozefcipa/novus/internal/maputils"
 	"github.com/jozefcipa/novus/internal/mkcert"
 	"github.com/jozefcipa/novus/internal/novus"
-	"github.com/jozefcipa/novus/internal/shared"
+	"github.com/jozefcipa/novus/internal/sharedtypes"
 )
 
 var certsDir string
@@ -20,7 +20,7 @@ func ResolveDirs() {
 	certsDir = filepath.Join(novus.NovusStateDir, "certs")
 }
 
-func EnsureSSLCertificates(conf config.NovusConfig, novusState *novus.NovusState, appName string) (shared.DomainCertificates, bool) {
+func EnsureSSLCertificates(conf config.NovusConfig, novusState *novus.NovusState, appName string) (sharedtypes.DomainCertificates, bool) {
 	// Create a directory for the SSL certificates
 	certsDir = filepath.Join(novus.NovusStateDir, "certs")
 	fs.MakeDirOrExit(certsDir)
@@ -42,11 +42,11 @@ func EnsureSSLCertificates(conf config.NovusConfig, novusState *novus.NovusState
 		logger.Checkf("SSL certificates are up to date")
 	}
 
-	return maputils.MergeMaps[shared.Certificate, shared.DomainCertificates](domainCerts, internalDomainCerts), hasNewCerts || hasNewInternalCerts
+	return maputils.MergeMaps[sharedtypes.Certificate, sharedtypes.DomainCertificates](domainCerts, internalDomainCerts), hasNewCerts || hasNewInternalCerts
 }
 
-func createCertsForConfig(conf config.NovusConfig, appState *novus.AppState) (shared.DomainCertificates, bool) {
-	domainCerts := make(shared.DomainCertificates, len(conf.Routes))
+func createCertsForConfig(conf config.NovusConfig, appState *novus.AppState) (sharedtypes.DomainCertificates, bool) {
+	domainCerts := make(sharedtypes.DomainCertificates, len(conf.Routes))
 	hasNewCerts := false
 
 	for _, route := range conf.Routes {
@@ -64,7 +64,7 @@ func getCertificateDirectory(domain string) string {
 	return filepath.Join(certsDir, domain)
 }
 
-func createCert(domain string, appState *novus.AppState) (shared.Certificate, bool) {
+func createCert(domain string, appState *novus.AppState) (sharedtypes.Certificate, bool) {
 	timeNow := time.Now()
 
 	// Check if the certificate already exists
