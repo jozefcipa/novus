@@ -22,12 +22,14 @@ func ExtractFromDomain(domain string) string {
 }
 
 func LoadExistingTLDsFile() []string {
-	content, err := fs.ReadFile(filepath.Join(paths.AssetsDir, "iana-tlds-list.txt"))
+	tldsFilePath := filepath.Join(paths.AssetsDir, "iana-tlds-list.txt")
+
+	content, err := fs.ReadFile(tldsFilePath)
 	if err != nil {
 		logger.Warnf("Failed to read TLDs file: %v", err)
 		return []string{}
 	}
-	logger.Debugf("Loaded TLDs file.")
+	logger.Debugf("Loaded TLDs file = %s.", tldsFilePath)
 
 	for _, tld := range strings.Split(content, "\n") {
 		// skip comments

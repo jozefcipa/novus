@@ -11,12 +11,12 @@ import (
 	"github.com/jozefcipa/novus/internal/dns_manager"
 	"github.com/jozefcipa/novus/internal/dnsmasq"
 	"github.com/jozefcipa/novus/internal/domain_cleanup_manager"
-	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/homebrew"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/mkcert"
 	"github.com/jozefcipa/novus/internal/nginx"
 	"github.com/jozefcipa/novus/internal/novus"
+	"github.com/jozefcipa/novus/internal/paths"
 	"github.com/jozefcipa/novus/internal/ports"
 	"github.com/jozefcipa/novus/internal/sharedtypes"
 	"github.com/jozefcipa/novus/internal/ssl_manager"
@@ -50,7 +50,7 @@ var serveCmd = &cobra.Command{
 
 			// Ensure novus state for the global app exists
 			if _, appStateExists := novus.GetAppState(novus.GlobalAppName); !appStateExists {
-				novus.InitializeAppState(novus.GlobalAppName, novus.NovusStateDir)
+				novus.InitializeAppState(novus.GlobalAppName, paths.NovusStateDir)
 			}
 
 			// Load Novus config for the global app
@@ -81,7 +81,7 @@ var serveCmd = &cobra.Command{
 		// Load application state
 		appState, appStateExists := novus.GetAppState(appName)
 		if !appStateExists {
-			appState = novus.InitializeAppState(appName, fs.CurrentDir)
+			appState = novus.InitializeAppState(appName, paths.CurrentDir)
 		}
 
 		// Compare state and current config to detect changes

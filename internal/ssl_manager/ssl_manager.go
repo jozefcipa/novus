@@ -10,20 +10,13 @@ import (
 	"github.com/jozefcipa/novus/internal/maputils"
 	"github.com/jozefcipa/novus/internal/mkcert"
 	"github.com/jozefcipa/novus/internal/novus"
+	"github.com/jozefcipa/novus/internal/paths"
 	"github.com/jozefcipa/novus/internal/sharedtypes"
 )
 
-var certsDir string
-
-func ResolveDirs() {
-	// ~/.novus/certs
-	certsDir = filepath.Join(novus.NovusStateDir, "certs")
-}
-
 func EnsureSSLCertificates(conf config.NovusConfig, novusState *novus.NovusState, appName string) (sharedtypes.DomainCertificates, bool) {
-	// Create a directory for the SSL certificates
-	certsDir = filepath.Join(novus.NovusStateDir, "certs")
-	fs.MakeDirOrExit(certsDir)
+	logger.Debugf("Ensuring SSL certificates directory exists [%s]", paths.SSLCertificatesDir)
+	fs.MakeDirOrExit(paths.SSLCertificatesDir)
 
 	// First make sure we have certs for internal routes
 	internalAppState := novusState.Apps[novus.NovusInternalAppName]
@@ -61,7 +54,7 @@ func createCertsForConfig(conf config.NovusConfig, appState *novus.AppState) (sh
 }
 
 func getCertificateDirectory(domain string) string {
-	return filepath.Join(certsDir, domain)
+	return filepath.Join(paths.SSLCertificatesDir, domain)
 }
 
 func createCert(domain string, appState *novus.AppState) (sharedtypes.Certificate, bool) {

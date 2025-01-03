@@ -11,6 +11,7 @@ import (
 	"github.com/jozefcipa/novus/internal/homebrew"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/novus"
+	"github.com/jozefcipa/novus/internal/paths"
 	"github.com/jozefcipa/novus/internal/ports"
 	"github.com/jozefcipa/novus/internal/sharedtypes"
 )
@@ -75,10 +76,10 @@ func Configure(novusConf config.NovusConfig, sslCerts sharedtypes.DomainCertific
 	nginxDefaultConf := readServerConfig(getDefaultConfigName())
 
 	defaultConfig := fileHeader
-	defaultConfig += fs.ReadFileOrExit(filepath.Join(fs.AssetsDir, "nginx/default-server.template.conf"))
-	defaultConfig = strings.Replace(defaultConfig, "--NOVUS_HTML_DIR--", filepath.Join(fs.AssetsDir, "nginx/html"), -1)
-	defaultConfig = strings.Replace(defaultConfig, "--NOVUS_ASSETS_DIR--", filepath.Join(fs.AssetsDir, "nginx"), -1)
-	defaultConfig = strings.Replace(defaultConfig, "--NOVUS_STATE_FILE_PATH--", novus.NovusStateFilePath, -1)
+	defaultConfig += fs.ReadFileOrExit(filepath.Join(paths.AssetsDir, "nginx/default-server.template.conf"))
+	defaultConfig = strings.Replace(defaultConfig, "--NOVUS_HTML_DIR--", filepath.Join(paths.AssetsDir, "nginx/html"), -1)
+	defaultConfig = strings.Replace(defaultConfig, "--NOVUS_ASSETS_DIR--", filepath.Join(paths.AssetsDir, "nginx"), -1)
+	defaultConfig = strings.Replace(defaultConfig, "--NOVUS_STATE_FILE_PATH--", paths.NovusStateFilePath, -1)
 	defaultConfig = strings.Replace(defaultConfig, "--NOVUS_INTERNAL_SERVER_NAME--", novus.NovusInternalDomain, -1)
 	defaultConfig = strings.Replace(defaultConfig, "--NOVUS_INDEX_SERVER_NAME--", novus.NovusIndexDomain, -1)
 
@@ -148,7 +149,7 @@ func writeServerConfig(fileName string, serverConfig string) {
 
 func buildServerConfig(appConfig config.NovusConfig, sslCerts sharedtypes.DomainCertificates, appState *novus.AppState) string {
 	// Read template file
-	serverConfigTemplate := fs.ReadFileOrExit(filepath.Join(fs.AssetsDir, "nginx/server.template.conf"))
+	serverConfigTemplate := fs.ReadFileOrExit(filepath.Join(paths.AssetsDir, "nginx/server.template.conf"))
 
 	// Update routes in state
 	appState.Routes = appConfig.Routes
@@ -161,7 +162,7 @@ func buildServerConfig(appConfig config.NovusConfig, sslCerts sharedtypes.Domain
 		// Create Nginx server block
 		routeConfig := strings.ReplaceAll(serverConfigTemplate, "--SERVER_NAME--", route.Domain)
 		routeConfig = strings.ReplaceAll(routeConfig, "--UPSTREAM_ADDR--", route.Upstream)
-		routeConfig = strings.ReplaceAll(routeConfig, "--NOVUS_HTML_DIR--", filepath.Join(fs.AssetsDir, "nginx/html"))
+		routeConfig = strings.ReplaceAll(routeConfig, "--NOVUS_HTML_DIR--", filepath.Join(paths.AssetsDir, "nginx/html"))
 		routeConfig = strings.ReplaceAll(routeConfig, "--SSL_CERT_PATH--", sslCert.CertFilePath)
 		routeConfig = strings.ReplaceAll(routeConfig, "--SSL_KEY_PATH--", sslCert.KeyFilePath)
 

@@ -8,10 +8,8 @@ import (
 	"github.com/fatih/color"
 	cc "github.com/ivanpirog/coloredcobra"
 	"github.com/jozefcipa/novus/internal/config"
-	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
-	"github.com/jozefcipa/novus/internal/novus"
-	"github.com/jozefcipa/novus/internal/ssl_manager"
+	"github.com/jozefcipa/novus/internal/paths"
 	"github.com/jozefcipa/novus/internal/tld"
 	"github.com/spf13/cobra"
 )
@@ -22,10 +20,7 @@ var rootCmd = &cobra.Command{
 	Use:     "novus",
 	Short:   "Local web development done effortlessly",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		fs.ResolveDirs()
-		novus.ResolveDirs()
-		ssl_manager.ResolveDirs()
-
+		paths.Resolve()
 		tld.LoadExistingTLDsFile()
 	},
 	Run: func(cmd *cobra.Command, args []string) {

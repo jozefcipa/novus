@@ -9,9 +9,9 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/diff_manager"
-	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/novus"
+	"github.com/jozefcipa/novus/internal/paths"
 	"github.com/jozefcipa/novus/internal/stringutils"
 	"github.com/jozefcipa/novus/internal/validation"
 )
@@ -180,7 +180,7 @@ func validateConfigAppName(appName string, novusState novus.NovusState) error {
 
 	// Check in state file if appName is already being used elsewhere
 	for appNameFromConfig, appConfig := range novusState.Apps {
-		if appNameFromConfig == appName && appConfig.Directory != fs.CurrentDir {
+		if appNameFromConfig == appName && appConfig.Directory != paths.CurrentDir {
 			return fmt.Errorf("App \"%s\" is already defined in a different directory (%s)", appName, appConfig.Directory)
 		}
 	}

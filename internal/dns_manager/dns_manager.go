@@ -10,14 +10,13 @@ import (
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/maputils"
 	"github.com/jozefcipa/novus/internal/novus"
+	"github.com/jozefcipa/novus/internal/paths"
 	"github.com/jozefcipa/novus/internal/sharedtypes"
 	"github.com/jozefcipa/novus/internal/tld"
 )
 
 // DNSMasq & DNS resolver setup
 // https://gist.github.com/ogrrd/5831371
-
-const dnsResolverDir = "/etc/resolver"
 
 func GetTLDs(routes []sharedtypes.Route) []string {
 	var tlds = make(map[string]bool)
@@ -80,7 +79,7 @@ func Configure(config config.NovusConfig, novusState *novus.NovusState) bool {
 }
 
 func registerTLDResolver(tld string) (bool, string) {
-	configPath := filepath.Join(dnsResolverDir, tld)
+	configPath := filepath.Join(paths.DNSResolverDir, tld)
 
 	// First check if the file already exists
 	if fExists := fs.FileExists(configPath); fExists {
@@ -107,7 +106,10 @@ func UnregisterTLD(tld string, novusState *novus.NovusState) {
 	if novusState.DnsFiles[tld].DnsResolver != "" {
 		logger.Infof("Deleting DNS resolver for *.%s", tld)
 		logger.Debugf("*.%s resolver saved in %s", tld, novusState.DnsFiles[tld].DnsResolver)
-		fs.DeleteFileWithSudo(novusState.DnsFiles[tld].DnsResolver)
+		err := sudo.DeleteFile(novusState.DnsFiles[tld].DnsResolver)
+		if err != nil {
+			logger.Debugf(err.Error())
+		}
 	}
 
 	// Remove from state

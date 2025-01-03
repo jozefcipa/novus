@@ -3,82 +3,9 @@ package fs
 import (
 	"io"
 	"os"
-	"os/exec"
-	"os/user"
-	"path/filepath"
-	"strings"
 
 	"github.com/jozefcipa/novus/internal/logger"
 )
-
-var UserHomeDir string
-var CurrentDir string
-var AssetsDir string
-var NovusBinaryDir string
-
-// Cannot use `init()` here because the order in which these init() functions are called across packages causes
-// that `DebugEnabled` flag is not yet available here (`rootCmd.init()` is called after `fs.init()`)
-func ResolveDirs() {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		logger.Errorf("Failed to get user home directory%s\n   Reason: %v", err)
-		os.Exit(1)
-	}
-	UserHomeDir = homeDir
-
-	currentDir, err := os.Getwd()
-	if err != nil {
-		logger.Errorf("Failed to get current working directory%s\n   Reason: %v", err)
-		os.Exit(1)
-	}
-	CurrentDir = currentDir
-
-	executablePath, err := os.Executable()
-	if err != nil {
-		logger.Errorf("Failed to get novus binary directory\n   Reason: %v", err)
-		os.Exit(1)
-	}
-	// Homebrew creates symlinks for binaries, we need to get the original binary location
-	executablePath, err = filepath.EvalSymlinks(executablePath)
-	if err != nil {
-		logger.Errorf("Failed to evaluate novus symlink\n   Reason: %v", err)
-		os.Exit(1)
-	}
-	NovusBinaryDir = filepath.Dir(executablePath)
-	// When running in development with `go run` it gives temporary directory,
-	// therefore set the novus dir path to the current directory
-	if strings.Contains(NovusBinaryDir, "go-build") {
-		NovusBinaryDir = currentDir
-		// In local develop environment, the ./assets are stored next to the output binary
-		// - ./novus
-		// - ./assets/...
-		AssetsDir = filepath.Join(currentDir, "assets")
-	} else {
-		// If a non-develop binary is used, the ./assets directory is one level above in the filesystem
-		// This is the Homebrew structure
-		// - ./bin/novus
-		// - ./assets/...
-		AssetsDir = filepath.Join(NovusBinaryDir, "..", "assets")
-	}
-
-	// Make sure assets directory is available
-	if !FileExists(AssetsDir) {
-		logger.Errorf("Assets directory not found: %s", AssetsDir)
-		os.Exit(1)
-	}
-
-	logger.Debugf(
-		"Filesystem initialized.\n"+
-			"\tUser Home Directory = %s\n"+
-			"\tAssets Directory = %s\n"+
-			"\tNovus Binary Directory = %s\n"+
-			"\tCurrent Directory = %s",
-		UserHomeDir,
-		AssetsDir,
-		NovusBinaryDir,
-		CurrentDir,
-	)
-}
 
 func ReadFileOrExit(path string) string {
 	file, err := os.ReadFile(path)
@@ -132,15 +59,6 @@ func DeleteFile(path string) error {
 	return nil
 }
 
-func DeleteFileWithSudo(path string) error {
-	if _, err := exec.Command("sudo", "rm", path).Output(); err != nil {
-		logger.Errorf("Failed to delete file %s\n    Reason: %v", path, err)
-		return err
-	}
-
-	return nil
-}
-
 func MakeDirOrExit(path string) {
 	if err := os.MkdirAll(path, os.ModePerm); err != nil {
 		logger.Errorf("Failed to create directory %s\n   Reason: %v", path, err)
@@ -154,13 +72,6 @@ func DeleteDir(path string) error {
 		return err
 	}
 	return nil
-}
-
-func MakeDirWithSudoOrExit(path string) {
-	if _, err := exec.Command("sudo", "mkdir", "-p", path).Output(); err != nil {
-		logger.Errorf("Failed to create directory %s\n   Reason: %v", path, err)
-		os.Exit(1)
-	}
 }
 
 func FileExists(path string) bool {

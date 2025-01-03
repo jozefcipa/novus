@@ -3,15 +3,13 @@ package novus
 import (
 	"encoding/json"
 	"os"
-	"path/filepath"
 
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
+	"github.com/jozefcipa/novus/internal/paths"
 	"github.com/jozefcipa/novus/internal/sharedtypes"
 )
 
-var NovusStateDir string
-var NovusStateFilePath string
 var state NovusState
 var stateLoaded bool
 
@@ -28,22 +26,15 @@ func init() {
 	stateLoaded = false
 }
 
-func ResolveDirs() {
-	// where we can store generated SSL certificates and application state
-	NovusStateDir = filepath.Join(fs.UserHomeDir, ".novus")
-	NovusStateFilePath = filepath.Join(NovusStateDir, "novus.json")
-}
-
 func initStateDir() {
-	// Create a directory ~/.novus
-	fs.MakeDirOrExit(NovusStateDir)
+	fs.MakeDirOrExit(paths.NovusStateDir)
 }
 
 func loadState() {
 	initStateDir()
 
-	file, err := fs.ReadFile(NovusStateFilePath)
-	logger.Debugf("Loading state file [%s]", NovusStateFilePath)
+	file, err := fs.ReadFile(paths.NovusStateFilePath)
+	logger.Debugf("Loading state file [%s]", paths.NovusStateFilePath)
 
 	// If there's an error, probably we didn't find the state, so initialize a new one
 	if err != nil {
@@ -63,7 +54,7 @@ func loadState() {
 	// If the internal domain is not yet there, add it now
 	if _, found := state.Apps[NovusInternalAppName]; !found {
 		state.Apps[NovusInternalAppName] = &AppState{
-			Directory:       NovusStateDir,
+			Directory:       paths.NovusStateDir,
 			Status:          APP_ACTIVE,
 			SSLCertificates: sharedtypes.DomainCertificates{},
 			Routes: []sharedtypes.Route{
@@ -125,6 +116,6 @@ func SaveState() {
 	}
 
 	// Save file
-	logger.Debugf("Saving novus state [%s]", NovusStateFilePath)
-	fs.WriteFileOrExit(NovusStateFilePath, string(jsonState))
+	logger.Debugf("Saving novus state [%s]", paths.NovusStateFilePath)
+	fs.WriteFileOrExit(paths.NovusStateFilePath, string(jsonState))
 }

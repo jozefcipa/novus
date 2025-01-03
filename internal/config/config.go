@@ -7,6 +7,7 @@ import (
 
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/logger"
+	"github.com/jozefcipa/novus/internal/paths"
 	"github.com/jozefcipa/novus/internal/sharedtypes"
 	"gopkg.in/yaml.v3"
 )
@@ -38,22 +39,22 @@ func AppName() string {
 }
 
 func ConfigFileExists() bool {
-	return fs.FileExists(filepath.Join(fs.CurrentDir, ConfigFileName))
+	return fs.FileExists(filepath.Join(paths.CurrentDir, ConfigFileName))
 }
 
 func WriteDefaultFile(appName string) {
 	// Read the config file template
-	configTemplate := fs.ReadFileOrExit(filepath.Join(fs.AssetsDir, "novus.template.yml"))
+	configTemplate := fs.ReadFileOrExit(filepath.Join(paths.AssetsDir, "novus.template.yml"))
 
 	// Set app name in the config
 	configTemplate = strings.Replace(configTemplate, "--APP_NAME--", appName, 1)
 
 	// Create a new config file
-	fs.WriteFileOrExit(filepath.Join(fs.CurrentDir, ConfigFileName), configTemplate)
+	fs.WriteFileOrExit(filepath.Join(paths.CurrentDir, ConfigFileName), configTemplate)
 }
 
 func LoadFile() (NovusConfig, bool) {
-	configPath := filepath.Join(fs.CurrentDir, ConfigFileName)
+	configPath := filepath.Join(paths.CurrentDir, ConfigFileName)
 
 	logger.Debugf("Loading configuration file [%s]", configPath)
 	configFile, err := fs.ReadFile(configPath)
