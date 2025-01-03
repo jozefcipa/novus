@@ -1,11 +1,12 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
-	"github.com/jozefcipa/novus/internal/brew"
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/config_manager"
+	"github.com/jozefcipa/novus/internal/homebrew"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/novus"
 	"github.com/jozefcipa/novus/internal/stringutils"
@@ -16,14 +17,14 @@ import (
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize Novus configuration",
-	Long:  "Initialize Novus configuration by creating the " + config.ConfigFileName + " file and installs all required binaries if not installed yet.",
+	Long:  fmt.Sprintf("Initialize Novus configuration by creating the %s file and installs all required binaries if not installed yet.", config.ConfigFileName),
 	Run: func(cmd *cobra.Command, args []string) {
 		// Install nginx, dnsmasq and mkcert if not installed
-		if err := brew.InstallBinaries(); err != nil {
+		if err := homebrew.InstallBinaries(); err != nil {
 			logger.Errorf(err.Error())
 
-			if _, ok := err.(*brew.BrewMissingError); ok {
-				logger.Hintf("You can install it from \033[4mhttps://brew.sh/\033[0m")
+			if _, ok := err.(*homebrew.HomebrewMissingError); ok {
+				logger.Hintf("You can install it from %shttps://brew.sh/%s", logger.UNDERLINE, logger.RESET)
 			}
 			os.Exit(1)
 		}
@@ -41,7 +42,7 @@ var initCmd = &cobra.Command{
 				os.Exit(1)
 			}
 			logger.Successf("Novus has been initialized.")
-			logger.Hintf("Open " + config.ConfigFileName + " to add your route definitions.")
+			logger.Hintf("Open %s to add your route definitions.", config.ConfigFileName)
 		} else {
 			logger.Checkf("Novus is already initialized (%s file exists).", config.ConfigFileName)
 			logger.Hintf("Run \"novus serve\" to start routing.")

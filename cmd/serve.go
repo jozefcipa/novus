@@ -5,7 +5,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/jozefcipa/novus/internal/brew"
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/config_manager"
 	"github.com/jozefcipa/novus/internal/diff_manager"
@@ -13,6 +12,7 @@ import (
 	"github.com/jozefcipa/novus/internal/dnsmasq"
 	"github.com/jozefcipa/novus/internal/domain_cleanup_manager"
 	"github.com/jozefcipa/novus/internal/fs"
+	"github.com/jozefcipa/novus/internal/homebrew"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/mkcert"
 	"github.com/jozefcipa/novus/internal/net"
@@ -31,7 +31,7 @@ var serveCmd = &cobra.Command{
 	Long:  `Install Nginx, DNSMasq and mkcert and automatically expose HTTPs URLs for the endpoints defined in the config.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// If the binaries are missing, exit here, user needs to run `novus init` first
-		if err := brew.CheckIfRequiredBinariesInstalled(); err != nil {
+		if err := homebrew.CheckIfRequiredBinariesInstalled(); err != nil {
 			logger.Hintf("Run \"novus init\" first to initialize Novus.")
 			os.Exit(1)
 		}

@@ -1,4 +1,4 @@
-package brew
+package homebrew
 
 import (
 	"bufio"
@@ -56,7 +56,7 @@ func InstallBinaries() error {
 	// First check that Homebrew is installed
 	brewExists := binExists("brew")
 	if !brewExists {
-		return &BrewMissingError{}
+		return &HomebrewMissingError{}
 	}
 
 	// Install required binaries - brew installs always latest by default

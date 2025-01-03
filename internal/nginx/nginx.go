@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/jozefcipa/novus/internal/brew"
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/fs"
+	"github.com/jozefcipa/novus/internal/homebrew"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/net"
 	"github.com/jozefcipa/novus/internal/novus"
@@ -23,7 +23,7 @@ var Ports []string
 func init() {
 	// /opt/homebrew/etc/nginx/nginx.conf - main config
 	// /opt/homebrew/etc/nginx/servers/* - directory of loaded configs
-	NginxServersDir = filepath.Join(brew.BrewPath, "/etc/nginx/servers")
+	NginxServersDir = filepath.Join(homebrew.BrewPath, "/etc/nginx/servers")
 
 	Ports = []string{"80", "443"} // HTTP, HTTPS
 
@@ -38,7 +38,7 @@ func init() {
 
 func Restart() {
 	nginxLoader := logger.Loadingf("Restarting Nginx")
-	brew.RestartService("nginx")
+	homebrew.RestartService("nginx")
 
 	// Check if the restart was successful
 	isNginxRunning := IsRunning()
@@ -53,12 +53,12 @@ func Restart() {
 
 func Stop() {
 	nginxLoader := logger.Loadingf("Stopping Nginx")
-	brew.StopService("nginx")
+	homebrew.StopService("nginx")
 	nginxLoader.Infof("🚫 Nginx stopped")
 }
 
 func IsRunning() bool {
-	return brew.IsServiceRunning("nginx")
+	return homebrew.IsServiceRunning("nginx")
 }
 
 func EnsurePortsAvailable(portsUsage net.PortUsage) {

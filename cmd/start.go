@@ -4,8 +4,8 @@ import (
 	"os"
 	"slices"
 
-	"github.com/jozefcipa/novus/internal/brew"
 	"github.com/jozefcipa/novus/internal/dnsmasq"
+	"github.com/jozefcipa/novus/internal/homebrew"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/net"
 	"github.com/jozefcipa/novus/internal/nginx"
@@ -21,7 +21,7 @@ var startCmd = &cobra.Command{
 	Long:  `Start Nginx, DNSMasq and start routing URLs.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// If the binaries are missing, exit here, user needs to run `novus init` first
-		if err := brew.CheckIfRequiredBinariesInstalled(); err != nil {
+		if err := homebrew.CheckIfRequiredBinariesInstalled(); err != nil {
 			logger.Hintf("Run \"novus init\" first to initialize Novus.")
 			os.Exit(1)
 		}
