@@ -13,6 +13,7 @@ import (
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/novus"
 	"github.com/jozefcipa/novus/internal/shared"
+	"github.com/jozefcipa/novus/internal/validation"
 )
 
 type ValidationErrors map[string]string
@@ -148,9 +149,9 @@ func validateConfigSyntax(conf config.NovusConfig) error {
 	validate := validator.New(validator.WithRequiredStructEnabled())
 
 	// Register custom `unique_routes` rule
-	shared.RegisterUniqueRoutesValidator(validate)
+	validation.RegisterUniqueRoutesValidator(validate)
 	// Register custom `existing_tld` rule
-	shared.RegisterNonExistentTLDValidator(validate)
+	validation.RegisterNonExistentTLDValidator(validate)
 
 	return validate.Struct(conf)
 }

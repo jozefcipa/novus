@@ -1,4 +1,4 @@
-package shared
+package validation
 
 import (
 	"os"
@@ -7,11 +7,12 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/jozefcipa/novus/internal/logger"
+	"github.com/jozefcipa/novus/internal/shared"
 )
 
 // Make sure the config doesn't contain duplicate domains
 func uniqueRoutesValidator(fl validator.FieldLevel) bool {
-	value := fl.Field().Interface().([]Route)
+	value := fl.Field().Interface().([]shared.Route)
 
 	domains := []string{}
 

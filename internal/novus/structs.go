@@ -6,6 +6,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/shared"
+	"github.com/jozefcipa/novus/internal/validation"
 )
 
 type AppStatus string
@@ -46,7 +47,7 @@ func (state *NovusState) validate() {
 	validate := validator.New(validator.WithRequiredStructEnabled())
 
 	// Register custom `existing_tld` rule
-	shared.RegisterNonExistentTLDValidator(validate)
+	validation.RegisterNonExistentTLDValidator(validate)
 
 	for _, appState := range state.Apps {
 		err := validate.Struct(appState)
