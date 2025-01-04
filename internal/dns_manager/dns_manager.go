@@ -12,6 +12,7 @@ import (
 	"github.com/jozefcipa/novus/internal/novus"
 	"github.com/jozefcipa/novus/internal/paths"
 	"github.com/jozefcipa/novus/internal/sharedtypes"
+	"github.com/jozefcipa/novus/internal/sudo"
 	"github.com/jozefcipa/novus/internal/tld"
 )
 
@@ -39,7 +40,7 @@ func Configure(config config.NovusConfig, novusState *novus.NovusState) bool {
 	logger.Infof("Creating DNS resolvers")
 	// Create the DNS resolver directory if not exists
 	// https://www.manpagez.com/man/5/resolver/
-	fs.MakeDirWithSudoOrExit(dnsResolverDir)
+	sudo.MakeDirOrExit(paths.DNSResolverDir)
 
 	// Create configs for each TLD
 	tlds := GetTLDs(config.Routes)
@@ -91,7 +92,7 @@ func registerTLDResolver(tld string) (bool, string) {
 
 	// Create a configuration file
 	configContent := fmt.Sprintf("nameserver 127.0.0.1\nport %s\n", dnsmasq.Port)
-	fs.WriteFileWithSudoOrExit(configPath, configContent)
+	sudo.WriteFileOrExit(configPath, configContent)
 	logger.Debugf("DNS resolver for *.%s saved [%s]", tld, configPath)
 
 	return true, configPath

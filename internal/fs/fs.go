@@ -1,7 +1,6 @@
 package fs
 
 import (
-	"io"
 	"os"
 
 	"github.com/jozefcipa/novus/internal/logger"
@@ -28,23 +27,6 @@ func ReadFile(path string) (string, error) {
 
 func WriteFileOrExit(path string, data string) {
 	err := os.WriteFile(path, []byte(data), 0644)
-	if err != nil {
-		logger.Errorf("Failed to write to a file %s\n   Reason: %v", path, err)
-		os.Exit(1)
-	}
-}
-
-func WriteFileWithSudoOrExit(path string, data string) {
-	if _, err := exec.Command("sudo", "touch", path).Output(); err != nil {
-		logger.Errorf("Failed to create file %s\n   Reason: %v", path, err)
-		os.Exit(1)
-	}
-
-	// We need to change the file owner to the current user in order to be able to write to the file
-	user, _ := user.Current()
-	ChownOrExit(path, user.Username)
-	err := os.WriteFile(path, []byte(data), 0644)
-
 	if err != nil {
 		logger.Errorf("Failed to write to a file %s\n   Reason: %v", path, err)
 		os.Exit(1)
@@ -78,32 +60,4 @@ func FileExists(path string) bool {
 	fInfo, _ := os.Stat(path)
 
 	return fInfo != nil
-}
-
-func Copy(src string, dest string) error {
-	srcFile, err := os.Open(src)
-	if err != nil {
-		return err
-	}
-	defer srcFile.Close()
-
-	destFile, err := os.Create(dest)
-	if err != nil {
-		return err
-	}
-	defer destFile.Close()
-
-	_, err = io.Copy(destFile, srcFile)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func ChownOrExit(path string, user string) {
-	if _, err := exec.Command("sudo", "chown", user, path).Output(); err != nil {
-		logger.Errorf("Failed to call `chown` on file %s\n   Reason: %v", path, err)
-		os.Exit(1)
-	}
 }

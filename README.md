@@ -65,6 +65,7 @@ You can run them by calling `novus [command]`
 | `pause [app]` | Pauses routing of a specific app. <br><br> Needed if there are multiple apps defined with conflicting domains |
 | `resume [app]` | Starts routing the paused app again. |
 | `remove [app]` | Removes an app configuration from Novus and stops routing. |
+| `trust [--revoke?]` | Creates a sudoers record so Novus won't ask for `sudo` password. |
 
 ## Notes
 
