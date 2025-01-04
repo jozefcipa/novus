@@ -2,3 +2,6 @@ novus.yml
 dist/
 bin/
 sudo-helper
+.DS_Store
+.vscode
+.idea
