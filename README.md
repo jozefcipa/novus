@@ -2,8 +2,6 @@
   <img src="./assets/banner.png">
 </p>
 
-## Overview
-
 Novus streamlines managing of numerous `localhost` services by providing a simple way to define regular domain names instead. It comes with built-in HTTPS support so all domains are secure by default.
 
 In the background it’s just good old **Nginx** acting as a proxy and **DNSMasq** for defining custom domain resolvers. No more `/etc/hosts` manipulation. SSL certificates are automatically managed and renewed for you by **mkcert**.
@@ -14,29 +12,30 @@ All you have to do is **map your [localhost](http://localhost) URLs to the DNS d
   <img src="./assets/novus.gif">
 </p>
 
-## Installing
+## How to install
 
-Installing Novus is very simple and can be done in two steps.
+Novus can be installed via [Homebrew](https://brew.sh/) in two steps:
 
 ```bash
 $ brew tap jozefcipa/novus
 $ brew install novus
 ```
 
-Verify that Novus has been installed.
+After that, you can verify if Novus has been installed properly:
 
 ```bash
 $ novus -v
 ```
 
-### Updating
-If you are already using Novus, you can update it by running
+#### Update Novus
+If you are already using Novus, you can update it by running:
 
 ```bash
-$ brew update novus
+$ brew update
+$ brew upgrade novus
 ```
 
-## Usage
+## How to use
 
 To start using Novus, run `novus init`.
 
