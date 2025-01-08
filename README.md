@@ -23,10 +23,17 @@ $ brew tap jozefcipa/novus
 $ brew install novus
 ```
 
-You can verify Novus has been install by running
+Verify that Novus has been installed.
 
 ```bash
 $ novus -v
+```
+
+### Updating
+If you are already using Novus, you can update it by running
+
+```bash
+$ brew update novus
 ```
 
 ## Usage
@@ -64,7 +71,7 @@ You can run them by calling `novus [command]`
 | `start` | Starts routing by starting Nginx and DNSMasq |
 | `pause [app]` | Pauses routing of a specific app. <br><br> Needed if there are multiple apps defined with conflicting domains |
 | `resume [app]` | Starts routing the paused app again. |
-| `remove [app]` | Removes an app configuration from Novus and stops routing. |
+| `remove [app\|domain]` | Removes an app configuration from Novus and stops routing. |
 | `trust [--revoke?]` | Creates a sudoers record so Novus won't ask for `sudo` password. |
 
 ## Notes
@@ -74,22 +81,6 @@ You can run them by calling `novus [command]`
 ❌  **Do not use** `.local` domain as it might be [used by MacOS](https://support.apple.com/en-us/101471).
 
 ❌  **Do not use** `.dev` domain either, this is now a valid TLD domain.
-
-## Updates
-There is currently **no stable** version of Novus, so whenever a new version is published, there might be BREAKING CHANGES!
-
-Therefore, please remove the old Novus binary before installing a new version.
-
-```bash
-# Uninstall the old version
-$ novus remove [app] # Run for all your apps
-$ brew uninstall novus
-$ brew untap jozefcipa/novus
-
-# Install a new version
-$ brew tap jozefcipa/novus
-$ brew install novus
-```
 
 ## **License**
 

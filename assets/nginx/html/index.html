@@ -83,8 +83,8 @@
         color: #05b103;
         font-weight: bold;
       }
-      .status-inactive {
-        color: #d62f18;
+      .status-paused {
+        color: #F8C50A;
         font-weight: bold;
         cursor: help;
       }
@@ -190,7 +190,7 @@
                 <div class="directory">${isGlobalApp ? '' : `(${app.directory})`}</span>
               </td>
               <td>
-                <span class="status-${app.appStatus}"> ${isActive ? '🟢 ACTIVE' : '🟥 INACTIVE'}</span>
+                <span class="status-${app.appStatus}"> ${isActive ? '🟢 ACTIVE' : '🟨 PAUSED'}</span>
               </td>
             `
             table.appendChild(headerRow)
