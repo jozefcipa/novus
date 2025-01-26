@@ -37,9 +37,9 @@ $ brew upgrade novus
 
 ## How to use
 
-To start using Novus, run `novus init`.
+To start using Novus, run `novus init` to install the dependencies and create a configuration file.
 
-It creates a `novus.yml` configuration file that you can open in your editor and define your domains mapping.
+Next, open `novus.yml` in your editor to define your domain mapping.
 
 **Example configuration:**
 
@@ -52,9 +52,12 @@ routes:
     upstream: http://localhost:4000
 ```
 
-Once you’re done, just call `novus serve` and you can start using nice HTTPs domains locally.
+Once you’re done, call `novus serve` and you can use nice HTTPS domains locally 🎉. <br/>
 
-**Note:** It will ask for your password as it performs some `sudo` calls (for managing DNS resolvers).
+💡 If you want to define _only one_ URL, you can also do this by passing it directly to the `novus serve` command.<br>
+👉 (e.g. `novus serve my-api.test http://localhost:3000`)
+
+🔒 Novus will ask for your sudo password (for managing DNS resolvers). If you do not want to type a password every time, run `novus trust`.
 
 ## Commands
 
