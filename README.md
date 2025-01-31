@@ -2,11 +2,14 @@
   <img src="./assets/banner.png">
 </p>
 
-Novus streamlines managing of numerous `localhost` services by providing a simple way to define regular domain names instead. It comes with built-in HTTPS support so all domains are secure by default.
+Novus makes it easy to manage multiple `localhost` services by letting you use **real domain names** instead.<br/>
+No more dealing with hard-to-remember ports or editing `/etc/hosts` — just smooth, production-like development on your machine.
 
-In the background it’s just good old **Nginx** acting as a proxy and **DNSMasq** for defining custom domain resolvers. No more `/etc/hosts` manipulation. SSL certificates are automatically managed and renewed for you by **mkcert**.
+Under the hood it’s just good old **Nginx** acting as a proxy and **DNSMasq** for resolving custom domains. SSL certificates are automatically managed and renewed by **mkcert**.
 
-All you have to do is **map your [localhost](http://localhost) URLs to the DNS domains**. The rest is up to Novus and you can enjoy a seamless production-like experience on your machine 💯.
+All you need to do is map your `localhost` URLs to domain names - Novus takes care of the rest.
+
+Enjoy hassle-free development with fully secured, real-world URLs! 🎯
 
 <p align="center">
   <img src="./assets/novus.gif">
