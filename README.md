@@ -80,12 +80,16 @@ You can run them by calling `novus [command]`
 | `trust [--revoke?]` | Creates a sudoers record so Novus won't ask for `sudo` password. |
 
 ## Notes
+💡 **Prefer** `.test` or another postfix that is not a valid TLD domain. <br/>
+❌  **Do not use** `.local` domain as it might be [used by MacOS](https://support.apple.com/en-us/101471). <br/>
+❌  **Do not use** `.dev` domain either, this is now a valid TLD domain. <br/>
 
-💡 **Prefer** `.test` or another postfix that is not a valid TLD domain.
+## Contributing
+You're more than welcome to contribute to this project! 💙
 
-❌  **Do not use** `.local` domain as it might be [used by MacOS](https://support.apple.com/en-us/101471).
+If you have an **idea**, miss a specific feature or you **found a bug**, feel free to report it or fix it yourself.
 
-❌  **Do not use** `.dev` domain either, this is now a valid TLD domain.
+If you want to play around, but don't have anything specific, check the [Issues](https://github.com/jozefcipa/novus/issues) page and choose one of the open issues 🙌.
 
 ## **License**
 
