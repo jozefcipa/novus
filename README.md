@@ -53,6 +53,7 @@ routes:
     upstream: http://localhost:3000
   - domain: my-api.test
     upstream: http://localhost:4000
+    cors: true # Enable CORS for all domains
 ```
 
 Once you’re done, call `novus serve` and you can use nice HTTPS domains locally 🎉. <br/>

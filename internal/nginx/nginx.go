@@ -18,6 +18,7 @@ import (
 
 var NginxServersDir string
 var fileHeader string
+var corsSnippet string
 
 var Ports []string
 
@@ -35,6 +36,11 @@ func init() {
 #################################################################
 
 `
+
+	corsSnippet = `# Enable CORS
+		add_header 'Access-Control-Allow-Origin' '*';
+		add_header 'Access-Control-Allow-Methods' "GET, POST, OPTIONS, PUT, DELETE, PATCH";
+		add_header 'Access-Control-Allow-Headers' "$http_access_control_request_headers";`
 }
 
 func Restart() {
@@ -165,6 +171,13 @@ func buildServerConfig(appConfig config.NovusConfig, sslCerts sharedtypes.Domain
 		routeConfig = strings.ReplaceAll(routeConfig, "--NOVUS_HTML_DIR--", filepath.Join(paths.AssetsDir, "nginx/html"))
 		routeConfig = strings.ReplaceAll(routeConfig, "--SSL_CERT_PATH--", sslCert.CertFilePath)
 		routeConfig = strings.ReplaceAll(routeConfig, "--SSL_KEY_PATH--", sslCert.KeyFilePath)
+
+		// Add CORS headers if enabled
+		if route.Cors {
+			routeConfig = strings.ReplaceAll(routeConfig, "--CORS_HEADERS--", corsSnippet)
+		} else {
+			routeConfig = strings.ReplaceAll(routeConfig, "--CORS_HEADERS--", "")
+		}
 
 		serverConfig += routeConfig + "\n"
 	}
