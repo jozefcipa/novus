@@ -38,9 +38,9 @@ func init() {
 `
 
 	corsSnippet = `# Enable CORS
-		add_header 'Access-Control-Allow-Origin' '*';
-		add_header 'Access-Control-Allow-Methods' "GET, POST, OPTIONS, PUT, DELETE, PATCH";
-		add_header 'Access-Control-Allow-Headers' "$http_access_control_request_headers";`
+		add_header 'Access-Control-Allow-Origin' '*' always;
+		add_header 'Access-Control-Allow-Methods' "GET, POST, OPTIONS, PUT, DELETE, PATCH" always;
+		add_header 'Access-Control-Allow-Headers' "$http_access_control_request_headers" always;`
 }
 
 func Restart() {
