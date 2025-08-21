@@ -11,7 +11,7 @@ import (
 	"github.com/jozefcipa/novus/internal/logger"
 )
 
-var BrewPath string
+var HomebrewPrefix string
 
 var svcStartCommands []string
 var svcStopCommands []string
@@ -28,7 +28,7 @@ func init() {
 		os.Exit(1)
 	}
 
-	BrewPath = strings.Replace(string(out), "\n", "", 1)
+	HomebrewPrefix = strings.Replace(string(out), "\n", "", 1)
 	svcStartCommands = []string{"brew", "services", "restart"}
 	svcStopCommands = []string{"brew", "services", "stop"}
 	svcStatusCommands = []string{"brew", "services", "info", "--json"}

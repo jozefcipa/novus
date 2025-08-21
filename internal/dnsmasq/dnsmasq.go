@@ -19,7 +19,7 @@ var dnsmasqConfFile string
 const Port = "5053"
 
 func init() {
-	dnsmasqConfFile = filepath.Join(homebrew.BrewPath, "/etc/dnsmasq.conf")
+	dnsmasqConfFile = filepath.Join(homebrew.HomebrewPrefix, "/etc/dnsmasq.conf")
 }
 
 func Restart() {
@@ -62,8 +62,8 @@ func Configure() bool {
 	// Enable reading DNSMasq configurations from /etc/dnsmasq.d/* directory
 	updatedConf := strings.Replace(
 		confFile,
-		fmt.Sprintf("#conf-dir=%s/etc/dnsmasq.d/,*.conf", homebrew.BrewPath),
-		fmt.Sprintf("conf-dir=%s/etc/dnsmasq.d/,*.conf", homebrew.BrewPath),
+		fmt.Sprintf("#conf-dir=%s/etc/dnsmasq.d/,*.conf", homebrew.HomebrewPrefix),
+		fmt.Sprintf("conf-dir=%s/etc/dnsmasq.d/,*.conf", homebrew.HomebrewPrefix),
 		1,
 	)
 	// Enable alternative listening port
@@ -88,7 +88,7 @@ func Configure() bool {
 }
 
 func CreateTLDConfig(tld string) (bool, string) {
-	configPath := fmt.Sprintf(filepath.Join(homebrew.BrewPath, "/etc/dnsmasq.d/%s.conf"), tld)
+	configPath := fmt.Sprintf(filepath.Join(homebrew.HomebrewPrefix, "/etc/dnsmasq.d/%s.conf"), tld)
 
 	// First check if the file already exists
 	if confExists := fs.FileExists(configPath); confExists {

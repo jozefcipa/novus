@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/jozefcipa/novus/internal/homebrew"
 	"github.com/jozefcipa/novus/internal/logger"
 )
 
@@ -48,29 +49,33 @@ func resolveNovusDirs() {
 		logger.Errorf("Failed to get novus binary directory\n   Reason: %v", err)
 		os.Exit(1)
 	}
-	// Homebrew creates symlinks for binaries, we need to get the original binary location
-	executablePath, err = filepath.EvalSymlinks(executablePath)
-	if err != nil {
-		logger.Errorf("Failed to evaluate novus symlink\n   Reason: %v", err)
-		os.Exit(1)
-	}
 	NovusBinaryDir = filepath.Dir(executablePath)
 
 	// Assets dir
-	// When running in development with `go run` it gives temporary directory,
-	// therefore set the novus dir path to the current directory
 	if strings.Contains(NovusBinaryDir, "go-build") {
 		NovusBinaryDir = currentDir
-		// In local develop environment, the ./assets are stored next to the output binary
-		// - ./novus
-		// - ./assets/...
+		// When running in development with `go run` it gives temporary directory,
+		// therefore set the novus dir path to the current directory
+		// .
+		// ├── assets/
 		AssetsDir = filepath.Join(currentDir, "assets")
+	} else if strings.Contains(NovusBinaryDir, homebrew.HomebrewPrefix) {
+		// If running via Homebrew, the binary is in the Homebrew prefix directory
+		// .
+		// ├── {homebrew.HomebrewPrefix}/opt/
+		// │   └── novus/
+		// │       ├── bin/
+		// │       │   └── novus
+		// │       └── assets/
+		NovusBinaryDir = filepath.Join(homebrew.HomebrewPrefix, "/opt/novus/bin")
+		AssetsDir = filepath.Join(homebrew.HomebrewPrefix, "/opt/novus/assets")
 	} else {
-		// If a non-develop binary is used, the ./assets directory is one level above in the filesystem
-		// This is the Homebrew structure
-		// - ./bin/novus
-		// - ./assets/...
-		AssetsDir = filepath.Join(NovusBinaryDir, "..", "assets")
+		// Otherwise if built locally via `make build`, the binary is in the `bin` directory
+		// .
+		// ├── bin/
+		// │   └── novus
+		// ├── assets/
+		AssetsDir = filepath.Join(NovusBinaryDir, "../assets")
 	}
 
 	CurrentDir = currentDir
@@ -80,9 +85,9 @@ func resolveNovusDirs() {
 	logger.Debugf(
 		"Novus paths resolved.\n"+
 			"\tUserHomeDir = %s\n"+
-			"\tUserHomeDir = %s\n"+
+			"\tCurrentDir = %s\n"+
 			"\tNovusBinaryDir = %s\n"+
-			"\tNNovusStateDir = %s\n"+
+			"\tNovusStateDir = %s\n"+
 			"\tNovusStateFilePath = %s\n"+
 			"\tAssetsDir = %s",
 		UserHomeDir,

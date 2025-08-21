@@ -25,7 +25,7 @@ var Ports []string
 func init() {
 	// /opt/homebrew/etc/nginx/nginx.conf - main config
 	// /opt/homebrew/etc/nginx/servers/* - directory of loaded configs
-	NginxServersDir = filepath.Join(homebrew.BrewPath, "/etc/nginx/servers")
+	NginxServersDir = filepath.Join(homebrew.HomebrewPrefix, "/etc/nginx/servers")
 
 	Ports = []string{"80", "443"} // HTTP, HTTPS
 
