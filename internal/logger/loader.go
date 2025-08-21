@@ -2,6 +2,9 @@ package logger
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -24,6 +27,15 @@ func Loadingf(format string, a ...interface{}) StopFuncs {
 	s := spinner.New(spinnerParts, 100*time.Millisecond)
 	s.Suffix = fmt.Sprintf(GRAY+" "+format+RESET, a...)
 	s.Start()
+
+	// Catch Cmd+C and termination signals
+	intSignal := make(chan os.Signal, 1)
+	signal.Notify(intSignal, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		<-intSignal
+		s.Stop()
+	}()
 
 	return StopFuncs{
 		Checkf: func(format string, a ...interface{}) {
