@@ -1,27 +1,45 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"runtime"
 
 	"github.com/arsham/figurine/figurine"
 	"github.com/fatih/color"
 	cc "github.com/ivanpirog/coloredcobra"
 	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/logger"
+	"github.com/jozefcipa/novus/internal/novus"
 	"github.com/jozefcipa/novus/internal/paths"
+	"github.com/jozefcipa/novus/internal/sharedtypes"
 	"github.com/jozefcipa/novus/internal/tld"
 	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
-	// Version is passed down from the main.go, this is only a placeholder to enable the --version flag
+	// Version is passed down from the main.go,
+	// this is only a placeholder to enable the --version flag
 	Version: "-",
 	Use:     "novus",
 	Short:   "Local web development done effortlessly",
+
+	// Here is the init code that runs before any command
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		paths.Resolve()
 		tld.LoadExistingTLDsFile()
+		novusState := novus.GetState()
+
+		ctx := cmd.Context().Value(sharedtypes.CommandContext{}).(sharedtypes.CommandContext)
+
+		if novusState.Version != ctx.Version {
+			// logger.Infof("🚀 New Novus version detected [%s]. Updating state...", ctx.Version)
+			// Here we can update the configuration/state in the future if needed after a new version is released
+
+			novusState.Version = ctx.Version
+			novus.SaveState()
+		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		figurine.Write(os.Stdout, "Novus", "ANSI Regular.flf")
@@ -56,9 +74,16 @@ that will forward all the traffic to your upstream services.`)
 	},
 }
 
-func Execute(version string) {
-	// Show app version
-	rootCmd.SetVersionTemplate(version)
+func Execute(version string, buildDate string) {
+	// inject version into command context
+	ctx := context.WithValue(context.TODO(), sharedtypes.CommandContext{}, sharedtypes.CommandContext{
+		Version: version,
+	})
+	rootCmd.SetContext(ctx)
+
+	// Set app version
+	versionTemplate := fmt.Sprintf("Novus v%s (built on %s) %s/%s\n", version, buildDate, runtime.GOOS, runtime.GOARCH)
+	rootCmd.SetVersionTemplate(versionTemplate)
 
 	// Configure colors
 	cc.Init(&cc.Config{

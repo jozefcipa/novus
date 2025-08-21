@@ -109,7 +109,7 @@ var serveCmd = &cobra.Command{
 		dnsmasq.EnsurePortAvailable(portsUsage)
 
 		// Configure SSL
-		mkcert.Configure(conf)
+		mkcert.Configure()
 		domainCerts, hasNewCerts := ssl_manager.EnsureSSLCertificates(conf, novusState, appName)
 
 		// Configure Nginx

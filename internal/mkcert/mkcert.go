@@ -7,12 +7,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jozefcipa/novus/internal/config"
 	"github.com/jozefcipa/novus/internal/logger"
 	"github.com/jozefcipa/novus/internal/sharedtypes"
 )
 
-func Configure(conf config.NovusConfig) {
+func Configure() {
 	logger.Debugf("Initializing mkcert")
 
 	err := exec.Command("mkcert", "-install").Run()

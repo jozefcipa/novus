@@ -78,7 +78,7 @@ func EnsurePortsAvailable(portsUsage ports.PortUsage) {
 	}
 }
 
-func Configure(novusConf config.NovusConfig, sslCerts sharedtypes.DomainCertificates, appState *novus.AppState) bool {
+func Configure(appConfig config.NovusConfig, sslCerts sharedtypes.DomainCertificates, appState *novus.AppState) bool {
 	// Create default server config if it doesn't exist
 	nginxDefaultConf := readServerConfig(getDefaultConfigName())
 
@@ -113,16 +113,16 @@ func Configure(novusConf config.NovusConfig, sslCerts sharedtypes.DomainCertific
 	}
 
 	// Create application server config if it doesn't exist
-	nginxAppConf := readServerConfig(getAppConfigName(config.AppName()))
-	newNginxAppConf := buildServerConfig(novusConf, sslCerts, appState)
+	nginxAppConf := readServerConfig(getAppConfigName(appConfig.AppName))
+	newNginxAppConf := buildServerConfig(appConfig, sslCerts, appState)
 
 	if nginxAppConf == "" || nginxAppConf != newNginxAppConf {
 		logger.Debugf("Generated application server Nginx config: \n\n%s", newNginxAppConf)
-		writeServerConfig(getAppConfigName(config.AppName()), newNginxAppConf)
-		logger.Checkf("Nginx configuration updated")
+		writeServerConfig(getAppConfigName(appConfig.AppName), newNginxAppConf)
+		logger.Checkf("Nginx configuration updated [%s]", appConfig.AppName)
 		return true
 	} else {
-		logger.Checkf("Nginx configuration is up to date")
+		logger.Debugf("Nginx configuration is up to date [%s]", appConfig.AppName)
 		return false
 	}
 }

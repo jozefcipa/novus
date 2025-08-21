@@ -41,7 +41,7 @@ func parseLsof(lsofRecords []string) map[string]string {
 type PortUsage = map[string]string
 
 func CheckIfAvailable(ports ...string) PortUsage {
-	logger.Infof("Checking ports availability")
+	logger.Infof("Checking ports availability...")
 	lsof := lsof(ports)
 	logger.Debugf("lsof result:\n%s", strings.Join(lsof, "\n"))
 

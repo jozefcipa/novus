@@ -30,9 +30,9 @@ func EnsureSSLCertificates(conf config.NovusConfig, novusState *novus.NovusState
 	domainCerts, hasNewCerts := createCertsForConfig(conf, novusState.Apps[appName])
 
 	if hasNewCerts || hasNewInternalCerts {
-		logger.Checkf("SSL certificates updated")
+		logger.Checkf("SSL certificates updated [%s]", appName)
 	} else {
-		logger.Checkf("SSL certificates are up to date")
+		logger.Debugf("SSL certificates are up to date")
 	}
 
 	return maputils.MergeMaps[sharedtypes.Certificate, sharedtypes.DomainCertificates](domainCerts, internalDomainCerts), hasNewCerts || hasNewInternalCerts

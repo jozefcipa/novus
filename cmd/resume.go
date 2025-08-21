@@ -46,7 +46,7 @@ var resumeCmd = &cobra.Command{
 		dnsmasq.EnsurePortAvailable(portsUsage)
 
 		// Configure SSL
-		mkcert.Configure(conf)
+		mkcert.Configure()
 		domainCerts, _ := ssl_manager.EnsureSSLCertificates(conf, novusState, appName)
 
 		// Configure Nginx

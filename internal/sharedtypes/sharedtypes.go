@@ -2,6 +2,10 @@ package sharedtypes
 
 import "time"
 
+type CommandContext struct {
+	Version string
+}
+
 type Route struct {
 	Domain   string `yaml:"domain" json:"domain" validate:"required,fqdn,existing_tld"`
 	Upstream string `yaml:"upstream" json:"upstream" validate:"required,url,startswith=http://"`

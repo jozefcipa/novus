@@ -37,7 +37,6 @@ func Configure(config config.NovusConfig, novusState *novus.NovusState) bool {
 	// Update main DNSMasq configuration
 	updated := dnsmasq.Configure()
 
-	logger.Infof("Creating DNS resolvers")
 	// Create the DNS resolver directory if not exists
 	// https://www.manpagez.com/man/5/resolver/
 	sudo.MakeDirOrExit(paths.DNSResolverDir)
@@ -74,7 +73,7 @@ func Configure(config config.NovusConfig, novusState *novus.NovusState) bool {
 		logger.Checkf("DNS configuration updated")
 		return true
 	} else {
-		logger.Checkf("DNS configuration is up to date")
+		logger.Debugf("DNS configuration is up to date")
 		return false
 	}
 }
