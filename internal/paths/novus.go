@@ -18,9 +18,6 @@ var CurrentDir string
 // Path to the assets directory
 var AssetsDir string
 
-// Path to the Novus executable binary directory
-var NovusBinaryDir string
-
 // Main directory for storing all Novus application data, e.g. SSL certificates, configuration state, etc. (~/.novus)
 var NovusStateDir string
 
@@ -43,23 +40,21 @@ func resolveNovusDirs() {
 		os.Exit(1)
 	}
 
-	// Novus binary dir
+	// Novus executable
 	executablePath, err := os.Executable()
 	if err != nil {
 		logger.Errorf("Failed to get novus binary directory\n   Reason: %v", err)
 		os.Exit(1)
 	}
-	NovusBinaryDir = filepath.Dir(executablePath)
 
-	// Assets dir
-	if strings.Contains(NovusBinaryDir, "go-build") {
-		NovusBinaryDir = currentDir
+	// Assets dir is relative to the executable path
+	if strings.Contains(executablePath, "go-build") {
 		// When running in development with `go run` it gives temporary directory,
 		// therefore set the novus dir path to the current directory
 		// .
 		// ├── assets/
 		AssetsDir = filepath.Join(currentDir, "assets")
-	} else if strings.Contains(NovusBinaryDir, homebrew.HomebrewPrefix) {
+	} else if strings.Contains(executablePath, homebrew.HomebrewPrefix) {
 		// If running via Homebrew, the binary is in the Homebrew prefix directory
 		// .
 		// ├── {homebrew.HomebrewPrefix}/opt/
@@ -67,7 +62,6 @@ func resolveNovusDirs() {
 		// │       ├── bin/
 		// │       │   └── novus
 		// │       └── assets/
-		NovusBinaryDir = filepath.Join(homebrew.HomebrewPrefix, "/opt/novus/bin")
 		AssetsDir = filepath.Join(homebrew.HomebrewPrefix, "/opt/novus/assets")
 	} else {
 		// Otherwise if built locally via `make build`, the binary is in the `bin` directory
@@ -75,7 +69,8 @@ func resolveNovusDirs() {
 		// ├── bin/
 		// │   └── novus
 		// ├── assets/
-		AssetsDir = filepath.Join(NovusBinaryDir, "../assets")
+		novusExecutableDir := filepath.Dir(executablePath)
+		AssetsDir = filepath.Join(novusExecutableDir, "../assets")
 	}
 
 	CurrentDir = currentDir
@@ -86,13 +81,11 @@ func resolveNovusDirs() {
 		"Novus paths resolved.\n"+
 			"\tUserHomeDir = %s\n"+
 			"\tCurrentDir = %s\n"+
-			"\tNovusBinaryDir = %s\n"+
 			"\tNovusStateDir = %s\n"+
 			"\tNovusStateFilePath = %s\n"+
 			"\tAssetsDir = %s",
 		UserHomeDir,
 		CurrentDir,
-		NovusBinaryDir,
 		NovusStateDir,
 		NovusStateFilePath,
 		AssetsDir,

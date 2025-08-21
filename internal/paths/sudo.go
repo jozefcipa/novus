@@ -1,7 +1,6 @@
 package paths
 
 import (
-	"path/filepath"
 	"strings"
 
 	"github.com/jozefcipa/novus/internal/logger"
@@ -11,7 +10,9 @@ import (
 const SudoersFilePath = "/etc/sudoers.d/novus"
 
 // A shell script that directly calls `sudo` commands
-var SudoHelperPath string
+// This folder will be created and owned by root so it's not modifiable by the user
+// and will also keep working between different Novus versions
+const SudoHelperPath = "/usr/local/novus/sudo-helper"
 
 // This is an array of paths that the above-mentioned shell script can modify
 // As the script has root access (passwordless sudo), this config is a security measure
@@ -25,8 +26,6 @@ func resolveSudoDirs() {
 		DNSResolverDir,
 		SudoersFilePath,
 	}
-
-	SudoHelperPath = filepath.Join(NovusBinaryDir, "sudo-helper")
 
 	logger.Debugf(
 		"Sudo paths resolved.\n"+

@@ -48,7 +48,7 @@ var trustCmd = &cobra.Command{
 		}
 
 		// Otherwise create a sudoers file
-		logger.Infof("Creating sudoers file")
+		logger.Infof("Creating sudoers file...")
 		sudo.RegisterSudoersFile()
 		logger.Checkf("Novus is now trusted and can be used without sudo password.")
 	},

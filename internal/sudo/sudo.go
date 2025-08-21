@@ -16,7 +16,7 @@ import (
 
 type SudoCommand string
 
-// These are the commands that are available in the `sudo-helper` bash script
+// These are the commands that are available in the `sudo helper` bash script
 const (
 	CheckPorts SudoCommand = "check-ports"
 	MakeDir    SudoCommand = "mkdir"
@@ -68,8 +68,24 @@ func createSudoHelper(allowedPaths []string) {
 	)
 
 	// Create sudo helper file
-	logger.Infof("Creating sudo helper")
-	logger.Debugf("Creating sudo-helper file [%s]", paths.SudoHelperPath)
+	logger.Infof("Creating sudo helper...")
+
+	// Create a root owned folder where the sudo helper will be stored
+	sudoHelperDir := filepath.Dir(paths.SudoHelperPath)
+	logger.Debugf("Creating sudo helper directory [%s]", sudoHelperDir)
+	if _, err := exec.Command("sudo", "mkdir", "-p", sudoHelperDir).Output(); err != nil {
+		logger.Errorf("Failed to create directory %s\n	 Reason: %v", sudoHelperDir, err)
+		os.Exit(1)
+	}
+
+	// Change the ownership of the directory to root
+	logger.Debugf("Changing ownership of sudo helper directory to root")
+	if _, err := exec.Command("sudo", "chown", "root", sudoHelperDir).Output(); err != nil {
+		logger.Errorf("Failed to call `sudo chown root %s`\n   Reason: %v", sudoHelperDir, err)
+		os.Exit(1)
+	}
+
+	logger.Debugf("Creating sudo helper file [%s]", paths.SudoHelperPath)
 	if _, err := exec.Command("sudo", "touch", paths.SudoHelperPath).Output(); err != nil {
 		logger.Errorf("Failed to create file %s\n   Reason: %v", paths.SudoHelperPath, err)
 		os.Exit(1)
@@ -77,27 +93,29 @@ func createSudoHelper(allowedPaths []string) {
 
 	// We need to change the file owner to the current user in order to be able to write to the file
 	user, _ := user.Current()
+	logger.Debugf("Temporarily changing ownership of sudo helper to %s", user.Username)
 	if _, err := exec.Command("sudo", "chown", user.Username, paths.SudoHelperPath).Output(); err != nil {
 		logger.Errorf("Failed to call `sudo chown %s %s`\n   Reason: %v", user.Username, paths.SudoHelperPath, err)
 		os.Exit(1)
 	}
 
+	logger.Debugf("Writing to sudo helper file [%s]", paths.SudoHelperPath)
 	if err := os.WriteFile(paths.SudoHelperPath, []byte(sudoHelperContent), 0644); err != nil {
 		logger.Errorf("Failed to write to a file %s\n   Reason: %v", paths.SudoHelperPath, err)
 		os.Exit(1)
 	}
 
 	// Make it executable
-	logger.Debugf("Making sudo-helper executable (0744)")
+	logger.Debugf("Making sudo helper executable (0744)")
 	err := os.Chmod(paths.SudoHelperPath, 0744)
 	if err != nil {
-		logger.Errorf("Failed to make sudo-helper executable: %v", err)
+		logger.Errorf("Failed to make sudo helper executable: %v", err)
 		os.Exit(1)
 	}
 
-	// Change the sudo-helper ownership to root to avoid direct file modification by users,
+	// Change the sudo helper ownership to root to avoid direct file modification by users,
 	// as this file now has passwordless sudo permissions
-	logger.Debugf("Changing ownership of sudo-helper to root")
+	logger.Debugf("Changing ownership of sudo helper to root")
 	if _, err := exec.Command("sudo", "chown", "root", paths.SudoHelperPath).Output(); err != nil {
 		logger.Errorf("Failed to call `sudo chown root %s`\n   Reason: %v", paths.SudoHelperPath, err)
 		os.Exit(1)
