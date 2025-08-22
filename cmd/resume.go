@@ -41,9 +41,9 @@ var resumeCmd = &cobra.Command{
 		config_manager.ValidateConfigDomainsUniqueness(conf, *novusState)
 
 		// Check if ports are available
-		portsUsage := ports.CheckIfAvailable(slices.Concat(nginx.Ports, []string{dnsmasq.Port})...)
-		nginx.EnsurePortsAvailable(portsUsage)
-		dnsmasq.EnsurePortAvailable(portsUsage)
+		portsUsage := ports.CheckPortsUsage(slices.Concat(nginx.Ports, []string{dns_manager.GetDNSPort(novusState)})...)
+		nginx.CheckPortsAvailability(portsUsage)
+		dns_manager.EnsurePort(portsUsage, novusState)
 
 		// Configure SSL
 		mkcert.Configure()

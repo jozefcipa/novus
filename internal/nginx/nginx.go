@@ -69,7 +69,7 @@ func IsRunning() bool {
 	return homebrew.IsServiceRunning("nginx")
 }
 
-func EnsurePortsAvailable(portsUsage ports.PortUsage) {
+func CheckPortsAvailability(portsUsage ports.PortUsage) {
 	for _, port := range Ports {
 		if portUsedBy, isUsed := portsUsage[port]; isUsed && portUsedBy != "nginx" {
 			logger.Errorf("Cannot start Nginx: Port %s is already used by '%s'", port, portUsedBy)
@@ -119,7 +119,7 @@ func Configure(appConfig config.NovusConfig, sslCerts sharedtypes.DomainCertific
 	if nginxAppConf == "" || nginxAppConf != newNginxAppConf {
 		logger.Debugf("Generated application server Nginx config: \n\n%s", newNginxAppConf)
 		writeServerConfig(getAppConfigName(appConfig.AppName), newNginxAppConf)
-		logger.Checkf("Nginx configuration updated [%s]", appConfig.AppName)
+		logger.Checkf("Nginx configuration updated")
 		return true
 	} else {
 		logger.Debugf("Nginx configuration is up to date [%s]", appConfig.AppName)

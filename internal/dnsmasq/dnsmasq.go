@@ -4,19 +4,20 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/jozefcipa/novus/internal/fs"
 	"github.com/jozefcipa/novus/internal/homebrew"
 	"github.com/jozefcipa/novus/internal/logger"
-	"github.com/jozefcipa/novus/internal/ports"
 )
 
 var dnsmasqConfFile string
 
 // On some systems, port 53 might be already used by another DNS or some other service (e.g. PaloAltos GlobalProtect VPN),
-// therefore let's use a different port to play it safe
-const Port = "5053"
+// therefore we default to a different port
+// However, if this port is also used, user will be prompted to provide an alternative port
+const DefaultPort = "5053"
 
 func init() {
 	dnsmasqConfFile = filepath.Join(homebrew.HomebrewPrefix, "/etc/dnsmasq.conf")
@@ -47,14 +48,12 @@ func IsRunning() bool {
 	return homebrew.IsServiceRunning("dnsmasq")
 }
 
-func EnsurePortAvailable(portsUsage ports.PortUsage) {
-	if portUsedBy, isUsed := portsUsage[Port]; isUsed && portUsedBy != "dnsmasq" {
-		logger.Errorf("Cannot start DNSMasq: Port %s is already used by '%s'", Port, portUsedBy)
+func Configure(dnsPort string) bool {
+	if dnsPort == "" {
+		logger.Errorf("Called dnsmasq.Configure() with empty port")
 		os.Exit(1)
 	}
-}
 
-func Configure() bool {
 	// Open DNSMasq configuration file
 	logger.Debugf("DNSMasq: Reading configuration file [%s]", dnsmasqConfFile)
 	confFile := string(fs.ReadFileOrExit(dnsmasqConfFile))
@@ -66,13 +65,11 @@ func Configure() bool {
 		fmt.Sprintf("conf-dir=%s/etc/dnsmasq.d/,*.conf", homebrew.HomebrewPrefix),
 		1,
 	)
+
 	// Enable alternative listening port
-	updatedConf = strings.Replace(
-		confFile,
-		"#port=5353",
-		fmt.Sprintf("port=%s", Port),
-		1,
-	)
+	// (matches both "#port=5353" and "port=1234" (any number))
+	re := regexp.MustCompile(`#?port=\d+`)
+	updatedConf = re.ReplaceAllString(confFile, fmt.Sprintf("port=%s", dnsPort))
 
 	// If the config differs (there was an actual change), write the changes
 	if confFile != updatedConf {

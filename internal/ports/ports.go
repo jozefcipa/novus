@@ -40,10 +40,18 @@ func parseLsof(lsofRecords []string) map[string]string {
 
 type PortUsage = map[string]string
 
-func CheckIfAvailable(ports ...string) PortUsage {
+func CheckPortsUsage(ports ...string) PortUsage {
 	logger.Infof("Checking ports availability...")
 	lsof := lsof(ports)
 	logger.Debugf("lsof result:\n%s", strings.Join(lsof, "\n"))
 
 	return parseLsof(lsof)
+}
+
+func IsValidPort(port string) bool {
+	// Check if port is a number between 1 and 65535
+	if p, err := net.LookupPort("tcp", port); err != nil || p < 1 || p > 65535 {
+		return false
+	}
+	return true
 }

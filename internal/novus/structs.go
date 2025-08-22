@@ -34,6 +34,9 @@ type DnsFiles struct {
 
 type NovusState struct {
 	Version string `json:"version"`
+	DNSMasq struct {
+		Port string `json:"port" validate:"required,hostname_port"`
+	} `json:"dnsMasq"`
 	// Track files that we create for DNS
 	// As we write into shared directory, we can later on only delete files that we're sure have been created by us
 	// e.g. /etc/resolver directory

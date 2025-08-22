@@ -4,6 +4,7 @@ import (
 	"os"
 	"slices"
 
+	"github.com/jozefcipa/novus/internal/dns_manager"
 	"github.com/jozefcipa/novus/internal/dnsmasq"
 	"github.com/jozefcipa/novus/internal/homebrew"
 	"github.com/jozefcipa/novus/internal/logger"
@@ -29,9 +30,9 @@ var startCmd = &cobra.Command{
 		novusState := novus.GetState()
 
 		// Check if ports are available
-		portsUsage := ports.CheckIfAvailable(slices.Concat(nginx.Ports, []string{dnsmasq.Port})...)
-		nginx.EnsurePortsAvailable(portsUsage)
-		dnsmasq.EnsurePortAvailable(portsUsage)
+		portsUsage := ports.CheckPortsUsage(slices.Concat(nginx.Ports, []string{dns_manager.GetDNSPort(novusState)})...)
+		nginx.CheckPortsAvailability(portsUsage)
+		dns_manager.EnsurePort(portsUsage, novusState)
 
 		// Restart services
 		// Nginx

@@ -30,7 +30,7 @@ func EnsureSSLCertificates(conf config.NovusConfig, novusState *novus.NovusState
 	domainCerts, hasNewCerts := createCertsForConfig(conf, novusState.Apps[appName])
 
 	if hasNewCerts || hasNewInternalCerts {
-		logger.Checkf("SSL certificates updated [%s]", appName)
+		logger.Checkf("SSL certificates updated")
 	} else {
 		logger.Debugf("SSL certificates are up to date")
 	}
